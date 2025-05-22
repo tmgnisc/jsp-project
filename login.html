@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Nepal Navigator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-[#002B5B] text-white shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <a href="index.html" class="text-2xl font-bold text-[#F4A300]">Nepal Navigator</a>
+                <div class="hidden md:flex space-x-6">
+                    <a href="index.html" class="hover:text-[#F4A300]">Home</a>
+                    <a href="foods.html" class="hover:text-[#F4A300]">Foods</a>
+                    <a href="scenery.html" class="hover:text-[#F4A300]">Attractions</a>
+                    <a href="music.html" class="hover:text-[#F4A300]">Music</a>
+                    <a href="movies.html" class="hover:text-[#F4A300]">Movies</a>
+                    <a href="sports.html" class="hover:text-[#F4A300]">Sports</a>
+                    <a href="login.html" class="hover:text-[#F4A300]">Login/Register</a>
+                </div>
+                <button class="md:hidden">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Section -->
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
+            <div>
+                <h2 class="mt-6 text-center text-3xl font-extrabold text-[#002B5B]">
+                    Sign in to your account
+                </h2>
+                <p class="mt-2 text-center text-sm text-gray-600">
+                    Or
+                    <a href="register.html" class="font-medium text-[#F4A300] hover:text-[#A31621]">
+                        create a new account
+                    </a>
+                </p>
+            </div>
+            <form class="mt-8 space-y-6" action="#" method="POST">
+                <div class="rounded-md shadow-sm -space-y-px">
+                    <div>
+                        <label for="email-address" class="sr-only">Email address</label>
+                        <input id="email-address" name="email" type="email" autocomplete="email" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] focus:z-10 sm:text-sm" placeholder="Email address">
+                    </div>
+                    <div>
+                        <label for="password" class="sr-only">Password</label>
+                        <input id="password" name="password" type="password" autocomplete="current-password" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] focus:z-10 sm:text-sm" placeholder="Password">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-[#F4A300] focus:ring-[#F4A300] border-gray-300 rounded">
+                        <label for="remember-me" class="ml-2 block text-sm text-gray-900">
+                            Remember me
+                        </label>
+                    </div>
+
+                    <div class="text-sm">
+                        <a href="#" onclick="showForgotPasswordModal()" class="font-medium text-[#F4A300] hover:text-[#A31621]">
+                            Forgot your password?
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#F4A300] hover:bg-[#A31621] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F4A300]">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        Sign in
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-[#002B5B] mb-4">Reset Password</h3>
+                
+                <!-- Step 1: Email Input -->
+                <div id="step1" class="space-y-4">
+                    <div>
+                        <label for="reset-email" class="block text-sm font-medium text-gray-700">Email address</label>
+                        <input type="email" id="reset-email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" placeholder="Enter your email">
+                    </div>
+                    <button onclick="sendOTP()" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#F4A300] hover:bg-[#A31621] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F4A300]">
+                        Send OTP
+                    </button>
+                </div>
+
+                <!-- Step 2: OTP Verification -->
+                <div id="step2" class="space-y-4 hidden">
+                    <div>
+                        <label for="otp" class="block text-sm font-medium text-gray-700">Enter OTP</label>
+                        <input type="text" id="otp" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" placeholder="Enter OTP">
+                    </div>
+                    <button onclick="verifyOTP()" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#F4A300] hover:bg-[#A31621] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F4A300]">
+                        Verify OTP
+                    </button>
+                </div>
+
+                <!-- Step 3: New Password -->
+                <div id="step3" class="space-y-4 hidden">
+                    <div>
+                        <label for="new-password" class="block text-sm font-medium text-gray-700">New Password</label>
+                        <input type="password" id="new-password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" placeholder="Enter new password">
+                    </div>
+                    <div>
+                        <label for="confirm-password" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                        <input type="password" id="confirm-password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" placeholder="Confirm new password">
+                    </div>
+                    <button onclick="resetPassword()" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#F4A300] hover:bg-[#A31621] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F4A300]">
+                        Reset Password
+                    </button>
+                </div>
+
+                <div class="mt-4">
+                    <button onclick="closeForgotPasswordModal()" class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#F4A300]">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showForgotPasswordModal() {
+            document.getElementById('forgotPasswordModal').classList.remove('hidden');
+        }
+
+        function closeForgotPasswordModal() {
+            document.getElementById('forgotPasswordModal').classList.add('hidden');
+            // Reset steps
+            document.getElementById('step1').classList.remove('hidden');
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('step3').classList.add('hidden');
+        }
+
+        function sendOTP() {
+            // Here you would typically make an API call to send OTP
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.remove('hidden');
+        }
+
+        function verifyOTP() {
+            // Here you would typically verify the OTP
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('step3').classList.remove('hidden');
+        }
+
+        function resetPassword() {
+            // Here you would typically make an API call to reset password
+            closeForgotPasswordModal();
+            // Show success message
+            alert('Password has been reset successfully!');
+        }
+    </script>
+
+    <!-- Footer -->
+    <footer class="bg-[#002B5B] text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold text-[#F4A300] mb-4">Nepal Navigator</h3>
+                    <p class="text-gray-300">Discover the beauty and culture of Nepal through our comprehensive guide.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="text-gray-300 hover:text-[#F4A300]">Home</a></li>
+                        <li><a href="foods.html" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
+                        <li><a href="scenery.html" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
+                        <li><a href="music.html" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contact Us</h4>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><i class="fas fa-envelope mr-2"></i> info@nepalnavigator.com</li>
+                        <li><i class="fas fa-phone mr-2"></i> +977 1234567890</li>
+                        <li><i class="fas fa-map-marker-alt mr-2"></i> Kathmandu, Nepal</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Follow Us</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-300 hover:text-[#F4A300]"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-300 hover:text-[#F4A300]"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-300 hover:text-[#F4A300]"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-300 hover:text-[#F4A300]"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
+                <p>&copy; 2024 Nepal Navigator. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html> 
