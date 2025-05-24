@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Detail - Nepal Navigator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .image-gallery img {
+            transition: transform 0.3s ease;
+        }
+        .image-gallery img:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-2xl font-bold text-[#002B5B]">Nepal Navigator</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="foods.html" class="text-gray-600 hover:text-[#F4A300]">Foods</a>
+                    <a href="attractions.html" class="text-gray-600 hover:text-[#F4A300]">Attractions</a>
+                    <a href="music.html" class="text-gray-600 hover:text-[#F4A300]">Music</a>
+                    <a href="movies.html" class="text-gray-600 hover:text-[#F4A300]">Movies</a>
+                    <a href="sports.html" class="text-gray-600 hover:text-[#F4A300]">Sports</a>
+                    <button class="bg-[#F4A300] text-white px-4 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
+                        Login / Register
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Breadcrumb -->
+        <div class="mb-6">
+            <nav class="flex" aria-label="Breadcrumb">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li class="inline-flex items-center">
+                        <a href="index.html" class="text-gray-600 hover:text-[#F4A300]">Home</a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <a href="movies.html" class="text-gray-600 hover:text-[#F4A300]">Movies</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                            <span class="text-gray-500">Loot</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <!-- Movie Detail -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
+                <!-- Image Gallery -->
+                <div class="space-y-4">
+                    <div class="relative h-96 rounded-lg overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
+                             alt="Loot" 
+                             class="w-full h-full object-cover">
+                        <div class="absolute top-4 right-4">
+                            <button class="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100">
+                                <i class="fas fa-heart text-red-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-4 gap-4">
+                        <img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" 
+                             alt="Loot" 
+                             class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
+                        <img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" 
+                             alt="Loot" 
+                             class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
+                        <img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" 
+                             alt="Loot" 
+                             class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
+                        <img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" 
+                             alt="Loot" 
+                             class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
+                    </div>
+                </div>
+
+                <!-- Movie Information -->
+                <div class="space-y-6">
+                    <div>
+                        <h1 class="text-3xl font-bold text-[#002B5B]">Loot</h1>
+                        <div class="flex items-center mt-2">
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <span class="text-gray-600 ml-2">5.0 (200 reviews)</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <h2 class="text-xl font-semibold text-[#002B5B]">Plot Summary</h2>
+                            <p class="text-gray-600 mt-2">
+                                Loot is a 2012 Nepali comedy film directed by Nischal Basnet. The film follows the story of four friends who plan a bank robbery to solve their financial problems. The movie was a commercial success and is considered one of the best Nepali films of all time.
+                            </p>
+                        </div>
+
+                        <div>
+                            <h2 class="text-xl font-semibold text-[#002B5B]">Movie Details</h2>
+                            <div class="mt-2 space-y-2">
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-film w-6"></i>
+                                    <span>Director: Nischal Basnet</span>
+                                </div>
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-calendar w-6"></i>
+                                    <span>Release Year: 2012</span>
+                                </div>
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-clock w-6"></i>
+                                    <span>Duration: 2h 15m</span>
+                                </div>
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-tag w-6"></i>
+                                    <span>Genre: Comedy, Crime</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h2 class="text-xl font-semibold text-[#002B5B]">Cast</h2>
+                            <ul class="list-disc list-inside text-gray-600 mt-2">
+                                <li>Dayahang Rai</li>
+                                <li>Saugat Malla</li>
+                                <li>Karma Shakya</li>
+                                <li>Srijana Subba</li>
+                                <li>Deepak Chhetri</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="border-t border-gray-200 p-8">
+                <h2 class="text-2xl font-semibold text-[#002B5B] mb-6">Comments</h2>
+                
+                <!-- Comment Form -->
+                <div class="mb-8">
+                    <form class="space-y-4">
+                        <div>
+                            <textarea class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F4A300]" 
+                                      rows="3" 
+                                      placeholder="Write your comment..."></textarea>
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="submit" class="bg-[#F4A300] text-white px-6 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
+                                Post Comment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Comments List -->
+                <div class="space-y-6">
+                    <!-- Comment 1 -->
+                    <div class="flex space-x-4">
+                        <img src="https://ui-avatars.com/api/?name=John+Doe&background=002B5B&color=fff" 
+                             alt="User" 
+                             class="w-12 h-12 rounded-full">
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-semibold text-[#002B5B]">John Doe</h3>
+                                <span class="text-sm text-gray-500">2 days ago</span>
+                            </div>
+                            <p class="text-gray-600 mt-1">
+                                One of the best Nepali movies I've ever watched! The comedy timing is perfect and the story keeps you engaged throughout.
+                            </p>
+                            <div class="flex items-center space-x-4 mt-2">
+                                <button class="text-gray-500 hover:text-[#F4A300]">
+                                    <i class="far fa-thumbs-up"></i> Like
+                                </button>
+                                <button class="text-gray-500 hover:text-[#F4A300]">
+                                    <i class="far fa-comment"></i> Reply
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comment 2 -->
+                    <div class="flex space-x-4">
+                        <img src="https://ui-avatars.com/api/?name=Jane+Smith&background=002B5B&color=fff" 
+                             alt="User" 
+                             class="w-12 h-12 rounded-full">
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-semibold text-[#002B5B]">Jane Smith</h3>
+                                <span class="text-sm text-gray-500">1 week ago</span>
+                            </div>
+                            <p class="text-gray-600 mt-1">
+                                The performances by Dayahang Rai and Saugat Malla are outstanding. This movie set a new standard for Nepali cinema.
+                            </p>
+                            <div class="flex items-center space-x-4 mt-2">
+                                <button class="text-gray-500 hover:text-[#F4A300]">
+                                    <i class="far fa-thumbs-up"></i> Like
+                                </button>
+                                <button class="text-gray-500 hover:text-[#F4A300]">
+                                    <i class="far fa-comment"></i> Reply
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-[#002B5B] text-white mt-12">
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold text-[#F4A300] mb-4">Nepal Navigator</h3>
+                    <p class="text-gray-300">
+                        Discover the rich culture, cuisine, and beauty of Nepal through our comprehensive guide.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="foods.html" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
+                        <li><a href="attractions.html" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
+                        <li><a href="music.html" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
+                        <li><a href="movies.html" class="text-gray-300 hover:text-[#F4A300]">Movies</a></li>
+                        <li><a href="sports.html" class="text-gray-300 hover:text-[#F4A300]">Sports</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contact Us</h4>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><i class="fas fa-envelope mr-2"></i> info@nepalnavigator.com</li>
+                        <li><i class="fas fa-phone mr-2"></i> +977 1234567890</li>
+                        <li><i class="fas fa-map-marker-alt mr-2"></i> Kathmandu, Nepal</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Follow Us</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-300 hover:text-[#F4A300]">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-[#F4A300]">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-[#F4A300]">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-[#F4A300]">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
+                <p>&copy; 2024 Nepal Navigator. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html> 
