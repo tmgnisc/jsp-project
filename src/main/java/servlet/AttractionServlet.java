@@ -10,25 +10,25 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
-import controller.FoodItemControllerImplements;
-import model.FoodItem;
+import controller.AttractionControllerImplements;
+import model.Attraction;
 import utility.DatabaseConnection;
 import utility.DynamicTableCreator;
 
-@SuppressWarnings("serial")
-@WebServlet("/foods")
+@WebServlet("/attractions")
 @MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, // 2MB
                  maxFileSize = 1024 * 1024 * 10,      // 10MB
                  maxRequestSize = 1024 * 1024 * 50)   // 50MB
-public class FoodServlet extends HttpServlet {
-    private FoodItemControllerImplements controller;
-    private static final String UPLOAD_DIR = "assets/img"; // Relative to web app root
+public class AttractionServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private AttractionControllerImplements controller;
+    private static final String UPLOAD_DIR = "assets/img";
     private String uploadPath;
 
     @Override
     public void init() throws ServletException {
-        DynamicTableCreator.createTableFromModel(FoodItem.class, "food_items"); // Ensure table exists
-        controller = new FoodItemControllerImplements();
+        DynamicTableCreator.createTableFromModel(Attraction.class, "attractions"); // Ensure table exists
+        controller = new AttractionControllerImplements();
         uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIR;
         System.out.println("Upload path: " + uploadPath);
         File uploadDir = new File(uploadPath);
@@ -51,36 +51,36 @@ public class FoodServlet extends HttpServlet {
         request.setAttribute("notify", request.getSession().getAttribute("notify") != null ? request.getSession().getAttribute("notify") : "");
         request.getSession().removeAttribute("notify");
 
-        if ("getFoodItem".equals(action) && idStr != null) {
-            // Handle AJAX request for food item details
+        if ("getAttraction".equals(action) && idStr != null) {
             try {
                 int id = Integer.parseInt(idStr);
-                List<FoodItem> foodItems = controller.getFoodItemById(id);
+                List<Attraction> attractions = controller.getAttractionById(id);
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
-                if (!foodItems.isEmpty()) {
-                    FoodItem item = foodItems.get(0);
-                    // Convert FoodItem to JSON
+                if (!attractions.isEmpty()) {
+                    Attraction item = attractions.get(0);
                     String json = String.format(
-                        "{\"id\":%d,\"name\":\"%s\",\"description\":\"%s\",\"category\":\"%s\",\"image\":\"%s\",\"ingredients\":\"%s\",\"preparationMethod\":\"%s\",\"servingSuggestions\":\"%s\",\"culturalSignificance\":\"%s\"}",
+                        "{\"id\":%d,\"name\":\"%s\",\"location\":\"%s\",\"description\":\"%s\",\"category\":\"%s\",\"image\":\"%s\",\"bestTimeToVisit\":\"%s\",\"howToReach\":\"%s\",\"entryFee\":\"%s\",\"openingHours\":\"%s\",\"nearbyAttractions\":\"%s\"}",
                         item.getId(),
                         item.getName() != null ? item.getName().replace("\"", "\\\"") : "",
+                        item.getLocation() != null ? item.getLocation().replace("\"", "\\\"") : "",
                         item.getDescription() != null ? item.getDescription().replace("\"", "\\\"") : "",
                         item.getCategory() != null ? item.getCategory().replace("\"", "\\\"") : "",
                         item.getImage() != null ? item.getImage().replace("\"", "\\\"") : "",
-                        item.getIngredients() != null ? item.getIngredients().replace("\"", "\\\"") : "",
-                        item.getPreparationMethod() != null ? item.getPreparationMethod().replace("\"", "\\\"") : "",
-                        item.getServingSuggestions() != null ? item.getServingSuggestions().replace("\"", "\\\"") : "",
-                        item.getCulturalSignificance() != null ? item.getCulturalSignificance().replace("\"", "\\\"") : ""
+                        item.getBestTimeToVisit() != null ? item.getBestTimeToVisit().replace("\"", "\\\"") : "",
+                        item.getHowToReach() != null ? item.getHowToReach().replace("\"", "\\\"") : "",
+                        item.getEntryFee() != null ? item.getEntryFee().replace("\"", "\\\"") : "",
+                        item.getOpeningHours() != null ? item.getOpeningHours().replace("\"", "\\\"") : "",
+                        item.getNearbyAttractions() != null ? item.getNearbyAttractions().replace("\"", "\\\"") : ""
                     );
                     response.getWriter().write(json);
                 } else {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                    response.getWriter().write("{\"error\":\"Food item not found\"}");
+                    response.getWriter().write("{\"error\":\"Attraction not found\"}");
                 }
             } catch (NumberFormatException e) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().write("{\"error\":\"Invalid food item ID\"}");
+                response.getWriter().write("{\"error\":\"Invalid attraction ID\"}");
             }
             return;
         }
@@ -88,22 +88,22 @@ public class FoodServlet extends HttpServlet {
         if ("edit".equals(action) && idStr != null) {
             try {
                 int id = Integer.parseInt(idStr);
-                List<FoodItem> foodItems = controller.getFoodItemById(id);
-                System.out.println("Retrieved " + (foodItems != null ? foodItems.size() : 0) + " items for edit with ID: " + id);
-                if (!foodItems.isEmpty()) {
-                    request.setAttribute("foodItemToEdit", foodItems.get(0));
+                List<Attraction> attractions = controller.getAttractionById(id);
+                System.out.println("Retrieved " + (attractions != null ? attractions.size() : 0) + " items for edit with ID: " + id);
+                if (!attractions.isEmpty()) {
+                    request.setAttribute("attractionToEdit", attractions.get(0));
                 } else {
-                    request.getSession().setAttribute("notify", "No food item found with ID: " + id);
+                    request.getSession().setAttribute("notify", "No attraction found with ID: " + id);
                 }
             } catch (NumberFormatException e) {
-                request.getSession().setAttribute("notify", "Invalid food item ID.");
+                request.getSession().setAttribute("notify", "Invalid attraction ID.");
                 System.err.println("NumberFormatException: " + e.getMessage());
             }
         }
 
-        List<FoodItem> foodItems = controller.getAllData();
-        request.setAttribute("foodItems", foodItems);
-        request.getRequestDispatcher("/admin-side/foods.jsp").forward(request, response);
+        List<Attraction> attractions = controller.getAllData();
+        request.setAttribute("attractions", attractions);
+        request.getRequestDispatcher("/admin-side/attractions.jsp").forward(request, response);
     }
 
     @Override
@@ -111,18 +111,17 @@ public class FoodServlet extends HttpServlet {
             throws ServletException, IOException {
         String action = request.getParameter("action");
         String idStr = request.getParameter("id");
-        System.out.println("doPost: action=" + action + ", id=" + idStr);
-
         String name = request.getParameter("name");
+        String location = request.getParameter("location");
         String description = request.getParameter("description");
         String category = request.getParameter("category");
-        String ingredients = request.getParameter("ingredients");
-        String preparationMethod = request.getParameter("preparationMethod");
-        String servingSuggestions = request.getParameter("servingSuggestions");
-        String culturalSignificance = request.getParameter("culturalSignificance");
+        String bestTimeToVisit = request.getParameter("bestTimeToVisit");
+        String howToReach = request.getParameter("howToReach");
+        String entryFee = request.getParameter("entryFee");
+        String openingHours = request.getParameter("openingHours");
+        String nearbyAttractions = request.getParameter("nearbyAttractions");
 
         String imagePath = null;
-        // Only process file upload for add or edit actions
         if ("add".equals(action) || "edit".equals(action)) {
             Part filePart = request.getPart("image");
             if (filePart != null && filePart.getSize() > 0) {
@@ -132,7 +131,7 @@ public class FoodServlet extends HttpServlet {
                 try {
                     filePart.write(absoluteFilePath);
                     System.out.println("File saved successfully to: " + absoluteFilePath);
-                    imagePath = "/" + UPLOAD_DIR + "/" + fileName; // Relative URL: /assets/img/bangkok.png
+                    imagePath = "/" + UPLOAD_DIR + "/" + fileName;
                     System.out.println("Image path stored: " + imagePath);
                 } catch (IOException e) {
                     System.err.println("Error saving file: " + e.getMessage());
@@ -145,40 +144,36 @@ public class FoodServlet extends HttpServlet {
         if ("delete".equals(action) && idStr != null) {
             try {
                 int id = Integer.parseInt(idStr);
-                boolean success = controller.deleteFoodItem(id);
-                notifyMessage = success ? "Food item deleted successfully!" : "Failed to delete food item.";
+                boolean success = controller.deleteAttraction(id);
+                notifyMessage = success ? "Attraction deleted successfully!" : "Failed to delete attraction.";
             } catch (NumberFormatException e) {
-                notifyMessage = "Invalid food item ID.";
-                System.err.println("NumberFormatException: " + e.getMessage());
+                notifyMessage = "Invalid attraction ID.";
             }
         } else if ("edit".equals(action) && idStr != null) {
             try {
                 int id = Integer.parseInt(idStr);
-                List<FoodItem> existingItems = controller.getFoodItemById(id);
+                List<Attraction> existingItems = controller.getAttractionById(id);
                 String finalImagePath = (imagePath != null) ? imagePath : (existingItems.isEmpty() ? null : existingItems.get(0).getImage());
-                FoodItem foodItem = new FoodItem(id, name, description, category, finalImagePath, 
-                                                ingredients, preparationMethod, servingSuggestions, 
-                                                culturalSignificance);
-                boolean success = controller.editFoodItem(foodItem);
-                notifyMessage = success ? "Food item updated successfully!" : "Failed to update food item.";
+                Attraction attraction = new Attraction(id, name, location, description, category, finalImagePath,
+                                                      bestTimeToVisit, howToReach, entryFee, openingHours, nearbyAttractions);
+                boolean success = controller.editAttraction(attraction);
+                notifyMessage = success ? "Attraction updated successfully!" : "Failed to update attraction.";
             } catch (NumberFormatException e) {
-                notifyMessage = "Invalid food item ID.";
-                System.err.println("NumberFormatException: " + e.getMessage());
+                notifyMessage = "Invalid attraction ID.";
             }
         } else if ("add".equals(action)) {
-            FoodItem foodItem = new FoodItem(0, name, description, category, imagePath, 
-                                             ingredients, preparationMethod, servingSuggestions, 
-                                             culturalSignificance);
-            boolean success = controller.addFoodItem(foodItem);
-            notifyMessage = success ? "Food item added successfully!" : "Failed to add food item.";
+            Attraction attraction = new Attraction(0, name, location, description, category, imagePath,
+                                                  bestTimeToVisit, howToReach, entryFee, openingHours, nearbyAttractions);
+            boolean success = controller.addAttraction(attraction);
+            notifyMessage = success ? "Attraction added successfully!" : "Failed to add attraction.";
         } else {
             notifyMessage = "Invalid action.";
         }
 
         request.getSession().setAttribute("notify", notifyMessage);
-        List<FoodItem> foodItems = controller.getAllData();
-        request.setAttribute("foodItems", foodItems);
-        request.getRequestDispatcher("/admin-side/foods.jsp").forward(request, response);
+        List<Attraction> attractions = controller.getAllData();
+        request.setAttribute("attractions", attractions);
+        request.getRequestDispatcher("/admin-side/attractions.jsp").forward(request, response);
     }
 
     @Override

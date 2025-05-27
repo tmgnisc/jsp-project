@@ -12,7 +12,7 @@ import utility.DatabaseConnection;
 public class FoodItemControllerImplements implements FoodItemController {
 
     public FoodItemControllerImplements() {
-        // No need to initialize connection here; DatabaseConnection handles it
+        
     }
 
     private boolean ensureConnection() {
@@ -96,10 +96,12 @@ public class FoodItemControllerImplements implements FoodItemController {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, id);
+            System.out.println("Executing DELETE query for ID: " + id);
             int rowsAffected = pstmt.executeUpdate();
+            System.out.println("Rows affected by DELETE: " + rowsAffected);
             return rowsAffected > 0;
         } catch (SQLException e) {
-            System.err.println("Error deleting food item: " + e.getMessage());
+            System.err.println("Error deleting food item with ID " + id + ": " + e.getMessage());
             e.printStackTrace();
             return false;
         }

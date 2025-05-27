@@ -23,40 +23,40 @@
 <body class="bg-gray-100">
     <div class="flex h-screen">
         <!-- Sidebar -->
-        <div class="w-64 bg-[#002B5B] text-white">
+               <div class="w-64 bg-[#002B5B] text-white">
             <div class="p-4">
                 <h2 class="text-2xl font-bold text-[#F4A300]">Admin Panel</h2>
             </div>
             <nav class="mt-8">
-                <a href="dashboard.html" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="dashboard" class="flex items-center px-4 py-3 bg-[#F4A300] text-white">
                     <i class="fas fa-tachometer-alt w-6"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="${pageContext.request.contextPath}/food" class="flex items-center px-4 py-3 bg-[#F4A300] text-white">
+                <a href="foods" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-utensils w-6"></i>
                     <span>Foods</span>
                 </a>
-                <a href="attractions.html" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="attractions" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-mountain w-6"></i>
                     <span>Attractions</span>
                 </a>
-                <a href="music.html" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="music" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-music w-6"></i>
                     <span>Music</span>
                 </a>
-                <a href="movies.html" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="movies" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-film w-6"></i>
                     <span>Movies</span>
                 </a>
-                <a href="sports.html" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="sports" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-running w-6"></i>
                     <span>Sports</span>
                 </a>
-                <a href="users.html" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="users" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-users w-6"></i>
                     <span>Users</span>
                 </a>
-                <a href="../index.html" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="index" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-sign-out-alt w-6"></i>
                     <span>Logout</span>
                 </a>
@@ -134,13 +134,13 @@
                                     <button onclick="showEditFoodModal(<%=item.getId()%>)" class="text-[#F4A300] hover:text-[#A31621] mr-3">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <form action="${pageContext.request.contextPath}/food" method="post" style="display:inline;">
-                                        <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" value="<%=item.getId()%>">
-                                        <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this food item?')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                    <form action="${pageContext.request.contextPath}/foods" method="post" style="display:inline;">
+									    <input type="hidden" name="action" value="delete">
+									    <input type="hidden" name="id" value="<%=item.getId()%>">
+									    <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this food item?')">
+									        <i class="fas fa-trash"></i>
+									    </button>
+									</form>
                                 </td>
                             </tr>
                             <%
@@ -159,7 +159,7 @@
         <div class="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
             <div class="mt-3">
                 <h3 class="text-lg font-medium text-[#002B5B] mb-4" id="modalTitle">Add New Food</h3>
-                <form id="foodForm" action="${pageContext.request.contextPath}/food" method="post" enctype="multipart/form-data" class="space-y-4">
+                <form id="foodForm" action="${pageContext.request.contextPath}/foods" method="post" enctype="multipart/form-data" class="space-y-4">
                     <input type="hidden" name="action" id="formAction" value="add">
                     <input type="hidden" name="id" id="foodId" value="0">
                     <div>
@@ -215,41 +215,51 @@
         </div>
     </div>
 
-    <script>
-        function showAddFoodModal() {
-            document.getElementById('modalTitle').textContent = 'Add New Food';
-            document.getElementById('formAction').value = 'add';
-            document.getElementById('foodId').value = '0';
-            document.getElementById('foodForm').reset();
-            document.getElementById('foodModal').classList.remove('hidden');
-        }
-
-        function showEditFoodModal(id) {
-            document.getElementById('modalTitle').textContent = 'Edit Food';
-            document.getElementById('formAction').value = 'edit';
-            document.getElementById('foodId').value = id;
-
-            <%
-                FoodItem foodItemToEdit = (FoodItem) request.getAttribute("foodItemToEdit");
-                if (foodItemToEdit != null) {
-            %>
-                document.getElementById('foodName').value = '<%= foodItemToEdit.getName() != null ? foodItemToEdit.getName() : "" %>';
-                document.getElementById('description').value = '<%= foodItemToEdit.getDescription() != null ? foodItemToEdit.getDescription() : "" %>';
-                document.getElementById('category').value = '<%= foodItemToEdit.getCategory() != null ? foodItemToEdit.getCategory() : "" %>';
-                document.getElementById('ingredients').value = '<%= foodItemToEdit.getIngredients() != null ? foodItemToEdit.getIngredients() : "" %>';
-                document.getElementById('preparationMethod').value = '<%= foodItemToEdit.getPreparationMethod() != null ? foodItemToEdit.getPreparationMethod() : "" %>';
-                document.getElementById('servingSuggestions').value = '<%= foodItemToEdit.getServingSuggestions() != null ? foodItemToEdit.getServingSuggestions() : "" %>';
-                document.getElementById('culturalSignificance').value = '<%= foodItemToEdit.getCulturalSignificance() != null ? foodItemToEdit.getCulturalSignificance() : "" %>';
-            <%
-                }
-            %>
-
-            document.getElementById('foodModal').classList.remove('hidden');
-        }
-
-        function closeFoodModal() {
-            document.getElementById('foodModal').classList.add('hidden');
-        }
-    </script>
+	<script>
+	function showAddFoodModal() {
+	    document.getElementById('modalTitle').textContent = 'Add New Food';
+	    document.getElementById('formAction').value = 'add';
+	    document.getElementById('foodId').value = '0';
+	    document.getElementById('foodForm').reset();
+	    document.getElementById('foodModal').classList.remove('hidden');
+	}
+	
+	function showEditFoodModal(id) {
+	    document.getElementById('modalTitle').textContent = 'Edit Food';
+	    document.getElementById('formAction').value = 'edit';
+	    document.getElementById('foodId').value = id;
+	
+	    // Fetch food item data via AJAX
+	    fetch('${pageContext.request.contextPath}/foods?action=getFoodItem&id=' + id)
+	        .then(response => {
+	            if (!response.ok) {
+	                throw new Error('Network response was not ok');
+	            }
+	            return response.json();
+	        })
+	        .then(data => {
+	            if (data.error) {
+	                alert(data.error);
+	                return;
+	            }
+	            document.getElementById('foodName').value = data.name || '';
+	            document.getElementById('description').value = data.description || '';
+	            document.getElementById('category').value = data.category || '';
+	            document.getElementById('ingredients').value = data.ingredients || '';
+	            document.getElementById('preparationMethod').value = data.preparationMethod || '';
+	            document.getElementById('servingSuggestions').value = data.servingSuggestions || '';
+	            document.getElementById('culturalSignificance').value = data.culturalSignificance || '';
+	            document.getElementById('foodModal').classList.remove('hidden');
+	        })
+	        .catch(error => {
+	            console.error('Error fetching food item:', error);
+	            alert('Failed to load food item data.');
+	        });
+	}
+	
+	function closeFoodModal() {
+	    document.getElementById('foodModal').classList.add('hidden');
+	}
+	</script>
 </body>
 </html>

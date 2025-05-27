@@ -10,25 +10,25 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
-import controller.FoodItemControllerImplements;
-import model.FoodItem;
+import controller.MusicControllerImplements;
+import model.Music;
 import utility.DatabaseConnection;
 import utility.DynamicTableCreator;
 
-@SuppressWarnings("serial")
-@WebServlet("/foods")
+@WebServlet("/music")
 @MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, // 2MB
                  maxFileSize = 1024 * 1024 * 10,      // 10MB
                  maxRequestSize = 1024 * 1024 * 50)   // 50MB
-public class FoodServlet extends HttpServlet {
-    private FoodItemControllerImplements controller;
-    private static final String UPLOAD_DIR = "assets/img"; // Relative to web app root
+public class MusicServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private MusicControllerImplements controller;
+    private static final String UPLOAD_DIR = "assets/img";
     private String uploadPath;
 
     @Override
     public void init() throws ServletException {
-        DynamicTableCreator.createTableFromModel(FoodItem.class, "food_items"); // Ensure table exists
-        controller = new FoodItemControllerImplements();
+        DynamicTableCreator.createTableFromModel(Music.class, "music"); // Ensure table exists
+        controller = new MusicControllerImplements();
         uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIR;
         System.out.println("Upload path: " + uploadPath);
         File uploadDir = new File(uploadPath);
@@ -51,36 +51,34 @@ public class FoodServlet extends HttpServlet {
         request.setAttribute("notify", request.getSession().getAttribute("notify") != null ? request.getSession().getAttribute("notify") : "");
         request.getSession().removeAttribute("notify");
 
-        if ("getFoodItem".equals(action) && idStr != null) {
-            // Handle AJAX request for food item details
+        if ("getMusic".equals(action) && idStr != null) {
             try {
                 int id = Integer.parseInt(idStr);
-                List<FoodItem> foodItems = controller.getFoodItemById(id);
+                List<Music> musicList = controller.getMusicById(id);
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
-                if (!foodItems.isEmpty()) {
-                    FoodItem item = foodItems.get(0);
-                    // Convert FoodItem to JSON
+                if (!musicList.isEmpty()) {
+                    Music item = musicList.get(0);
                     String json = String.format(
-                        "{\"id\":%d,\"name\":\"%s\",\"description\":\"%s\",\"category\":\"%s\",\"image\":\"%s\",\"ingredients\":\"%s\",\"preparationMethod\":\"%s\",\"servingSuggestions\":\"%s\",\"culturalSignificance\":\"%s\"}",
+                        "{\"id\":%d,\"artistName\":\"%s\",\"genre\":\"%s\",\"formationYear\":%d,\"description\":\"%s\",\"popularSongs\":\"%s\",\"achievements\":\"%s\",\"youtubeChannelUrl\":\"%s\",\"image\":\"%s\"}",
                         item.getId(),
-                        item.getName() != null ? item.getName().replace("\"", "\\\"") : "",
+                        item.getArtistName() != null ? item.getArtistName().replace("\"", "\\\"") : "",
+                        item.getGenre() != null ? item.getGenre().replace("\"", "\\\"") : "",
+                        item.getFormationYear(),
                         item.getDescription() != null ? item.getDescription().replace("\"", "\\\"") : "",
-                        item.getCategory() != null ? item.getCategory().replace("\"", "\\\"") : "",
-                        item.getImage() != null ? item.getImage().replace("\"", "\\\"") : "",
-                        item.getIngredients() != null ? item.getIngredients().replace("\"", "\\\"") : "",
-                        item.getPreparationMethod() != null ? item.getPreparationMethod().replace("\"", "\\\"") : "",
-                        item.getServingSuggestions() != null ? item.getServingSuggestions().replace("\"", "\\\"") : "",
-                        item.getCulturalSignificance() != null ? item.getCulturalSignificance().replace("\"", "\\\"") : ""
+                        item.getPopularSongs() != null ? item.getPopularSongs().replace("\"", "\\\"") : "",
+                        item.getAchievements() != null ? item.getAchievements().replace("\"", "\\\"") : "",
+                        item.getYoutubeChannelUrl() != null ? item.getYoutubeChannelUrl().replace("\"", "\\\"") : "",
+                        item.getImage() != null ? item.getImage().replace("\"", "\\\"") : ""
                     );
                     response.getWriter().write(json);
                 } else {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                    response.getWriter().write("{\"error\":\"Food item not found\"}");
+                    response.getWriter().write("{\"error\":\"Music not found\"}");
                 }
             } catch (NumberFormatException e) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getWriter().write("{\"error\":\"Invalid food item ID\"}");
+                response.getWriter().write("{\"error\":\"Invalid music ID\"}");
             }
             return;
         }
@@ -88,22 +86,22 @@ public class FoodServlet extends HttpServlet {
         if ("edit".equals(action) && idStr != null) {
             try {
                 int id = Integer.parseInt(idStr);
-                List<FoodItem> foodItems = controller.getFoodItemById(id);
-                System.out.println("Retrieved " + (foodItems != null ? foodItems.size() : 0) + " items for edit with ID: " + id);
-                if (!foodItems.isEmpty()) {
-                    request.setAttribute("foodItemToEdit", foodItems.get(0));
+                List<Music> musicList = controller.getMusicById(id);
+                System.out.println("Retrieved " + (musicList != null ? musicList.size() : 0) + " items for edit with ID: " + id);
+                if (!musicList.isEmpty()) {
+                    request.setAttribute("musicToEdit", musicList.get(0));
                 } else {
-                    request.getSession().setAttribute("notify", "No food item found with ID: " + id);
+                    request.getSession().setAttribute("notify", "No music found with ID: " + id);
                 }
             } catch (NumberFormatException e) {
-                request.getSession().setAttribute("notify", "Invalid food item ID.");
+                request.getSession().setAttribute("notify", "Invalid music ID.");
                 System.err.println("NumberFormatException: " + e.getMessage());
             }
         }
 
-        List<FoodItem> foodItems = controller.getAllData();
-        request.setAttribute("foodItems", foodItems);
-        request.getRequestDispatcher("/admin-side/foods.jsp").forward(request, response);
+        List<Music> musicList = controller.getAllData();
+        request.setAttribute("musicList", musicList);
+        request.getRequestDispatcher("/admin-side/music.jsp").forward(request, response);
     }
 
     @Override
@@ -111,18 +109,22 @@ public class FoodServlet extends HttpServlet {
             throws ServletException, IOException {
         String action = request.getParameter("action");
         String idStr = request.getParameter("id");
-        System.out.println("doPost: action=" + action + ", id=" + idStr);
-
-        String name = request.getParameter("name");
+        String artistName = request.getParameter("artistName");
+        String genre = request.getParameter("genre");
+        String formationYearStr = request.getParameter("formationYear");
         String description = request.getParameter("description");
-        String category = request.getParameter("category");
-        String ingredients = request.getParameter("ingredients");
-        String preparationMethod = request.getParameter("preparationMethod");
-        String servingSuggestions = request.getParameter("servingSuggestions");
-        String culturalSignificance = request.getParameter("culturalSignificance");
+        String popularSongs = request.getParameter("popularSongs");
+        String achievements = request.getParameter("achievements");
+        String youtubeChannelUrl = request.getParameter("youtubeChannelUrl");
+
+        int formationYear;
+        try {
+            formationYear = Integer.parseInt(formationYearStr);
+        } catch (NumberFormatException e) {
+            formationYear = 0;
+        }
 
         String imagePath = null;
-        // Only process file upload for add or edit actions
         if ("add".equals(action) || "edit".equals(action)) {
             Part filePart = request.getPart("image");
             if (filePart != null && filePart.getSize() > 0) {
@@ -132,7 +134,7 @@ public class FoodServlet extends HttpServlet {
                 try {
                     filePart.write(absoluteFilePath);
                     System.out.println("File saved successfully to: " + absoluteFilePath);
-                    imagePath = "/" + UPLOAD_DIR + "/" + fileName; // Relative URL: /assets/img/bangkok.png
+                    imagePath = "/" + UPLOAD_DIR + "/" + fileName;
                     System.out.println("Image path stored: " + imagePath);
                 } catch (IOException e) {
                     System.err.println("Error saving file: " + e.getMessage());
@@ -145,40 +147,36 @@ public class FoodServlet extends HttpServlet {
         if ("delete".equals(action) && idStr != null) {
             try {
                 int id = Integer.parseInt(idStr);
-                boolean success = controller.deleteFoodItem(id);
-                notifyMessage = success ? "Food item deleted successfully!" : "Failed to delete food item.";
+                boolean success = controller.deleteMusic(id);
+                notifyMessage = success ? "Music deleted successfully!" : "Failed to delete music.";
             } catch (NumberFormatException e) {
-                notifyMessage = "Invalid food item ID.";
-                System.err.println("NumberFormatException: " + e.getMessage());
+                notifyMessage = "Invalid music ID.";
             }
         } else if ("edit".equals(action) && idStr != null) {
             try {
                 int id = Integer.parseInt(idStr);
-                List<FoodItem> existingItems = controller.getFoodItemById(id);
+                List<Music> existingItems = controller.getMusicById(id);
                 String finalImagePath = (imagePath != null) ? imagePath : (existingItems.isEmpty() ? null : existingItems.get(0).getImage());
-                FoodItem foodItem = new FoodItem(id, name, description, category, finalImagePath, 
-                                                ingredients, preparationMethod, servingSuggestions, 
-                                                culturalSignificance);
-                boolean success = controller.editFoodItem(foodItem);
-                notifyMessage = success ? "Food item updated successfully!" : "Failed to update food item.";
+                Music music = new Music(id, artistName, genre, formationYear, description,
+                                        popularSongs, achievements, youtubeChannelUrl, finalImagePath);
+                boolean success = controller.editMusic(music);
+                notifyMessage = success ? "Music updated successfully!" : "Failed to update music.";
             } catch (NumberFormatException e) {
-                notifyMessage = "Invalid food item ID.";
-                System.err.println("NumberFormatException: " + e.getMessage());
+                notifyMessage = "Invalid music ID.";
             }
         } else if ("add".equals(action)) {
-            FoodItem foodItem = new FoodItem(0, name, description, category, imagePath, 
-                                             ingredients, preparationMethod, servingSuggestions, 
-                                             culturalSignificance);
-            boolean success = controller.addFoodItem(foodItem);
-            notifyMessage = success ? "Food item added successfully!" : "Failed to add food item.";
+            Music music = new Music(0, artistName, genre, formationYear, description,
+                                    popularSongs, achievements, youtubeChannelUrl, imagePath);
+            boolean success = controller.addMusic(music);
+            notifyMessage = success ? "Music added successfully!" : "Failed to add music.";
         } else {
             notifyMessage = "Invalid action.";
         }
 
         request.getSession().setAttribute("notify", notifyMessage);
-        List<FoodItem> foodItems = controller.getAllData();
-        request.setAttribute("foodItems", foodItems);
-        request.getRequestDispatcher("/admin-side/foods.jsp").forward(request, response);
+        List<Music> musicList = controller.getAllData();
+        request.setAttribute("musicList", musicList);
+        request.getRequestDispatcher("/admin-side/music.jsp").forward(request, response);
     }
 
     @Override
