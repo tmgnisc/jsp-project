@@ -1,5 +1,6 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="model.Movie" %>
+<%@ page import="java.util.List" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -13,12 +14,16 @@
         body {
             font-family: 'Poppins', sans-serif;
         }
+        textarea, input[type="text"], input[type="number"], input[type="url"], select {
+            width: 100%;
+            padding: 8px;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
     <div class="flex h-screen">
         <!-- Sidebar -->
-               <div class="w-64 bg-[#002B5B] text-white">
+        <div class="w-64 bg-[#002B5B] text-white">
             <div class="p-4">
                 <h2 class="text-2xl font-bold text-[#F4A300]">Admin Panel</h2>
             </div>
@@ -71,6 +76,21 @@
                 </div>
             </div>
 
+            <!-- Notification -->
+            <%
+                String notify = (String) request.getAttribute("notify");
+                if (notify != null && !notify.isEmpty()) {
+                    String alertClass = notify.contains("successfully") ? "bg-green-100 border-green-500 text-green-700" : "bg-red-100 border-red-500 text-red-700";
+            %>
+                <div class="p-8">
+                    <div class="<%= alertClass %> border-l-4 p-4 mb-6" role="alert">
+                        <p><%= notify %></p>
+                    </div>
+                </div>
+            <%
+                }
+            %>
+
             <!-- Content -->
             <div class="p-8">
                 <!-- Add New Movie Button -->
@@ -93,29 +113,42 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
+                            <%
+                                List<Movie> movieList = (List<Movie>) request.getAttribute("movieList");
+                                if (movieList != null) {
+                                    for (Movie item : movieList) {
+                            %>
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="Movie" class="w-16 h-16 object-cover rounded">
+                                    <img src="${pageContext.request.contextPath}<%=item.getImage() != null ? item.getImage() : "/images/placeholder.jpg"%>" alt="Movie" class="w-16 h-16 object-cover rounded" onerror="this.src='https://via.placeholder.com/100'">
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">Nepali Classic</div>
-                                    <div class="text-sm text-gray-500">A masterpiece of Nepali cinema</div>
+                                    <div class="text-sm font-medium text-gray-900"><%=item.getTitle()%></div>
+                                    <div class="text-sm text-gray-500"><%=item.getDescription() != null ? item.getDescription() : ""%></div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Drama</span>
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"><%=item.getGenre()%></span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">4.5/5</div>
+                                    <div class="text-sm text-gray-900"><%=item.getRating() + "/5"%></div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <button onclick="showEditMovieModal(1)" class="text-[#F4A300] hover:text-[#A31621] mr-3">
+                                    <button onclick="showEditMovieModal(<%=item.getId()%>)" class="text-[#F4A300] hover:text-[#A31621] mr-3">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button onclick="deleteMovie(1)" class="text-red-600 hover:text-red-900">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                   <form action="${pageContext.request.contextPath}/movies" method="post" style="display:inline;">
+									    <input type="hidden" name="action" value="delete">
+									    <input type="hidden" name="id" value="<%=item.getId()%>">
+									    <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this movie?')">
+									        <i class="fas fa-trash"></i>
+									    </button>
+									</form>
                                 </td>
                             </tr>
+                            <%
+                                    }
+                                }
+                            %>
                         </tbody>
                     </table>
                 </div>
@@ -128,22 +161,24 @@
         <div class="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
             <div class="mt-3">
                 <h3 class="text-lg font-medium text-[#002B5B] mb-4" id="modalTitle">Add New Movie</h3>
-                <form id="movieForm" class="space-y-4">
+                <form id="movieForm" action="${pageContext.request.contextPath}/movies" method="post" enctype="multipart/form-data" class="space-y-4">
+                    <input type="hidden" name="action" id="formAction" value="add">
+                    <input type="hidden" name="id" id="movieId" value="0">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Movie Poster</label>
-                        <input type="file" accept="image/*" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm">
+                        <input type="file" name="image" accept="image/*" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Movie Title</label>
-                        <input type="text" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" required>
+                        <input type="text" name="title" id="title" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Description</label>
-                        <textarea class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" rows="3" required></textarea>
+                        <textarea name="description" id="description" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" rows="3" required></textarea>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Genre</label>
-                        <select class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" required>
+                        <select name="genre" id="genre" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" required>
                             <option value="">Select Genre</option>
                             <option value="drama">Drama</option>
                             <option value="comedy">Comedy</option>
@@ -154,15 +189,15 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Rating</label>
-                        <input type="number" step="0.1" min="0" max="5" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" required>
+                        <input type="number" name="rating" id="rating" step="0.1" min="0" max="5" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Trailer URL</label>
-                        <input type="url" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" required>
+                        <input type="url" name="trailerUrl" id="trailerUrl" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Ticket Booking URL</label>
-                        <input type="url" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" required>
+                        <input type="url" name="ticketBookingUrl" id="ticketBookingUrl" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" required>
                     </div>
                     <div class="flex justify-end space-x-3">
                         <button type="button" onclick="closeMovieModal()" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
@@ -180,14 +215,41 @@
     <script>
         function showAddMovieModal() {
             document.getElementById('modalTitle').textContent = 'Add New Movie';
+            document.getElementById('formAction').value = 'add';
+            document.getElementById('movieId').value = '0';
             document.getElementById('movieForm').reset();
             document.getElementById('movieModal').classList.remove('hidden');
         }
 
         function showEditMovieModal(id) {
             document.getElementById('modalTitle').textContent = 'Edit Movie';
-            // Here you would typically fetch the movie data and populate the form
-            document.getElementById('movieModal').classList.remove('hidden');
+            document.getElementById('formAction').value = 'edit';
+            document.getElementById('movieId').value = id;
+
+            fetch('${pageContext.request.contextPath}/movies?action=getMovie&id=' + id)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                        return;
+                    }
+                    document.getElementById('title').value = data.title || '';
+                    document.getElementById('description').value = data.description || '';
+                    document.getElementById('genre').value = data.genre || '';
+                    document.getElementById('rating').value = data.rating || '';
+                    document.getElementById('trailerUrl').value = data.trailerUrl || '';
+                    document.getElementById('ticketBookingUrl').value = data.ticketBookingUrl || '';
+                    document.getElementById('movieModal').classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error('Error fetching movie:', error);
+                    alert('Failed to load movie data.');
+                });
         }
 
         function closeMovieModal() {
@@ -196,18 +258,23 @@
 
         function deleteMovie(id) {
             if (confirm('Are you sure you want to delete this movie?')) {
-                // Here you would typically make an API call to delete the movie
-                alert('Movie deleted successfully!');
+                fetch('${pageContext.request.contextPath}/movies', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'action=delete&id=' + id
+                })
+                .then(response => response.text())
+                .then(data => {
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error('Error deleting movie:', error);
+                    alert('Failed to delete movie.');
+                });
             }
         }
-
-        // Form submission handler
-        document.getElementById('movieForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            // Here you would typically make an API call to save the movie
-            closeMovieModal();
-            alert('Movie saved successfully!');
-        });
     </script>
 </body>
-</html> 
+</html>
