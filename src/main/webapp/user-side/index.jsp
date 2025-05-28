@@ -20,15 +20,24 @@
     <nav class="bg-[#002B5B] text-white shadow-lg">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center py-4">
-                <a href="index.html" class="text-2xl font-bold text-[#F4A300]">Nepal Navigator</a>
+                <a href="index" class="text-2xl font-bold text-[#F4A300]">Nepal Navigator</a>
                 <div class="hidden md:flex space-x-6">
-                    <a href="index.html" class="hover:text-[#F4A300]">Home</a>
-                    <a href="foods.html" class="hover:text-[#F4A300]">Foods</a>
-                    <a href="scenery.html" class="hover:text-[#F4A300]">Attractions</a>
-                    <a href="music.html" class="hover:text-[#F4A300]">Music</a>
-                    <a href="movies.html" class="hover:text-[#F4A300]">Movies</a>
-                    <a href="sports.html" class="hover:text-[#F4A300]">Sports</a>
-                    <a href="login.html" class="hover:text-[#F4A300]">Login/Register</a>
+                    <a href="index" class="hover:text-[#F4A300]">Home</a>
+                    <a href="foods" class="hover:text-[#F4A300]">Foods</a>
+                    <a href="scenery" class="hover:text-[#F4A300]">Attractions</a>
+                    <a href="music" class="hover:text-[#F4A300]">Music</a>
+                    <a href="movies" class="hover:text-[#F4A300]">Movies</a>
+                    <a href="sport" class="hover:text-[#F4A300]">Sports</a>
+                    <!-- Dynamically change based on login state -->
+                    <% 
+                        String username = (String) session.getAttribute("username");
+                        if (username != null) { 
+                    %>
+                        <span class="text-white">Welcome, <%= username %>!</span>
+                        <a href="logout" class="hover:text-[#F4A300]">Logout</a>
+                    <% } else { %>
+                        <a href="login" class="hover:text-[#F4A300]">Login/Register</a>
+                    <% } %>
                 </div>
                 <button class="md:hidden">
                     <i class="fas fa-bars text-2xl"></i>

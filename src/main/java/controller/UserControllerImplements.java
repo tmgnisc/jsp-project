@@ -205,4 +205,34 @@ public class UserControllerImplements implements UserController {
         }
         return null;
     }
+    
+    public User getUserByEmail(String email) {
+        if (!ensureConnection()) {
+            System.err.println("Cannot retrieve user by email: Database connection is not available.");
+            return null;
+        }
+
+        String sql = "SELECT * FROM users WHERE email = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, email);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    User item = new User();
+                    item.setId(rs.getInt("id"));
+                    item.setFullName(rs.getString("full_name"));
+                    item.setEmail(rs.getString("email"));
+                    item.setUsername(rs.getString("username"));
+                    // Do not set password for security reasons
+                    item.setRole(rs.getString("role"));
+                    item.setStatus(rs.getString("status"));
+                    return item;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error retrieving user by email: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
