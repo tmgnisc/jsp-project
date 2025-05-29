@@ -68,7 +68,7 @@ public class LoginServlet extends HttpServlet {
         String redirectPage;
         String role = user.getRole().toLowerCase(); // Ensure case-insensitive comparison
         if ("admin".equals(role)) {
-            redirectPage = "/admin-side/dashboard.jsp";
+            redirectPage = "/dashboard";
         } else if ("tourist".equals(role) || "local".equals(role)) {
             // Redirect to /index to let IndexServlet handle data fetching
             redirectPage = "/index";

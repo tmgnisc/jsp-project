@@ -21,22 +21,22 @@
     <nav class="bg-[#002B5B] text-white shadow-lg">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center py-4">
-                <a href="index" class="text-2xl font-bold text-[#F4A300]">Nepal Navigator</a>
+                <a href="${pageContext.request.contextPath}/index" class="text-2xl font-bold text-[#F4A300]">Nepal Navigator</a>
                 <div class="hidden md:flex space-x-6">
-                    <a href="index" class="hover:text-[#F4A300]">Home</a>
-                    <a href="foods" class="hover:text-[#F4A300]">Foods</a>
-                    <a href="scenery" class="hover:text-[#F4A300]">Attractions</a>
-                    <a href="music" class="hover:text-[#F4A300]">Music</a>
-                    <a href="movies" class="hover:text-[#F4A300]">Movies</a>
-                    <a href="sport" class="hover:text-[#F4A300]">Sports</a>
+                    <a href="${pageContext.request.contextPath}/index" class="hover:text-[#F4A300]">Home</a>
+                    <a href="${pageContext.request.contextPath}/foods" class="hover:text-[#F4A300]">Foods</a>
+                    <a href="${pageContext.request.contextPath}/attractions" class="hover:text-[#F4A300]">Attractions</a>
+                    <a href="${pageContext.request.contextPath}/music" class="hover:text-[#F4A300]">Music</a>
+                    <a href="${pageContext.request.contextPath}/movies" class="hover:text-[#F4A300]">Movies</a>
+                    <a href="${pageContext.request.contextPath}/sports" class="hover:text-[#F4A300]">Sports</a>
                     <% 
                         String username = (String) session.getAttribute("username");
                         if (username != null) { 
                     %>
                         <span class="text-white">Welcome, <%= username %>!</span>
-                        <a href="logout" class="hover:text-[#F4A300]">Logout</a>
+                        <a href="${pageContext.request.contextPath}/logout" class="hover:text-[#F4A300]">Logout</a>
                     <% } else { %>
-                        <a href="login" class="hover:text-[#F4A300]">Login/Register</a>
+                        <a href="${pageContext.request.contextPath}/login" class="hover:text-[#F4A300]">Login/Register</a>
                     <% } %>
                 </div>
                 <button class="md:hidden">
@@ -144,10 +144,10 @@
                 <div>
                     <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
                     <ul class="space-y-2">
-                        <li><a href="index" class="text-gray-300 hover:text-[#F4A300]">Home</a></li>
-                        <li><a href="foods" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
-                        <li><a href="scenery" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
-                        <li><a href="music" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
+                        <li><a href="${pageContext.request.contextPath}/index" class="text-gray-300 hover:text-[#F4A300]">Home</a></li>
+                        <li><a href="${pageContext.request.contextPath}/foods" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
+                        <li><a href="${pageContext.request.contextPath}/attractions" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
+                        <li><a href="${pageContext.request.contextPath}/music" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
                     </ul>
                 </div>
                 <div>

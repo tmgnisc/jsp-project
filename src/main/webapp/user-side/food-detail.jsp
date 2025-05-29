@@ -1,5 +1,7 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="model.FoodItem" %>
+<%@ page import="model.Comment" %>
+<%@ page import="java.util.List" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -27,17 +29,17 @@
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <a href="index.html" class="text-2xl font-bold text-[#002B5B]">Nepal Navigator</a>
+                    <a href="${pageContext.request.contextPath}/index" class="text-2xl font-bold text-[#002B5B]">Nepal Navigator</a>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <a href="foods.html" class="text-gray-600 hover:text-[#F4A300]">Foods</a>
-                    <a href="attractions.html" class="text-gray-600 hover:text-[#F4A300]">Attractions</a>
-                    <a href="music.html" class="text-gray-600 hover:text-[#F4A300]">Music</a>
-                    <a href="movies.html" class="text-gray-600 hover:text-[#F4A300]">Movies</a>
-                    <a href="sports.html" class="text-gray-600 hover:text-[#F4A300]">Sports</a>
-                    <button class="bg-[#F4A300] text-white px-4 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
+                    <a href="${pageContext.request.contextPath}/foods" class="text-gray-600 hover:text-[#F4A300]">Foods</a>
+                    <a href="${pageContext.request.contextPath}/attractions" class="text-gray-600 hover:text-[#F4A300]">Attractions</a>
+                    <a href="${pageContext.request.contextPath}/music" class="text-gray-600 hover:text-[#F4A300]">Music</a>
+                    <a href="${pageContext.request.contextPath}/movies" class="text-gray-600 hover:text-[#F4A300]">Movies</a>
+                    <a href="${pageContext.request.contextPath}/sports" class="text-gray-600 hover:text-[#F4A300]">Sports</a>
+                    <a href="${pageContext.request.contextPath}/login" class="bg-[#F4A300] text-white px-4 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
                         Login / Register
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
@@ -45,23 +47,31 @@
 
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 py-8">
+        <%
+            FoodItem food = (FoodItem) request.getAttribute("food");
+            List<Comment> comments = (List<Comment>) request.getAttribute("comments");
+            if (food == null) {
+                response.sendRedirect(request.getContextPath() + "/foods");
+                return;
+            }
+        %>
         <!-- Breadcrumb -->
         <div class="mb-6">
             <nav class="flex" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
                     <li class="inline-flex items-center">
-                        <a href="index.html" class="text-gray-600 hover:text-[#F4A300]">Home</a>
+                        <a href="${pageContext.request.contextPath}/index" class="text-gray-600 hover:text-[#F4A300]">Home</a>
                     </li>
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-                            <a href="foods.html" class="text-gray-600 hover:text-[#F4A300]">Foods</a>
+                            <a href="${pageContext.request.contextPath}/foods" class="text-gray-600 hover:text-[#F4A300]">Foods</a>
                         </div>
                     </li>
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-                            <span class="text-gray-500">Momo</span>
+                            <span class="text-gray-500"><%= food.getName() != null ? food.getName() : "Unknown" %></span>
                         </div>
                     </li>
                 </ol>
@@ -74,8 +84,8 @@
                 <!-- Image Gallery -->
                 <div class="space-y-4">
                     <div class="relative h-96 rounded-lg overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                             alt="Momo" 
+                        <img src="${pageContext.request.contextPath}<%= food.getImage() != null ? food.getImage() : "https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" %>" 
+                             alt="<%= food.getName() != null ? food.getName() : "Momo" %>" 
                              class="w-full h-full object-cover">
                         <div class="absolute top-4 right-4">
                             <button class="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100">
@@ -84,17 +94,17 @@
                         </div>
                     </div>
                     <div class="grid grid-cols-4 gap-4">
-                        <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" 
-                             alt="Momo" 
+                        <img src="${pageContext.request.contextPath}<%= food.getImage() != null ? food.getImage() : "https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" %>" 
+                             alt="<%= food.getName() != null ? food.getName() : "Momo" %>" 
                              class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
-                        <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" 
-                             alt="Momo" 
+                        <img src="${pageContext.request.contextPath}<%= food.getImage() != null ? food.getImage() : "https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" %>" 
+                             alt="<%= food.getName() != null ? food.getName() : "Momo" %>" 
                              class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
-                        <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" 
-                             alt="Momo" 
+                        <img src="${pageContext.request.contextPath}<%= food.getImage() != null ? food.getImage() : "https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" %>" 
+                             alt="<%= food.getName() != null ? food.getName() : "Momo" %>" 
                              class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
-                        <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" 
-                             alt="Momo" 
+                        <img src="${pageContext.request.contextPath}<%= food.getImage() != null ? food.getImage() : "https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" %>" 
+                             alt="<%= food.getName() != null ? food.getName() : "Momo" %>" 
                              class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
                     </div>
                 </div>
@@ -102,7 +112,7 @@
                 <!-- Food Information -->
                 <div class="space-y-6">
                     <div>
-                        <h1 class="text-3xl font-bold text-[#002B5B]">Momo</h1>
+                        <h1 class="text-3xl font-bold text-[#002B5B]"><%= food.getName() != null ? food.getName() : "Momo" %></h1>
                         <div class="flex items-center mt-2">
                             <div class="flex text-yellow-400">
                                 <i class="fas fa-star"></i>
@@ -119,19 +129,27 @@
                         <div>
                             <h2 class="text-xl font-semibold text-[#002B5B]">Description</h2>
                             <p class="text-gray-600 mt-2">
-                                Momo is a type of South Asian dumpling, popular across the Indian subcontinent and the Himalayan regions of broader South Asia. Momos are native to Southwest Chinese region of Tibet, Bhutan, Nepal, North Indian region of Ladakh, Northeast Indian regions of Sikkim, Assam, and Arunachal Pradesh, and East Indian region of Darjeeling.
+                                <%= food.getDescription() != null ? food.getDescription() : "Momo is a type of South Asian dumpling, popular across the Indian subcontinent and the Himalayan regions of broader South Asia. Momos are native to Southwest Chinese region of Tibet, Bhutan, Nepal, North Indian region of Ladakh, Northeast Indian regions of Sikkim, Assam, and Arunachal Pradesh, and East Indian region of Darjeeling." %>
                             </p>
                         </div>
 
                         <div>
                             <h2 class="text-xl font-semibold text-[#002B5B]">Ingredients</h2>
                             <ul class="list-disc list-inside text-gray-600 mt-2">
-                                <li>All-purpose flour</li>
-                                <li>Minced meat (chicken, pork, or buffalo)</li>
-                                <li>Onions</li>
-                                <li>Garlic</li>
-                                <li>Ginger</li>
-                                <li>Spices (cumin, coriander, turmeric)</li>
+                                <% if (food.getIngredients() != null) {
+                                    String[] ingredients = food.getIngredients().split(",");
+                                    for (String ingredient : ingredients) {
+                                %>
+                                    <li><%= ingredient.trim() %></li>
+                                <% }
+                                } else { %>
+                                    <li>All-purpose flour</li>
+                                    <li>Minced meat (chicken, pork, or buffalo)</li>
+                                    <li>Onions</li>
+                                    <li>Garlic</li>
+                                    <li>Ginger</li>
+                                    <li>Spices (cumin, coriander, turmeric)</li>
+                                <% } %>
                             </ul>
                         </div>
 
@@ -140,7 +158,7 @@
                             <div class="mt-2 space-y-2">
                                 <div class="flex items-center text-gray-600">
                                     <i class="fas fa-map-marker-alt w-6"></i>
-                                    <span>Kathmandu, Nepal</span>
+                                    <span><%= food.getRegion() != null ? food.getRegion() : "Kathmandu, Nepal" %></span>
                                 </div>
                                 <div class="flex items-center text-gray-600">
                                     <i class="fas fa-utensils w-6"></i>
@@ -158,11 +176,14 @@
                 
                 <!-- Comment Form -->
                 <div class="mb-8">
-                    <form class="space-y-4">
+                    <form class="space-y-4" action="${pageContext.request.contextPath}/food-detail" method="post">
+                        <input type="hidden" name="foodId" value="<%= food.getId() %>">
                         <div>
                             <textarea class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F4A300]" 
+                                      name="comment" 
                                       rows="3" 
-                                      placeholder="Write your comment..."></textarea>
+                                      placeholder="Write your comment..." 
+                                      required></textarea>
                         </div>
                         <div class="flex justify-end">
                             <button type="submit" class="bg-[#F4A300] text-white px-6 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
@@ -172,21 +193,22 @@
                     </form>
                 </div>
 
-                <!-- Comments List -->
+                <!-- Dynamic Comments List -->
                 <div class="space-y-6">
-                    <!-- Comment 1 -->
+                    <% if (comments != null && !comments.isEmpty()) {
+                        for (Comment comment : comments) {
+                            String timeAgo = java.time.Duration.between(comment.getCreatedAt().toInstant(), java.time.Instant.now()).toDays() + " days ago";
+                    %>
                     <div class="flex space-x-4">
-                        <img src="https://ui-avatars.com/api/?name=John+Doe&background=002B5B&color=fff" 
+                        <img src="https://ui-avatars.com/api/?name=<%= comment.getUsername() != null ? comment.getUsername().replace(" ", "+") : "Unknown" %>&background=002B5B&color=fff" 
                              alt="User" 
                              class="w-12 h-12 rounded-full">
                         <div class="flex-1">
                             <div class="flex items-center justify-between">
-                                <h3 class="font-semibold text-[#002B5B]">John Doe</h3>
-                                <span class="text-sm text-gray-500">2 days ago</span>
+                                <h3 class="font-semibold text-[#002B5B]"><%= comment.getUsername() != null ? comment.getUsername() : "Anonymous" %></h3>
+                                <span class="text-sm text-gray-500"><%= timeAgo %></span>
                             </div>
-                            <p class="text-gray-600 mt-1">
-                                The best momos I've ever had! The filling was perfectly spiced and the dipping sauce was amazing.
-                            </p>
+                            <p class="text-gray-600 mt-1"><%= comment.getCommentText() != null ? comment.getCommentText() : "No comment text" %></p>
                             <div class="flex items-center space-x-4 mt-2">
                                 <button class="text-gray-500 hover:text-[#F4A300]">
                                     <i class="far fa-thumbs-up"></i> Like
@@ -197,30 +219,10 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Comment 2 -->
-                    <div class="flex space-x-4">
-                        <img src="https://ui-avatars.com/api/?name=Jane+Smith&background=002B5B&color=fff" 
-                             alt="User" 
-                             class="w-12 h-12 rounded-full">
-                        <div class="flex-1">
-                            <div class="flex items-center justify-between">
-                                <h3 class="font-semibold text-[#002B5B]">Jane Smith</h3>
-                                <span class="text-sm text-gray-500">1 week ago</span>
-                            </div>
-                            <p class="text-gray-600 mt-1">
-                                I tried both the steamed and fried versions. Both were delicious, but I preferred the steamed ones for their lighter texture.
-                            </p>
-                            <div class="flex items-center space-x-4 mt-2">
-                                <button class="text-gray-500 hover:text-[#F4A300]">
-                                    <i class="far fa-thumbs-up"></i> Like
-                                </button>
-                                <button class="text-gray-500 hover:text-[#F4A300]">
-                                    <i class="far fa-comment"></i> Reply
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <% }
+                    } else { %>
+                    <div class="text-center text-gray-500">No comments yet.</div>
+                    <% } %>
                 </div>
             </div>
         </div>
@@ -239,11 +241,11 @@
                 <div>
                     <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
                     <ul class="space-y-2">
-                        <li><a href="foods.html" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
-                        <li><a href="attractions.html" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
-                        <li><a href="music.html" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
-                        <li><a href="movies.html" class="text-gray-300 hover:text-[#F4A300]">Movies</a></li>
-                        <li><a href="sports.html" class="text-gray-300 hover:text-[#F4A300]">Sports</a></li>
+                        <li><a href="${pageContext.request.contextPath}/foods" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
+                        <li><a href="${pageContext.request.contextPath}/attractions" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
+                        <li><a href="${pageContext.request.contextPath}/music" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
+                        <li><a href="${pageContext.request.contextPath}/movies" class="text-gray-300 hover:text-[#F4A300]">Movies</a></li>
+                        <li><a href="${pageContext.request.contextPath}/sports" class="text-gray-300 hover:text-[#F4A300]">Sports</a></li>
                     </ul>
                 </div>
                 <div>
@@ -273,9 +275,9 @@
                 </div>
             </div>
             <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
-                <p>&copy; 2024 Nepal Navigator. All rights reserved.</p>
+                <p>© 2025 Nepal Navigator. All rights reserved.</p>
             </div>
         </div>
     </footer>
 </body>
-</html> 
+</html>

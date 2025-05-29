@@ -46,35 +46,35 @@
                 <h2 class="text-2xl font-bold text-[#F4A300]">Admin Panel</h2>
             </div>
             <nav class="mt-8">
-                <a href="dashboard" class="flex items-center px-4 py-3 bg-[#F4A300] text-white">
+                <a href="${pageContext.request.contextPath}/dashboard" class="flex items-center px-4 py-3 bg-[#F4A300] text-white">
                     <i class="fas fa-tachometer-alt w-6"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="food-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="${pageContext.request.contextPath}/food-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-utensils w-6"></i>
                     <span>Foods</span>
                 </a>
-                <a href="attraction-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="${pageContext.request.contextPath}/attraction-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-mountain w-6"></i>
                     <span>Attractions</span>
                 </a>
-                <a href="music-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="${pageContext.request.contextPath}/music-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-music w-6"></i>
                     <span>Music</span>
                 </a>
-                <a href="movie-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="${pageContext.request.contextPath}/movie-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-film w-6"></i>
                     <span>Movies</span>
                 </a>
-                <a href="sports-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="${pageContext.request.contextPath}/sports-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-running w-6"></i>
                     <span>Sports</span>
                 </a>
-                <a href="user-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="${pageContext.request.contextPath}/user-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-users w-6"></i>
                     <span>Users</span>
                 </a>
-                <a href="index" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="${pageContext.request.contextPath}/logout" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-sign-out-alt w-6"></i>
                     <span>Logout</span>
                 </a>
@@ -88,8 +88,8 @@
                 <div class="flex justify-between items-center px-8 py-4">
                     <h1 class="text-2xl font-semibold text-[#002B5B]">Foods Management</h1>
                     <div class="flex items-center space-x-4">
-                        <span class="text-gray-600">Welcome, Admin</span>
-                        <img src="https://ui-avatars.com/api/?name=Admin&background=002B5B&color=fff" alt="Admin" class="w-10 h-10 rounded-full">
+                        <span class="text-gray-600">Welcome, <%= username %></span>
+                        <img src="https://ui-avatars.com/api/?name=<%= username %>&background=002B5B&color=fff" alt="Admin" class="w-10 h-10 rounded-full">
                     </div>
                 </div>
             </div>
@@ -126,6 +126,8 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Region</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tag</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
@@ -140,25 +142,31 @@
                                     <img src="${pageContext.request.contextPath}<%=item.getImage() != null ? item.getImage() : "/images/placeholder.jpg"%>" alt="Food" class="w-16 h-16 object-cover rounded" onerror="this.src='https://via.placeholder.com/100'">
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900"><%=item.getName()%></div>
+                                    <div class="text-sm font-medium text-gray-900"><%=item.getName() != null ? item.getName() : "N/A"%></div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <div class="text-sm text-gray-500"><%=item.getDescription()%></div>
+                                    <div class="text-sm text-gray-500"><%=item.getDescription() != null ? item.getDescription() : "N/A"%></div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"><%=item.getCategory()%></span>
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"><%=item.getCategory() != null ? item.getCategory() : "N/A"%></span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"><%=item.getRegion() != null ? item.getRegion() : "N/A"%></span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800"><%=item.getTag() != null ? item.getTag() : "N/A"%></span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <button onclick="showEditFoodModal(<%=item.getId()%>)" class="text-[#F4A300] hover:text-[#A31621] mr-3">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <form action="${pageContext.request.contextPath}/food-dashboard" method="post" style="display:inline;">
-									    <input type="hidden" name="action" value="delete">
-									    <input type="hidden" name="id" value="<%=item.getId()%>">
-									    <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this food item?')">
-									        <i class="fas fa-trash"></i>
-									    </button>
-									</form>
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="id" value="<%=item.getId()%>">
+                                        <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this food item?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                             <%
@@ -205,6 +213,28 @@
                         </select>
                     </div>
                     <div>
+                        <label class="block text-sm font-medium text-gray-700">Region (Nepal)</label>
+                        <select name="region" id="region" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" required>
+                            <option value="">Select Region</option>
+                            <option value="Kathmandu Valley">Kathmandu Valley</option>
+                            <option value="Pokhara">Pokhara</option>
+                            <option value="Terai">Terai</option>
+                            <option value="Himalayan">Himalayan</option>
+                            <option value="Mid-Hills">Mid-Hills</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Tag</label>
+                        <select name="tag" id="tag" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" required>
+                            <option value="">Select Tag</option>
+                            <option value="Popular">Popular</option>
+                            <option value="Traditional">Traditional</option>
+                            <option value="Spicy">Spicy</option>
+                            <option value="Festival Food">Festival Food</option>
+                            <option value="Street Food">Street Food</option>
+                        </select>
+                    </div>
+                    <div>
                         <label class="block text-sm font-medium text-gray-700">Ingredients</label>
                         <textarea name="ingredients" id="ingredients" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" rows="3" required></textarea>
                     </div>
@@ -233,51 +263,53 @@
         </div>
     </div>
 
-	<script>
-	function showAddFoodModal() {
-	    document.getElementById('modalTitle').textContent = 'Add New Food';
-	    document.getElementById('formAction').value = 'add';
-	    document.getElementById('foodId').value = '0';
-	    document.getElementById('foodForm').reset();
-	    document.getElementById('foodModal').classList.remove('hidden');
-	}
-	
-	function showEditFoodModal(id) {
-	    document.getElementById('modalTitle').textContent = 'Edit Food';
-	    document.getElementById('formAction').value = 'edit';
-	    document.getElementById('foodId').value = id;
-	
-	    // Fetch food item data via AJAX
-	    fetch('${pageContext.request.contextPath}/food-dashboard?action=getFoodItem&id=' + id)
-	        .then(response => {
-	            if (!response.ok) {
-	                throw new Error('Network response was not ok');
-	            }
-	            return response.json();
-	        })
-	        .then(data => {
-	            if (data.error) {
-	                alert(data.error);
-	                return;
-	            }
-	            document.getElementById('foodName').value = data.name || '';
-	            document.getElementById('description').value = data.description || '';
-	            document.getElementById('category').value = data.category || '';
-	            document.getElementById('ingredients').value = data.ingredients || '';
-	            document.getElementById('preparationMethod').value = data.preparationMethod || '';
-	            document.getElementById('servingSuggestions').value = data.servingSuggestions || '';
-	            document.getElementById('culturalSignificance').value = data.culturalSignificance || '';
-	            document.getElementById('foodModal').classList.remove('hidden');
-	        })
-	        .catch(error => {
-	            console.error('Error fetching food item:', error);
-	            alert('Failed to load food item data.');
-	        });
-	}
-	
-	function closeFoodModal() {
-	    document.getElementById('foodModal').classList.add('hidden');
-	}
-	</script>
+    <script>
+    function showAddFoodModal() {
+        document.getElementById('modalTitle').textContent = 'Add New Food';
+        document.getElementById('formAction').value = 'add';
+        document.getElementById('foodId').value = '0';
+        document.getElementById('foodForm').reset();
+        document.getElementById('foodModal').classList.remove('hidden');
+    }
+
+    function showEditFoodModal(id) {
+        document.getElementById('modalTitle').textContent = 'Edit Food';
+        document.getElementById('formAction').value = 'edit';
+        document.getElementById('foodId').value = id;
+
+        // Fetch food item data via AJAX
+        fetch('${pageContext.request.contextPath}/food-dashboard?action=getFoodItem&id=' + id)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                document.getElementById('foodName').value = data.name || '';
+                document.getElementById('description').value = data.description || '';
+                document.getElementById('category').value = data.category || '';
+                document.getElementById('region').value = data.region || '';
+                document.getElementById('tag').value = data.tag || '';
+                document.getElementById('ingredients').value = data.ingredients || '';
+                document.getElementById('preparationMethod').value = data.preparationMethod || '';
+                document.getElementById('servingSuggestions').value = data.servingSuggestions || '';
+                document.getElementById('culturalSignificance').value = data.culturalSignificance || '';
+                document.getElementById('foodModal').classList.remove('hidden');
+            })
+            .catch(error => {
+                console.error('Error fetching food item:', error);
+                alert('Failed to load food item data.');
+            });
+    }
+
+    function closeFoodModal() {
+        document.getElementById('foodModal').classList.add('hidden');
+    }
+    </script>
 </body>
 </html>
