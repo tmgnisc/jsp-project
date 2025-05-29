@@ -1,5 +1,5 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.util.List, model.Sport, model.SportComment, java.time.LocalDateTime, java.time.ZoneId, java.time.temporal.ChronoUnit" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -13,31 +13,35 @@
         body {
             font-family: 'Poppins', sans-serif;
         }
+        .sport-image {
+            width: 100%;
+            height: 200px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
-    
-     <!-- Navigation -->
+    <!-- Navigation -->
     <nav class="bg-[#002B5B] text-white shadow-lg">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center py-4">
-                <a href="index" class="text-2xl font-bold text-[#F4A300]">Nepal Navigator</a>
+                <a href="${pageContext.request.contextPath}/index" class="text-2xl font-bold text-[#F4A300]">Nepal Navigator</a>
                 <div class="hidden md:flex space-x-6">
-                    <a href="index" class="hover:text-[#F4A300]">Home</a>
-                    <a href="foods" class="hover:text-[#F4A300]">Foods</a>
-                    <a href="scenery" class="hover:text-[#F4A300]">Attractions</a>
-                    <a href="music" class="hover:text-[#F4A300]">Music</a>
-                    <a href="movies" class="hover:text-[#F4A300]">Movies</a>
-                    <a href="sport" class="hover:text-[#F4A300]">Sports</a>
-                    <!-- Dynamically change based on login state -->
+                    <a href="${pageContext.request.contextPath}/index" class="hover:text-[#F4A300]">Home</a>
+                    <a href="${pageContext.request.contextPath}/foods" class="hover:text-[#F4A300]">Foods</a>
+                    <a href="${pageContext.request.contextPath}/attractions" class="hover:text-[#F4A300]">Attractions</a>
+                    <a href="${pageContext.request.contextPath}/music" class="hover:text-[#F4A300]">Music</a>
+                    <a href="${pageContext.request.contextPath}/movies" class="hover:text-[#F4A300]">Movies</a>
+                    <a href="${pageContext.request.contextPath}/sports" class="hover:text-[#F4A300]">Sports</a>
                     <% 
                         String username = (String) session.getAttribute("username");
                         if (username != null) { 
                     %>
                         <span class="text-white">Welcome, <%= username %>!</span>
-                        <a href="logout" class="hover:text-[#F4A300]">Logout</a>
+                        <a href="${pageContext.request.contextPath}/logout" class="hover:text-[#F4A300]">Logout</a>
                     <% } else { %>
-                        <a href="login" class="hover:text-[#F4A300]">Login/Register</a>
+                        <a href="${pageContext.request.contextPath}/login" class="hover:text-[#F4A300]">Login/Register</a>
                     <% } %>
                 </div>
                 <button class="md:hidden">
@@ -62,23 +66,26 @@
     <div class="bg-white shadow-md py-6">
         <div class="container mx-auto px-4">
             <div class="max-w-3xl mx-auto">
-                <div class="flex flex-col md:flex-row gap-4">
+                <form action="${pageContext.request.contextPath}/sports" method="GET" class="flex flex-col md:flex-row gap-4">
                     <div class="flex-1">
-                        <input type="text" placeholder="Search for sports..." class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-transparent">
+                        <input type="text" name="search" 
+                               value="<%= request.getAttribute("searchQuery") != null ? request.getAttribute("searchQuery") : "" %>" 
+                               placeholder="Search for sports..." 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-transparent">
                     </div>
                     <div class="flex gap-4">
-                        <select class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-transparent">
-                            <option value="">All Categories</option>
-                            <option value="team">Team Sports</option>
-                            <option value="individual">Individual Sports</option>
-                            <option value="traditional">Traditional Sports</option>
-                            <option value="adventure">Adventure Sports</option>
+                        <select name="category" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-transparent">
+                            <option value="all" <%= "all".equals(request.getAttribute("selectedCategory")) || request.getAttribute("selectedCategory") == null ? "selected" : "" %>>All Categories</option>
+                            <option value="team" <%= "team".equals(request.getAttribute("selectedCategory")) ? "selected" : "" %>>Team Sports</option>
+                            <option value="individual" <%= "individual".equals(request.getAttribute("selectedCategory")) ? "selected" : "" %>>Individual Sports</option>
+                            <option value="traditional" <%= "traditional".equals(request.getAttribute("selectedCategory")) ? "selected" : "" %>>Traditional Sports</option>
+                            <option value="adventure" <%= "adventure".equals(request.getAttribute("selectedCategory")) ? "selected" : "" %>>Adventure Sports</option>
                         </select>
-                        <button class="bg-[#F4A300] text-white px-6 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
+                        <button type="submit" class="bg-[#F4A300] text-white px-6 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
                             <i class="fas fa-search mr-2"></i>Search
                         </button>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
@@ -86,156 +93,138 @@
     <!-- Sports Grid -->
     <div class="container mx-auto px-4 py-12">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Sport Card 1 -->
+            <%
+                List<Sport> sportList = (List<Sport>) request.getAttribute("sportList");
+                LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Kathmandu"));
+                if (sportList != null && !sportList.isEmpty()) {
+                    for (Sport sport : sportList) {
+            %>
             <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Cricket" class="w-full h-48 object-cover">
+                <img src="${pageContext.request.contextPath}<%= sport.getImage() != null ? sport.getImage() : "/images/placeholder.jpg" %>" 
+                     alt="<%= sport.getName() != null ? sport.getName() : "Sport Image" %>" 
+                     class="sport-image" 
+                     onerror="this.src='https://via.placeholder.com/500'">
                 <div class="p-6">
                     <div class="flex justify-between items-start">
                         <div>
-                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2">Cricket</h3>
-                            <p class="text-gray-600 mb-2">Nepal's most popular sport with growing international presence</p>
-                            <p class="text-sm text-gray-500"><i class="fas fa-trophy mr-2"></i>National Sport</p>
+                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= sport.getName() != null ? sport.getName() : "Unnamed Sport" %></h3>
+                            <p class="text-gray-600 mb-2"><%= sport.getDescription() != null ? sport.getDescription() : "No description available." %></p>
+                            <p class="text-sm text-gray-500"><i class="fas fa-trophy mr-2"></i><%= sport.getStatus() != null ? sport.getStatus() : "Unknown Status" %></p>
                         </div>
-                        <span class="bg-[#F4A300] text-white px-3 py-1 rounded-full text-sm">Popular</span>
+                        <span class="bg-[#F4A300] text-white px-3 py-1 rounded-full text-sm"><%= sport.getCategory() != null ? sport.getCategory() : "Uncategorized" %></span>
                     </div>
                     
                     <!-- Comments Section -->
                     <div class="mt-6">
                         <h4 class="font-semibold text-gray-700 mb-3">Comments</h4>
-                        <div class="space-y-4">
-                            <div class="bg-gray-50 p-3 rounded">
-                                <div class="flex items-center mb-2">
-                                    <img src="https://ui-avatars.com/api/?name=John+Doe" alt="User" class="w-8 h-8 rounded-full mr-2">
-                                    <div>
-                                        <p class="font-medium text-sm">John Doe</p>
-                                        <p class="text-xs text-gray-500">2 days ago</p>
-                                    </div>
+                        <%
+                            List<SportComment> comments = (List<SportComment>) request.getAttribute("comments_" + sport.getId());
+                            if (comments != null && !comments.isEmpty()) {
+                                for (SportComment comment : comments) {
+                                    try {
+                                        LocalDateTime commentTime = LocalDateTime.parse(comment.getCreatedAt(), java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                                                .atZone(ZoneId.of("Asia/Kathmandu")).toLocalDateTime();
+                                        long minutesAgo = ChronoUnit.MINUTES.between(commentTime, now);
+                                        String timeAgo;
+                                        if (minutesAgo < 60) {
+                                            timeAgo = minutesAgo + " minutes ago";
+                                        } else if (minutesAgo < 1440) {
+                                            long hoursAgo = minutesAgo / 60;
+                                            timeAgo = hoursAgo + " hours ago";
+                                        } else {
+                                            long daysAgo = minutesAgo / 1440;
+                                            timeAgo = daysAgo + " days ago";
+                                        }
+                        %>
+                        <div class="bg-gray-50 p-3 rounded mb-4">
+                            <div class="flex items-center mb-2">
+                                <img src="https://ui-avatars.com/api/?name=<%= comment.getUsername() %>&background=002B5B&color=fff" 
+                                     alt="User" 
+                                     class="w-8 h-8 rounded-full mr-2">
+                                <div>
+                                    <p class="font-medium text-sm"><%= comment.getUsername() %></p>
+                                    <p class="text-xs text-gray-500"><%= timeAgo %></p>
                                 </div>
-                                <p class="text-sm text-gray-600">The national team has shown great potential in recent tournaments!</p>
+                            </div>
+                            <p class="text-sm text-gray-600"><%= comment.getCommentText() %></p>
+                            <div class="flex items-center space-x-4 mt-2">
+                                <button class="text-gray-500 hover:text-[#F4A300]">
+                                    <i class="far fa-thumbs-up"></i> Like
+                                </button>
+                                <button class="text-gray-500 hover:text-[#F4A300]">
+                                    <i class="far fa-comment"></i> Reply
+                                </button>
                             </div>
                         </div>
+                        <%      } catch (Exception e) { %>
+                                <p class="text-red-500 text-sm">Error parsing timestamp for comment by <%= comment.getUsername() %>.</p>
+                            <% }
+                                }
+                            } else { %>
+                            <p class="text-gray-500 text-sm">No comments yet.</p>
+                        <% } %>
                         
                         <!-- Comment Input -->
-                        <div class="mt-4">
-                            <textarea placeholder="Write a comment..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-transparent"></textarea>
-                            <button class="mt-2 bg-[#F4A300] text-white px-4 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
-                                Post Comment
-                            </button>
-                        </div>
+                        <form action="${pageContext.request.contextPath}/sports" method="post" class="mt-4">
+                            <input type="hidden" name="sportId" value="<%= sport.getId() %>">
+                            <div>
+                                <textarea name="commentText" placeholder="Write a comment..." 
+                                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-transparent"></textarea>
+                            </div>
+                            <div class="flex justify-end mt-2">
+                                <button type="submit" class="bg-[#F4A300] text-white px-4 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
+                                    Post Comment
+                                </button>
+                            </div>
+                            <% String error = (String) request.getAttribute("error_" + sport.getId());
+                               if (error != null) { %>
+                                <p class="text-red-500 mt-2"><%= error %></p>
+                            <% } %>
+                        </form>
+                    </div>
+                    <div class="mt-4">
+                        <a href="${pageContext.request.contextPath}/sport-detail?id=<%= sport.getId() %>" 
+                           class="bg-[#F4A300] text-white px-4 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
+                            View Details
+                        </a>
                     </div>
                 </div>
             </div>
-
-            <!-- Sport Card 2 -->
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Football" class="w-full h-48 object-cover">
-                <div class="p-6">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2">Football</h3>
-                            <p class="text-gray-600 mb-2">A beloved sport with passionate fans across the country</p>
-                            <p class="text-sm text-gray-500"><i class="fas fa-trophy mr-2"></i>Popular Sport</p>
-                        </div>
-                        <span class="bg-[#F4A300] text-white px-3 py-1 rounded-full text-sm">Team Sport</span>
-                    </div>
-                    
-                    <!-- Comments Section -->
-                    <div class="mt-6">
-                        <h4 class="font-semibold text-gray-700 mb-3">Comments</h4>
-                        <div class="space-y-4">
-                            <div class="bg-gray-50 p-3 rounded">
-                                <div class="flex items-center mb-2">
-                                    <img src="https://ui-avatars.com/api/?name=Jane+Smith" alt="User" class="w-8 h-8 rounded-full mr-2">
-                                    <div>
-                                        <p class="font-medium text-sm">Jane Smith</p>
-                                        <p class="text-xs text-gray-500">1 week ago</p>
-                                    </div>
-                                </div>
-                                <p class="text-sm text-gray-600">The local leagues are getting more competitive each year!</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Comment Input -->
-                        <div class="mt-4">
-                            <textarea placeholder="Write a comment..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-transparent"></textarea>
-                            <button class="mt-2 bg-[#F4A300] text-white px-4 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
-                                Post Comment
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sport Card 3 -->
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Martial Arts" class="w-full h-48 object-cover">
-                <div class="p-6">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2">Martial Arts</h3>
-                            <p class="text-gray-600 mb-2">Traditional Nepali martial arts with a rich history</p>
-                            <p class="text-sm text-gray-500"><i class="fas fa-trophy mr-2"></i>Traditional Sport</p>
-                        </div>
-                        <span class="bg-[#F4A300] text-white px-3 py-1 rounded-full text-sm">Traditional</span>
-                    </div>
-                    
-                    <!-- Comments Section -->
-                    <div class="mt-6">
-                        <h4 class="font-semibold text-gray-700 mb-3">Comments</h4>
-                        <div class="space-y-4">
-                            <div class="bg-gray-50 p-3 rounded">
-                                <div class="flex items-center mb-2">
-                                    <img src="https://ui-avatars.com/api/?name=Mike+Johnson" alt="User" class="w-8 h-8 rounded-full mr-2">
-                                    <div>
-                                        <p class="font-medium text-sm">Mike Johnson</p>
-                                        <p class="text-xs text-gray-500">3 days ago</p>
-                                    </div>
-                                </div>
-                                <p class="text-sm text-gray-600">The cultural significance of these martial arts is fascinating!</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Comment Input -->
-                        <div class="mt-4">
-                            <textarea placeholder="Write a comment..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-transparent"></textarea>
-                            <button class="mt-2 bg-[#F4A300] text-white px-4 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
-                                Post Comment
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <%
+                    }
+                } else {
+            %>
+            <div class="col-span-3 text-center text-gray-500">No sports found matching your criteria.</div>
+            <%
+                }
+            %>
         </div>
 
         <!-- Upcoming Events Section -->
         <div class="mt-16">
             <h2 class="text-3xl font-bold text-[#002B5B] mb-8">Upcoming Sports Events</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Event Card 1 -->
+                <!-- Dynamic events can be added here if data is available -->
                 <div class="bg-white rounded-lg shadow-lg overflow-hidden">
                     <div class="p-6">
                         <h3 class="text-xl font-semibold text-[#002B5B] mb-2">National Cricket Championship</h3>
-                        <p class="text-gray-600 mb-2">Date: June 15, 2024</p>
+                        <p class="text-gray-600 mb-2">Date: June 15, 2025</p>
                         <p class="text-gray-600 mb-4">Location: Tribhuvan University Ground</p>
                         <a href="#" class="text-[#F4A300] hover:text-[#A31621]">Learn More →</a>
                     </div>
                 </div>
-
-                <!-- Event Card 2 -->
                 <div class="bg-white rounded-lg shadow-lg overflow-hidden">
                     <div class="p-6">
                         <h3 class="text-xl font-semibold text-[#002B5B] mb-2">Football League Final</h3>
-                        <p class="text-gray-600 mb-2">Date: July 1, 2024</p>
+                        <p class="text-gray-600 mb-2">Date: July 1, 2025</p>
                         <p class="text-gray-600 mb-4">Location: Dasharath Stadium</p>
                         <a href="#" class="text-[#F4A300] hover:text-[#A31621]">Learn More →</a>
                     </div>
                 </div>
-
-                <!-- Event Card 3 -->
                 <div class="bg-white rounded-lg shadow-lg overflow-hidden">
                     <div class="p-6">
                         <h3 class="text-xl font-semibold text-[#002B5B] mb-2">Martial Arts Tournament</h3>
-                        <p class="text-gray-600 mb-2">Date: August 10, 2024</p>
+                        <p class="text-gray-600 mb-2">Date: August 10, 2025</p>
                         <p class="text-gray-600 mb-4">Location: National Sports Council</p>
                         <a href="#" class="text-[#F4A300] hover:text-[#A31621]">Learn More →</a>
                     </div>
@@ -255,10 +244,12 @@
                 <div>
                     <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
                     <ul class="space-y-2">
-                        <li><a href="index.html" class="text-gray-300 hover:text-[#F4A300]">Home</a></li>
-                        <li><a href="foods.html" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
-                        <li><a href="scenery.html" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
-                        <li><a href="music.html" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
+                        <li><a href="${pageContext.request.contextPath}/index" class="text-gray-300 hover:text-[#F4A300]">Home</a></li>
+                        <li><a href="${pageContext.request.contextPath}/foods" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
+                        <li><a href="${pageContext.request.contextPath}/attractions" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
+                        <li><a href="${pageContext.request.contextPath}/music" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
+                        <li><a href="${pageContext.request.contextPath}/movies" class="text-gray-300 hover:text-[#F4A300]">Movies</a></li>
+                        <li><a href="${pageContext.request.contextPath}/sports" class="text-gray-300 hover:text-[#F4A300]">Sports</a></li>
                     </ul>
                 </div>
                 <div>
@@ -280,9 +271,9 @@
                 </div>
             </div>
             <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
-                <p>&copy; 2024 Nepal Navigator. All rights reserved.</p>
+                <p>© 2025 Nepal Navigator. All rights reserved.</p>
             </div>
         </div>
     </footer>
 </body>
-</html> 
+</html>

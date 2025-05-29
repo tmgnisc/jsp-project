@@ -74,13 +74,15 @@
                     if (topFoods != null && !topFoods.isEmpty()) {
                         for (FoodItem food : topFoods) {
                 %>
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img src="${pageContext.request.contextPath}<%= food.getImage() != null ? food.getImage() : "/images/placeholder.jpg" %>" alt="<%= food.getName() %>" class="w-full h-48 object-cover" onerror="this.src='https://via.placeholder.com/500'">
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= food.getName() %></h3>
-                        <p class="text-gray-600"><%= food.getDescription() != null ? food.getDescription() : "No description available." %></p>
+                <a href="${pageContext.request.contextPath}/food-detail?id=<%= food.getId() %>" class="block">
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                        <img src="${pageContext.request.contextPath}<%= food.getImage() != null ? food.getImage() : "/images/placeholder.jpg" %>" alt="<%= food.getName() %>" class="w-full h-48 object-cover" onerror="this.src='https://via.placeholder.com/500'">
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= food.getName() %></h3>
+                            <p class="text-gray-600"><%= food.getDescription() != null ? food.getDescription() : "No description available." %></p>
+                        </div>
                     </div>
-                </div>
+                </a>
                 <%
                         }
                     } else {
@@ -101,13 +103,15 @@
                     if (topAttractions != null && !topAttractions.isEmpty()) {
                         for (Attraction attraction : topAttractions) {
                 %>
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img src="${pageContext.request.contextPath}<%= attraction.getImage() != null ? attraction.getImage() : "/images/placeholder.jpg" %>" alt="<%= attraction.getName() %>" class="w-full h-48 object-cover" onerror="this.src='https://via.placeholder.com/500'">
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= attraction.getName() %></h3>
-                        <p class="text-gray-600"><%= attraction.getDescription() != null ? attraction.getDescription() : "No description available." %></p>
+                <a href="${pageContext.request.contextPath}/attraction-detail?id=<%= attraction.getId() %>" class="block">
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                        <img src="${pageContext.request.contextPath}<%= attraction.getImage() != null ? attraction.getImage() : "/images/placeholder.jpg" %>" alt="<%= attraction.getName() %>" class="w-full h-48 object-cover" onerror="this.src='https://via.placeholder.com/500'">
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= attraction.getName() %></h3>
+                            <p class="text-gray-600"><%= attraction.getDescription() != null ? attraction.getDescription() : "No description available." %></p>
+                        </div>
                     </div>
-                </div>
+                </a>
                 <%
                         }
                     } else {
@@ -128,13 +132,15 @@
                     if (topMusic != null && !topMusic.isEmpty()) {
                         for (Music music : topMusic) {
                 %>
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img src="${pageContext.request.contextPath}<%= music.getImage() != null ? music.getImage() : "/images/placeholder.jpg" %>" alt="<%= music.getArtistName() %>" class="w-full h-48 object-cover" onerror="this.src='https://via.placeholder.com/500'">
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= music.getArtistName() %></h3>
-                        <p class="text-gray-600"><%= music.getDescription() != null ? music.getDescription() : "No description available." %></p>
+                <a href="${pageContext.request.contextPath}/music-detail?id=<%= music.getId() %>" class="block">
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                        <img src="${pageContext.request.contextPath}<%= music.getImage() != null ? music.getImage() : "/images/placeholder.jpg" %>" alt="<%= music.getArtistName() %>" class="w-full h-48 object-cover" onerror="this.src='https://via.placeholder.com/500'">
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= music.getArtistName() %></h3>
+                            <p class="text-gray-600"><%= music.getDescription() != null ? music.getDescription() : "No description available." %></p>
+                        </div>
                     </div>
-                </div>
+                </a>
                 <%
                         }
                     } else {
@@ -155,13 +161,15 @@
                     if (topMovies != null && !topMovies.isEmpty()) {
                         for (Movie movie : topMovies) {
                 %>
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img src="${pageContext.request.contextPath}<%= movie.getImage() != null ? movie.getImage() : "/images/placeholder.jpg" %>" alt="<%= movie.getTitle() %>" class="w-full h-48 object-cover" onerror="this.src='https://via.placeholder.com/500'">
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= movie.getTitle() %></h3>
-                        <p class="text-gray-600"><%= movie.getDescription() != null ? movie.getDescription() : "No description available." %></p>
+                <a href="${pageContext.request.contextPath}/movie-detail?id=<%= movie.getId() %>" class="block">
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                        <img src="${pageContext.request.contextPath}<%= movie.getImage() != null ? movie.getImage() : "/images/placeholder.jpg" %>" alt="<%= movie.getTitle() %>" class="w-full h-48 object-cover" onerror="this.src='https://via.placeholder.com/500'">
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= movie.getTitle() %></h3>
+                            <p class="text-gray-600"><%= movie.getDescription() != null ? movie.getDescription() : "No description available." %></p>
+                        </div>
                     </div>
-                </div>
+                </a>
                 <%
                         }
                     } else {
@@ -182,13 +190,15 @@
                     if (topSports != null && !topSports.isEmpty()) {
                         for (Sport sport : topSports) {
                 %>
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img src="${pageContext.request.contextPath}<%= sport.getImage() != null ? sport.getImage() : "/images/placeholder.jpg" %>" alt="<%= sport.getName() %>" class="w-full h-48 object-cover" onerror="this.src='https://via.placeholder.com/500'">
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= sport.getName() %></h3>
-                        <p class="text-gray-600"><%= sport.getDescription() != null ? sport.getDescription() : "No description available." %></p>
+                <a href="${pageContext.request.contextPath}/sport-detail?id=<%= sport.getId() %>" class="block">
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                        <img src="${pageContext.request.contextPath}<%= sport.getImage() != null ? sport.getImage() : "/images/placeholder.jpg" %>" alt="<%= sport.getName() %>" class="w-full h-48 object-cover" onerror="this.src='https://via.placeholder.com/500'">
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= sport.getName() %></h3>
+                            <p class="text-gray-600"><%= sport.getDescription() != null ? sport.getDescription() : "No description available." %></p>
+                        </div>
                     </div>
-                </div>
+                </a>
                 <%
                         }
                     } else {

@@ -23,10 +23,10 @@
                 <div class="hidden md:flex space-x-6">
                     <a href="index" class="hover:text-[#F4A300]">Home</a>
                     <a href="food" class="hover:text-[#F4A300]">Foods</a>
-                    <a href="scenery" class="hover:text-[#F4A300]">Attractions</a>
+                    <a href="attractions" class="hover:text-[#F4A300]">Attractions</a>
                     <a href="music" class="hover:text-[#F4A300]">Music</a>
                     <a href="movie" class="hover:text-[#F4A300]">Movies</a>
-                    <a href="sport" class="hover:text-[#F4A300]">Sports</a>
+                    <a href="sports" class="hover:text-[#F4A300]">Sports</a>
                     <a href="login" class="hover:text-[#F4A300]">Login/Register</a>
                 </div>
                 <button class="md:hidden">

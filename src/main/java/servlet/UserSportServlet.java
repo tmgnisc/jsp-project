@@ -14,7 +14,7 @@ import model.User;
 import controller.SportControllerImplements;
 import controller.SportCommentController;
 
-@WebServlet({"/sport", "/sport-detail"})
+@WebServlet({"/sports", "/sport-detail"})
 public class UserSportServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private SportControllerImplements sportController;
@@ -31,7 +31,7 @@ public class UserSportServlet extends HttpServlet {
             throws ServletException, IOException {
         String path = request.getServletPath();
 
-        if ("/sport".equals(path)) {
+        if ("/sports".equals(path)) {
             String searchQuery = request.getParameter("search");
             String category = request.getParameter("category");
 
@@ -72,13 +72,13 @@ public class UserSportServlet extends HttpServlet {
                         request.setAttribute("comments", comments != null ? comments : List.of());
                         request.getRequestDispatcher("/user-side/sport-detail.jsp").forward(request, response);
                     } else {
-                        response.sendRedirect(request.getContextPath() + "/sport?error=sport_not_found");
+                        response.sendRedirect(request.getContextPath() + "/sports?error=sport_not_found");
                     }
                 } catch (NumberFormatException e) {
-                    response.sendRedirect(request.getContextPath() + "/sport?error=invalid_id");
+                    response.sendRedirect(request.getContextPath() + "/sports?error=invalid_id");
                 }
             } else {
-                response.sendRedirect(request.getContextPath() + "/sport?error=invalid_id");
+                response.sendRedirect(request.getContextPath() + "/sports?error=invalid_id");
             }
         }
     }
@@ -103,13 +103,13 @@ public class UserSportServlet extends HttpServlet {
                 boolean success = commentController.addComment(sportId, user.getId(), user.getUsername(), commentText.trim());
 
                 if (success) {
-                    if ("/sport".equals(path)) {
-                        response.sendRedirect(request.getContextPath() + "/sport");
+                    if ("/sports".equals(path)) {
+                        response.sendRedirect(request.getContextPath() + "/sports");
                     } else if ("/sport-detail".equals(path)) {
                         response.sendRedirect(request.getContextPath() + "/sport-detail?id=" + sportId);
                     }
                 } else {
-                    if ("/sport".equals(path)) {
+                    if ("/sports".equals(path)) {
                         List<Sport> sportList = sportController.getAllData();
                         for (Sport sport : sportList) {
                             List<SportComment> comments = commentController.getCommentsBySportId(sport.getId());
@@ -117,7 +117,7 @@ public class UserSportServlet extends HttpServlet {
                         }
                         request.setAttribute("sportList", sportList);
                         request.setAttribute("error_" + sportId, "Failed to post comment. Please try again.");
-                        request.getRequestDispatcher("/user-side/sport.jsp").forward(request, response);
+                        request.getRequestDispatcher("/user-side/sports.jsp").forward(request, response);
                     } else if ("/sport-detail".equals(path)) {
                         List<Sport> sportList = sportController.getSportById(sportId);
                         Sport sport = sportList.isEmpty() ? null : sportList.get(0);
@@ -129,13 +129,15 @@ public class UserSportServlet extends HttpServlet {
                     }
                 }
             } catch (NumberFormatException e) {
-                response.sendRedirect(request.getContextPath() + "/sport?error=invalid_id");
+                response.sendRedirect(request.getContextPath() + "/sports?error=invalid_id");
             }
         } else {
-            if ("/sport".equals(path)) {
-                response.sendRedirect(request.getContextPath() + "/sport?error=invalid_input");
-            } else {
+            if ("/sports".equals(path)) {
+                response.sendRedirect(request.getContextPath() + "/sports?error=invalid_input");
+            } else if ("/sport-detail".equals(path) && sportIdParam != null) {
                 response.sendRedirect(request.getContextPath() + "/sport-detail?id=" + sportIdParam + "&error=invalid_input");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/sports?error=invalid_input");
             }
         }
     }

@@ -31,10 +31,10 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     <a href="foods" class="text-gray-600 hover:text-[#F4A300]">Foods</a>
-                    <a href="scenery" class="text-gray-600 hover:text-[#F4A300]">Attractions</a>
+                    <a href="attractions" class="text-gray-600 hover:text-[#F4A300]">Attractions</a>
                     <a href="music" class="text-gray-600 hover:text-[#F4A300]">Music</a>
                     <a href="movies" class="text-gray-600 hover:text-[#F4A300]">Movies</a>
-                    <a href="sport" class="text-gray-600 hover:text-[#F4A300]">Sports</a>
+                    <a href="sports" class="text-gray-600 hover:text-[#F4A300]">Sports</a>
                     <% String username = (String) session.getAttribute("username");
                        if (username != null) { %>
                         <span class="text-gray-600">Welcome, <%= username %>!</span>
