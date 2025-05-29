@@ -2,23 +2,23 @@ package model;
 
 import java.sql.Timestamp;
 
-public class Comment {
+public class AttractionComment {
     private int id;
-    private int foodId;
+    private int attractionId;
     private int userId;
     private String username;
     private String commentText;
     private Timestamp createdAt;
 
-    // Default Constructor (for JPA or ORM if used later)
-    public Comment() {
-        this.createdAt = new Timestamp(System.currentTimeMillis()); // Default to current time if not set
+    // Default Constructor
+    public AttractionComment() {
+        this.createdAt = new Timestamp(System.currentTimeMillis());
     }
 
     // Parameterized Constructor
-    public Comment(int id, int foodId, int userId, String username, String commentText, Timestamp createdAt) {
+    public AttractionComment(int id, int attractionId, int userId, String username, String commentText, Timestamp createdAt) {
         this.id = id;
-        this.foodId = foodId;
+        this.attractionId = attractionId;
         this.userId = userId;
         this.username = (username != null) ? username.trim() : null;
         this.commentText = (commentText != null) ? commentText.trim() : null;
@@ -34,12 +34,12 @@ public class Comment {
         this.id = id;
     }
 
-    public int getFoodId() {
-        return foodId;
+    public int getAttractionId() {
+        return attractionId;
     }
 
-    public void setFoodId(int foodId) {
-        this.foodId = foodId;
+    public void setAttractionId(int attractionId) {
+        this.attractionId = attractionId;
     }
 
     public int getUserId() {
@@ -76,9 +76,9 @@ public class Comment {
 
     @Override
     public String toString() {
-        return "Comment{" +
+        return "AttractionComment{" +
                 "id=" + id +
-                ", foodId=" + foodId +
+                ", attractionId=" + attractionId +
                 ", userId=" + userId +
                 ", username='" + username + '\'' +
                 ", commentText='" + commentText + '\'' +

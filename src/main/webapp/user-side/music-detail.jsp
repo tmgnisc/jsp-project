@@ -1,5 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -12,18 +11,30 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
         }
-        .image-gallery img {
-            transition: transform 0.3s ease;
+        .youtube-player {
+            width: 100%;
+            height: 300px;
+            border-radius: 8px;
+            object-fit: cover;
         }
-        .image-gallery img:hover {
-            transform: scale(1.05);
+        .section-title {
+            color: #1a3c70;
+            font-weight: 600;
+        }
+        .link-button {
+            color: #f4a300;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .link-button:hover {
+            color: #a31621;
         }
     </style>
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->
-     <!-- Navigation -->
     <nav class="bg-[#002B5B] text-white shadow-lg">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center py-4">
@@ -35,11 +46,8 @@
                     <a href="music" class="hover:text-[#F4A300]">Music</a>
                     <a href="movies" class="hover:text-[#F4A300]">Movies</a>
                     <a href="sport" class="hover:text-[#F4A300]">Sports</a>
-                    <!-- Dynamically change based on login state -->
-                    <% 
-                        String username = (String) session.getAttribute("username");
-                        if (username != null) { 
-                    %>
+                    <% String username = (String) session.getAttribute("username");
+                       if (username != null) { %>
                         <span class="text-white">Welcome, <%= username %>!</span>
                         <a href="logout" class="hover:text-[#F4A300]">Logout</a>
                     <% } else { %>
@@ -56,23 +64,19 @@
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 py-8">
         <!-- Breadcrumb -->
-        <div class="mb-6">
+        <div class="mb-6 text-gray-600">
             <nav class="flex" aria-label="Breadcrumb">
-                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <ol class="inline-flex items-center space-x-2">
                     <li class="inline-flex items-center">
-                        <a href="index.html" class="text-gray-600 hover:text-[#F4A300]">Home</a>
+                        <a href="index" class="hover:text-[#F4A300]">Home</a>
                     </li>
-                    <li>
-                        <div class="flex items-center">
-                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-                            <a href="music.html" class="text-gray-600 hover:text-[#F4A300]">Music</a>
-                        </div>
+                    <li class="inline-flex items-center">
+                        <span class="mx-2">></span>
+                        <a href="music" class="hover:text-[#F4A300]">Music</a>
                     </li>
-                    <li>
-                        <div class="flex items-center">
-                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-                            <span class="text-gray-500">Nepathya</span>
-                        </div>
+                    <li class="inline-flex items-center">
+                        <span class="mx-2">></span>
+                        <span>${music.artistName}</span>
                     </li>
                 </ol>
             </nav>
@@ -80,126 +84,123 @@
 
         <!-- Music Detail -->
         <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
-                <!-- Image Gallery -->
-                <div class="space-y-4">
-                    <div class="relative h-96 rounded-lg overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                             alt="Nepathya" 
-                             class="w-full h-full object-cover">
-                        <div class="absolute top-4 right-4">
-                            <button class="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100">
-                                <i class="fas fa-heart text-red-500"></i>
-                            </button>
-                        </div>
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h1 class="text-3xl font-bold text-[#1a3c70]">${music.artistName}</h1>
+                    <button class="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100">
+                        <i class="fas fa-heart text-red-500"></i>
+                    </button>
+                </div>
+                <div class="flex items-center mb-6">
+                    <div class="flex text-yellow-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
                     </div>
-                    <div class="grid grid-cols-4 gap-4">
-                        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" 
-                             alt="Nepathya" 
-                             class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
-                        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" 
-                             alt="Nepathya" 
-                             class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
-                        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" 
-                             alt="Nepathya" 
-                             class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
-                        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" 
-                             alt="Nepathya" 
-                             class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
-                    </div>
+                    <span class="text-gray-600 ml-2">4.5 (180 reviews)</span>
                 </div>
 
-                <!-- Music Information -->
-                <div class="space-y-6">
+                <!-- YouTube Thumbnail -->
+                <% String youtubeUrl = (String) request.getAttribute("music.youtubeChannelUrl");
+                   String videoId = "";
+                   String thumbnailUrl = "";
+                   if (youtubeUrl != null) {
+                       if (youtubeUrl.contains("watch?v=")) {
+                           videoId = youtubeUrl.split("v=")[1].split("&")[0];
+                       } else if (youtubeUrl.contains("youtu.be/")) {
+                           videoId = youtubeUrl.split("youtu.be/")[1].split("\\?")[0];
+                       }
+                   }
+                   if (!videoId.isEmpty()) {
+                       thumbnailUrl = "https://img.youtube.com/vi/" + videoId + "/hqdefault.jpg";
+                   }
+                %>
+                <div class="mb-6">
+                    <% if (!thumbnailUrl.isEmpty()) { %>
+                        <img src="<%= thumbnailUrl %>" 
+                             alt="${music.artistName} Thumbnail" 
+                             class="youtube-player">
+                    <% } else { %>
+                        <img src="https://ui-avatars.com/api/?name=${music.artistName}&size=300" 
+                             alt="${music.artistName} Fallback" 
+                             class="youtube-player">
+                    <% } %>
+                </div>
+
+                <!-- Information Sections -->
+                <div class="space-y-4">
                     <div>
-                        <h1 class="text-3xl font-bold text-[#002B5B]">Nepathya</h1>
-                        <div class="flex items-center mt-2">
-                            <div class="flex text-yellow-400">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star-half-alt"></i>
-                            </div>
-                            <span class="text-gray-600 ml-2">4.5 (180 reviews)</span>
-                        </div>
+                        <h2 class="text-xl section-title">About the Artist</h2>
+                        <p class="text-gray-600 mt-2">${music.description}</p>
                     </div>
 
-                    <div class="space-y-4">
-                        <div>
-                            <h2 class="text-xl font-semibold text-[#002B5B]">About the Artist</h2>
-                            <p class="text-gray-600 mt-2">
-                                Nepathya is one of Nepal's most popular and influential rock bands. Formed in 1990, the band has been at the forefront of Nepali rock music, blending traditional Nepali folk music with modern rock elements. Their music often addresses social issues and promotes Nepali culture.
-                            </p>
-                        </div>
+                    <div>
+                        <h2 class="text-xl section-title">Popular Songs</h2>
+                        <p class="text-gray-600 mt-2">${music.popularSongs}</p>
+                    </div>
 
-                        <div>
-                            <h2 class="text-xl font-semibold text-[#002B5B]">Popular Albums</h2>
-                            <ul class="list-disc list-inside text-gray-600 mt-2">
-                                <li>Bheda Ko Oon Jasto (1995)</li>
-                                <li>Timro Mann Ma (1997)</li>
-                                <li>Resham (2001)</li>
-                                <li>Ghatana (2005)</li>
-                                <li>Mero Maya (2010)</li>
-                            </ul>
-                        </div>
+                    <div>
+                        <h2 class="text-xl section-title">Achievements</h2>
+                        <p class="text-gray-600 mt-2">${music.achievements}</p>
+                    </div>
 
-                        <div>
-                            <h2 class="text-xl font-semibold text-[#002B5B]">Band Members</h2>
-                            <div class="mt-2 space-y-2">
-                                <div class="flex items-center text-gray-600">
-                                    <i class="fas fa-user w-6"></i>
-                                    <span>Amrit Gurung - Lead Vocals</span>
-                                </div>
-                                <div class="flex items-center text-gray-600">
-                                    <i class="fas fa-guitar w-6"></i>
-                                    <span>Deepak Bajracharya - Guitar</span>
-                                </div>
-                                <div class="flex items-center text-gray-600">
-                                    <i class="fas fa-drum w-6"></i>
-                                    <span>Subin Shakya - Drums</span>
-                                </div>
-                            </div>
-                        </div>
+                    <div>
+                        <h2 class="text-xl section-title">YouTube Channel</h2>
+                        <a href="${music.youtubeChannelUrl != null ? music.youtubeChannelUrl : '#'}" 
+                           class="flex items-center mt-2 link-button">
+                            <i class="fab fa-youtube mr-2"></i>
+                            <span>Visit YouTube Channel</span>
+                        </a>
+                    </div>
+
+                    <div>
+                        <h2 class="text-xl section-title">Formation Year</h2>
+                        <p class="text-gray-600 mt-2">${music.formationYear}</p>
                     </div>
                 </div>
             </div>
 
             <!-- Comments Section -->
             <div class="border-t border-gray-200 p-8">
-                <h2 class="text-2xl font-semibold text-[#002B5B] mb-6">Comments</h2>
+                <h2 class="text-2xl font-semibold text-[#1a3c70] mb-6">Comments</h2>
                 
                 <!-- Comment Form -->
                 <div class="mb-8">
-                    <form class="space-y-4">
+                    <form action="music-detail" method="post">
+                        <input type="hidden" name="musicId" value="${music.id}">
                         <div>
-                            <textarea class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F4A300]" 
-                                      rows="3" 
-                                      placeholder="Write your comment..."></textarea>
+                            <textarea name="commentText" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F4A300]" 
+                                      rows="3" placeholder="Write your comment..."></textarea>
                         </div>
-                        <div class="flex justify-end">
+                        <div class="flex justify-end mt-2">
                             <button type="submit" class="bg-[#F4A300] text-white px-6 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
                                 Post Comment
                             </button>
                         </div>
+                        <% String error = (String) request.getAttribute("error");
+                           if (error != null) { %>
+                            <p class="text-red-500 mt-2"><%= error %></p>
+                        <% } %>
                     </form>
                 </div>
 
                 <!-- Comments List -->
                 <div class="space-y-6">
-                    <!-- Comment 1 -->
+                    <%@ page import="java.util.List, model.MusicComment" %>
+                    <% List<MusicComment> comments = (List<MusicComment>) request.getAttribute("comments");
+                       if (comments != null && !comments.isEmpty()) {
+                           for (MusicComment comment : comments) { %>
                     <div class="flex space-x-4">
-                        <img src="https://ui-avatars.com/api/?name=John+Doe&background=002B5B&color=fff" 
-                             alt="User" 
-                             class="w-12 h-12 rounded-full">
+                        <img src="https://ui-avatars.com/api/?name=<%= comment.getUsername() %>&background=002B5B&color=fff" 
+                             alt="User" class="w-12 h-12 rounded-full">
                         <div class="flex-1">
                             <div class="flex items-center justify-between">
-                                <h3 class="font-semibold text-[#002B5B]">John Doe</h3>
-                                <span class="text-sm text-gray-500">2 days ago</span>
+                                <h3 class="font-semibold text-[#1a3c70]"><%= comment.getUsername() %></h3>
+                                <span class="text-sm text-gray-500"><%= comment.getCreatedAt() %></span>
                             </div>
-                            <p class="text-gray-600 mt-1">
-                                Their live performances are absolutely amazing! The way they blend traditional and modern music is unique.
-                            </p>
+                            <p class="text-gray-600 mt-1"><%= comment.getCommentText() %></p>
                             <div class="flex items-center space-x-4 mt-2">
                                 <button class="text-gray-500 hover:text-[#F4A300]">
                                     <i class="far fa-thumbs-up"></i> Like
@@ -210,30 +211,10 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Comment 2 -->
-                    <div class="flex space-x-4">
-                        <img src="https://ui-avatars.com/api/?name=Jane+Smith&background=002B5B&color=fff" 
-                             alt="User" 
-                             class="w-12 h-12 rounded-full">
-                        <div class="flex-1">
-                            <div class="flex items-center justify-between">
-                                <h3 class="font-semibold text-[#002B5B]">Jane Smith</h3>
-                                <span class="text-sm text-gray-500">1 week ago</span>
-                            </div>
-                            <p class="text-gray-600 mt-1">
-                                Their lyrics are so meaningful and their music has been the soundtrack of my life. Truly legendary band!
-                            </p>
-                            <div class="flex items-center space-x-4 mt-2">
-                                <button class="text-gray-500 hover:text-[#F4A300]">
-                                    <i class="far fa-thumbs-up"></i> Like
-                                </button>
-                                <button class="text-gray-500 hover:text-[#F4A300]">
-                                    <i class="far fa-comment"></i> Reply
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <% }
+                       } else { %>
+                       <p class="text-gray-500">No comments yet. Be the first to comment!</p>
+                    <% } %>
                 </div>
             </div>
         </div>
@@ -252,11 +233,11 @@
                 <div>
                     <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
                     <ul class="space-y-2">
-                        <li><a href="foods.html" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
-                        <li><a href="attractions.html" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
-                        <li><a href="music.html" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
-                        <li><a href="movies.html" class="text-gray-300 hover:text-[#F4A300]">Movies</a></li>
-                        <li><a href="sports.html" class="text-gray-300 hover:text-[#F4A300]">Sports</a></li>
+                        <li><a href="foods" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
+                        <li><a href="scenery" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
+                        <li><a href="music" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
+                        <li><a href="movies" class="text-gray-300 hover:text-[#F4A300]">Movies</a></li>
+                        <li><a href="sport" class="text-gray-300 hover:text-[#F4A300]">Sports</a></li>
                     </ul>
                 </div>
                 <div>
@@ -270,25 +251,17 @@
                 <div>
                     <h4 class="text-lg font-semibold mb-4">Follow Us</h4>
                     <div class="flex space-x-4">
-                        <a href="#" class="text-gray-300 hover:text-[#F4A300]">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="text-gray-300 hover:text-[#F4A300]">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="text-gray-300 hover:text-[#F4A300]">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                        <a href="#" class="text-gray-300 hover:text-[#F4A300]">
-                            <i class="fab fa-youtube"></i>
-                        </a>
+                        <a href="#" class="text-gray-300 hover:text-[#F4A300]"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-300 hover:text-[#F4A300]"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-300 hover:text-[#F4A300]"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-300 hover:text-[#F4A300]"><i class="fab fa-youtube"></i></a>
                     </div>
                 </div>
             </div>
             <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
-                <p>&copy; 2024 Nepal Navigator. All rights reserved.</p>
+                <p>© 2024 Nepal Navigator. All rights reserved.</p>
             </div>
         </div>
     </footer>
 </body>
-</html> 
+</html>

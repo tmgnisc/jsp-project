@@ -37,15 +37,12 @@ public class UserFoodServlet extends HttpServlet {
         String path = request.getServletPath();
 
         if ("/foods".equals(path)) {
-            // Get search parameters
             String searchQuery = request.getParameter("search");
             String region = request.getParameter("region");
             String tag = request.getParameter("tag");
 
-            // Fetch all food items
             List<FoodItem> foodItems = foodController.getAllData();
 
-            // Filter based on search query
             if (searchQuery != null && !searchQuery.trim().isEmpty()) {
                 String query = searchQuery.toLowerCase();
                 foodItems = foodItems.stream()
@@ -53,7 +50,6 @@ public class UserFoodServlet extends HttpServlet {
                         .collect(Collectors.toList());
             }
 
-            // Filter based on region
             String selectedRegion = (region != null && !region.trim().isEmpty()) ? region.toLowerCase() : "all";
             if (!"all".equals(selectedRegion)) {
                 foodItems = foodItems.stream()
@@ -61,7 +57,6 @@ public class UserFoodServlet extends HttpServlet {
                         .collect(Collectors.toList());
             }
 
-            // Filter based on tag
             String selectedTag = (tag != null && !tag.trim().isEmpty()) ? tag.toLowerCase() : "all";
             if (!"all".equals(selectedTag)) {
                 foodItems = foodItems.stream()
@@ -69,32 +64,31 @@ public class UserFoodServlet extends HttpServlet {
                         .collect(Collectors.toList());
             }
 
-            // Set attributes for JSP
             request.setAttribute("foodItems", foodItems);
             request.setAttribute("searchQuery", searchQuery);
             request.setAttribute("selectedRegion", selectedRegion);
             request.setAttribute("selectedTag", selectedTag);
             request.getRequestDispatcher("/user-side/food.jsp").forward(request, response);
         } else if ("/food-detail".equals(path)) {
-            // Existing food-detail logic remains unchanged
             String idParam = request.getParameter("id");
             if (idParam != null) {
                 try {
                     int id = Integer.parseInt(idParam);
-                    FoodItem food = foodController.getFoodItemById(id).get(0);
-                    if (food != null) {
+                    List<FoodItem> foodItems = foodController.getFoodItemById(id);
+                    if (!foodItems.isEmpty()) {
+                        FoodItem food = foodItems.get(0);
                         List<Comment> comments = commentController.getCommentsByFoodId(id);
                         request.setAttribute("food", food);
-                        request.setAttribute("comments", comments);
+                        request.setAttribute("comments", comments != null ? comments : List.of());
                         request.getRequestDispatcher("/user-side/food-detail.jsp").forward(request, response);
                     } else {
-                        response.sendRedirect(request.getContextPath() + "/foods");
+                        response.sendRedirect(request.getContextPath() + "/foods?error=food_not_found");
                     }
                 } catch (NumberFormatException | IndexOutOfBoundsException e) {
-                    response.sendRedirect(request.getContextPath() + "/foods");
+                    response.sendRedirect(request.getContextPath() + "/foods?error=invalid_id");
                 }
             } else {
-                response.sendRedirect(request.getContextPath() + "/foods");
+                response.sendRedirect(request.getContextPath() + "/foods?error=invalid_id");
             }
         }
     }
@@ -105,14 +99,11 @@ public class UserFoodServlet extends HttpServlet {
         String path = request.getServletPath();
 
         if ("/food-detail".equals(path)) {
-            // Handle comment posting
-            String idParam = request.getParameter("id");
+            String idParam = request.getParameter("foodId"); // Changed from "id" to "foodId" to match the form
             String commentText = request.getParameter("commentText");
 
-            // Check if user is logged in
             User user = (User) request.getSession().getAttribute("user");
             if (user == null) {
-                // Redirect to login if not logged in
                 request.getSession().setAttribute("redirectAfterLogin", request.getRequestURI() + "?id=" + idParam);
                 response.sendRedirect(request.getContextPath() + "/login");
                 return;
@@ -125,29 +116,32 @@ public class UserFoodServlet extends HttpServlet {
                         foodId,
                         user.getId(),
                         user.getUsername(),
-                        commentText
+                        commentText.trim()
                     );
                     if (success) {
-                        // Redirect to refresh the page with the new comment
                         response.sendRedirect(request.getContextPath() + "/food-detail?id=" + foodId);
                     } else {
-                        // Handle error (e.g., display error message)
-                        FoodItem food = foodController.getFoodItemById(foodId).get(0); // Adjust based on implementation
+                        FoodItem food = foodController.getFoodItemById(foodId).get(0);
                         List<Comment> comments = commentController.getCommentsByFoodId(foodId);
                         request.setAttribute("food", food);
-                        request.setAttribute("comments", comments);
+                        request.setAttribute("comments", comments != null ? comments : List.of());
                         request.setAttribute("error", "Failed to post comment. Please try again.");
-                        request.getRequestDispatcher("/food-detail.jsp").forward(request, response);
+                        request.getRequestDispatcher("/user-side/food-detail.jsp").forward(request, response);
                     }
                 } catch (NumberFormatException | IndexOutOfBoundsException e) {
-                    response.sendRedirect(request.getContextPath() + "/foods");
+                    response.sendRedirect(request.getContextPath() + "/foods?error=invalid_id");
                 }
             } else {
-                // Invalid input, redirect back to the same page
-                response.sendRedirect(request.getContextPath() + "/food-detail?id=" + idParam);
+                response.sendRedirect(request.getContextPath() + "/food-detail?id=" + idParam + "&error=invalid_input");
             }
         } else {
             doGet(request, response);
         }
+    }
+
+    @Override
+    public void destroy() {
+        // Cleanup if needed
+        super.destroy();
     }
 }

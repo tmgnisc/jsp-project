@@ -25,22 +25,30 @@
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <nav class="bg-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <a href="${pageContext.request.contextPath}/index" class="text-2xl font-bold text-[#002B5B]">Nepal Navigator</a>
+    <nav class="bg-[#002B5B] text-white shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <a href="${pageContext.request.contextPath}/index" class="text-2xl font-bold text-[#F4A300]">Nepal Navigator</a>
+                <div class="hidden md:flex space-x-6">
+                    <a href="${pageContext.request.contextPath}/index" class="hover:text-[#F4A300]">Home</a>
+                    <a href="${pageContext.request.contextPath}/foods" class="hover:text-[#F4A300]">Foods</a>
+                    <a href="${pageContext.request.contextPath}/attractions" class="hover:text-[#F4A300]">Attractions</a>
+                    <a href="${pageContext.request.contextPath}/music" class="hover:text-[#F4A300]">Music</a>
+                    <a href="${pageContext.request.contextPath}/movies" class="hover:text-[#F4A300]">Movies</a>
+                    <a href="${pageContext.request.contextPath}/sports" class="hover:text-[#F4A300]">Sports</a>
+                    <% 
+                        String username = (String) session.getAttribute("username");
+                        if (username != null) { 
+                    %>
+                        <span class="text-white">Welcome, <%= username %>!</span>
+                        <a href="${pageContext.request.contextPath}/logout" class="hover:text-[#F4A300]">Logout</a>
+                    <% } else { %>
+                        <a href="${pageContext.request.contextPath}/login" class="hover:text-[#F4A300]">Login/Register</a>
+                    <% } %>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <a href="${pageContext.request.contextPath}/foods" class="text-gray-600 hover:text-[#F4A300]">Foods</a>
-                    <a href="${pageContext.request.contextPath}/attractions" class="text-gray-600 hover:text-[#F4A300]">Attractions</a>
-                    <a href="${pageContext.request.contextPath}/music" class="text-gray-600 hover:text-[#F4A300]">Music</a>
-                    <a href="${pageContext.request.contextPath}/movies" class="text-gray-600 hover:text-[#F4A300]">Movies</a>
-                    <a href="${pageContext.request.contextPath}/sports" class="text-gray-600 hover:text-[#F4A300]">Sports</a>
-                    <a href="${pageContext.request.contextPath}/login" class="bg-[#F4A300] text-white px-4 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
-                        Login / Register
-                    </a>
-                </div>
+                <button class="md:hidden">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
             </div>
         </div>
     </nav>
@@ -180,7 +188,7 @@
                         <input type="hidden" name="foodId" value="<%= food.getId() %>">
                         <div>
                             <textarea class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F4A300]" 
-                                      name="comment" 
+                                      name="commentText" 
                                       rows="3" 
                                       placeholder="Write your comment..." 
                                       required></textarea>
@@ -197,7 +205,11 @@
                 <div class="space-y-6">
                     <% if (comments != null && !comments.isEmpty()) {
                         for (Comment comment : comments) {
-                            String timeAgo = java.time.Duration.between(comment.getCreatedAt().toInstant(), java.time.Instant.now()).toDays() + " days ago";
+                            String timeAgo = "Unknown time";
+                            if (comment.getCreatedAt() != null) {
+                                long daysAgo = java.time.Duration.between(comment.getCreatedAt().toInstant(), java.time.Instant.now()).toDays();
+                                timeAgo = daysAgo + " day" + (daysAgo != 1 ? "s" : "") + " ago";
+                            }
                     %>
                     <div class="flex space-x-4">
                         <img src="https://ui-avatars.com/api/?name=<%= comment.getUsername() != null ? comment.getUsername().replace(" ", "+") : "Unknown" %>&background=002B5B&color=fff" 
@@ -226,7 +238,6 @@
                 </div>
             </div>
         </div>
-    </div>
 
     <!-- Footer -->
     <footer class="bg-[#002B5B] text-white mt-12">

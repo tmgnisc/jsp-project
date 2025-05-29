@@ -54,7 +54,7 @@ public class IndexServlet extends HttpServlet {
         request.setAttribute("topSports", topSports);
 
         // Forward to JSP
-        request.getRequestDispatcher("user-side/index.jsp").forward(request, response);
+        request.getRequestDispatcher("/user-side/index.jsp").forward(request, response);
     }
 
     @Override

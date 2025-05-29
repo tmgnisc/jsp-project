@@ -1,5 +1,7 @@
 package model;
 
+
+
 public class Music {
     private int id;
     private String artistName;

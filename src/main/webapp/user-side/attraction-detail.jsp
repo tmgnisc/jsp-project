@@ -1,5 +1,7 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="model.Attraction" %>
+<%@ page import="model.AttractionComment" %>
+<%@ page import="java.util.List" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -26,23 +28,22 @@
     <nav class="bg-[#002B5B] text-white shadow-lg">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center py-4">
-                <a href="index" class="text-2xl font-bold text-[#F4A300]">Nepal Navigator</a>
+                <a href="${pageContext.request.contextPath}/index" class="text-2xl font-bold text-[#F4A300]">Nepal Navigator</a>
                 <div class="hidden md:flex space-x-6">
-                    <a href="index" class="hover:text-[#F4A300]">Home</a>
-                    <a href="foods" class="hover:text-[#F4A300]">Foods</a>
-                    <a href="scenery" class="hover:text-[#F4A300]">Attractions</a>
-                    <a href="music" class="hover:text-[#F4A300]">Music</a>
-                    <a href="movies" class="hover:text-[#F4A300]">Movies</a>
-                    <a href="sport" class="hover:text-[#F4A300]">Sports</a>
-                    <!-- Dynamically change based on login state -->
+                    <a href="${pageContext.request.contextPath}/index" class="hover:text-[#F4A300]">Home</a>
+                    <a href="${pageContext.request.contextPath}/foods" class="hover:text-[#F4A300]">Foods</a>
+                    <a href="${pageContext.request.contextPath}/attractions" class="hover:text-[#F4A300]">Attractions</a>
+                    <a href="${pageContext.request.contextPath}/music" class="hover:text-[#F4A300]">Music</a>
+                    <a href="${pageContext.request.contextPath}/movies" class="hover:text-[#F4A300]">Movies</a>
+                    <a href="${pageContext.request.contextPath}/sports" class="hover:text-[#F4A300]">Sports</a>
                     <% 
                         String username = (String) session.getAttribute("username");
                         if (username != null) { 
                     %>
                         <span class="text-white">Welcome, <%= username %>!</span>
-                        <a href="logout" class="hover:text-[#F4A300]">Logout</a>
+                        <a href="${pageContext.request.contextPath}/logout" class="hover:text-[#F4A300]">Logout</a>
                     <% } else { %>
-                        <a href="login" class="hover:text-[#F4A300]">Login/Register</a>
+                        <a href="${pageContext.request.contextPath}/login" class="hover:text-[#F4A300]">Login/Register</a>
                     <% } %>
                 </div>
                 <button class="md:hidden">
@@ -54,23 +55,31 @@
 
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 py-8">
+        <%
+            Attraction attraction = (Attraction) request.getAttribute("attraction");
+            List<AttractionComment> comments = (List<AttractionComment>) request.getAttribute("comments");
+            if (attraction == null) {
+                response.sendRedirect(request.getContextPath() + "/attractions");
+                return;
+            }
+        %>
         <!-- Breadcrumb -->
         <div class="mb-6">
             <nav class="flex" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
                     <li class="inline-flex items-center">
-                        <a href="index.html" class="text-gray-600 hover:text-[#F4A300]">Home</a>
+                        <a href="${pageContext.request.contextPath}/index" class="text-gray-600 hover:text-[#F4A300]">Home</a>
                     </li>
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-                            <a href="attractions.html" class="text-gray-600 hover:text-[#F4A300]">Attractions</a>
+                            <a href="${pageContext.request.contextPath}/attractions" class="text-gray-600 hover:text-[#F4A300]">Attractions</a>
                         </div>
                     </li>
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-                            <span class="text-gray-500">Mount Everest</span>
+                            <span class="text-gray-500"><%= attraction.getName() != null ? attraction.getName() : "Unknown" %></span>
                         </div>
                     </li>
                 </ol>
@@ -83,8 +92,8 @@
                 <!-- Image Gallery -->
                 <div class="space-y-4">
                     <div class="relative h-96 rounded-lg overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                             alt="Mount Everest" 
+                        <img src="${pageContext.request.contextPath}<%= attraction.getImage() != null ? attraction.getImage() : "https://images.unsplash.com/photo-1596431449745-38ee90d8c96d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" %>" 
+                             alt="<%= attraction.getName() != null ? attraction.getName() : "Attraction" %>" 
                              class="w-full h-full object-cover">
                         <div class="absolute top-4 right-4">
                             <button class="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100">
@@ -93,17 +102,17 @@
                         </div>
                     </div>
                     <div class="grid grid-cols-4 gap-4">
-                        <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" 
-                             alt="Mount Everest" 
+                        <img src="${pageContext.request.contextPath}<%= attraction.getImage() != null ? attraction.getImage() : "https://images.unsplash.com/photo-1596431449745-38ee90d8c96d?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" %>" 
+                             alt="<%= attraction.getName() != null ? attraction.getName() : "Attraction" %>" 
                              class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
-                        <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" 
-                             alt="Mount Everest" 
+                        <img src="${pageContext.request.contextPath}<%= attraction.getImage() != null ? attraction.getImage() : "https://images.unsplash.com/photo-1596431449745-38ee90d8c96d?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" %>" 
+                             alt="<%= attraction.getName() != null ? attraction.getName() : "Attraction" %>" 
                              class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
-                        <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" 
-                             alt="Mount Everest" 
+                        <img src="${pageContext.request.contextPath}<%= attraction.getImage() != null ? attraction.getImage() : "https://images.unsplash.com/photo-1596431449745-38ee90d8c96d?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" %>" 
+                             alt="<%= attraction.getName() != null ? attraction.getName() : "Attraction" %>" 
                              class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
-                        <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" 
-                             alt="Mount Everest" 
+                        <img src="${pageContext.request.contextPath}<%= attraction.getImage() != null ? attraction.getImage() : "https://images.unsplash.com/photo-1596431449745-38ee90d8c96d?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" %>" 
+                             alt="<%= attraction.getName() != null ? attraction.getName() : "Attraction" %>" 
                              class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
                     </div>
                 </div>
@@ -111,16 +120,16 @@
                 <!-- Attraction Information -->
                 <div class="space-y-6">
                     <div>
-                        <h1 class="text-3xl font-bold text-[#002B5B]">Mount Everest</h1>
+                        <h1 class="text-3xl font-bold text-[#002B5B]"><%= attraction.getName() != null ? attraction.getName() : "Attraction" %></h1>
                         <div class="flex items-center mt-2">
                             <div class="flex text-yellow-400">
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
                             </div>
-                            <span class="text-gray-600 ml-2">5.0 (250 reviews)</span>
+                            <span class="text-gray-600 ml-2">4.5 (120 reviews)</span>
                         </div>
                     </div>
 
@@ -128,37 +137,53 @@
                         <div>
                             <h2 class="text-xl font-semibold text-[#002B5B]">Description</h2>
                             <p class="text-gray-600 mt-2">
-                                Mount Everest, known in Nepali as Sagarmatha and in Tibetan as Chomolungma, is Earth's highest mountain above sea level, located in the Mahalangur Himal sub-range of the Himalayas. The China–Nepal border runs across its summit point. Its elevation of 8,848.86 m (29,031.7 ft) was most recently established in 2020 by the Chinese and Nepali authorities.
+                                <%= attraction.getDescription() != null ? attraction.getDescription() : "A beautiful attraction in Nepal, offering stunning views and cultural significance." %>
                             </p>
                         </div>
 
                         <div>
-                            <h2 class="text-xl font-semibold text-[#002B5B]">Location & Access</h2>
+                            <h2 class="text-xl font-semibold text-[#002B5B]">Location</h2>
                             <div class="mt-2 space-y-2">
                                 <div class="flex items-center text-gray-600">
                                     <i class="fas fa-map-marker-alt w-6"></i>
-                                    <span>Sagarmatha Zone, Nepal</span>
-                                </div>
-                                <div class="flex items-center text-gray-600">
-                                    <i class="fas fa-mountain w-6"></i>
-                                    <span>Elevation: 8,848.86 m (29,031.7 ft)</span>
-                                </div>
-                                <div class="flex items-center text-gray-600">
-                                    <i class="fas fa-hiking w-6"></i>
-                                    <span>Best time to visit: March-May, September-November</span>
+                                    <span><%= attraction.getLocation() != null ? attraction.getLocation() : "Kathmandu, Nepal" %></span>
                                 </div>
                             </div>
                         </div>
 
                         <div>
-                            <h2 class="text-xl font-semibold text-[#002B5B]">Activities</h2>
-                            <ul class="list-disc list-inside text-gray-600 mt-2">
-                                <li>Mountaineering</li>
-                                <li>Trekking</li>
-                                <li>Photography</li>
-                                <li>Helicopter Tours</li>
-                                <li>Base Camp Visit</li>
-                            </ul>
+                            <h2 class="text-xl font-semibold text-[#002B5B]">Best Time to Visit</h2>
+                            <p class="text-gray-600 mt-2">
+                                <%= attraction.getBestTimeToVisit() != null ? attraction.getBestTimeToVisit() : "Spring and Autumn" %>
+                            </p>
+                        </div>
+
+                        <div>
+                            <h2 class="text-xl font-semibold text-[#002B5B]">How to Reach</h2>
+                            <p class="text-gray-600 mt-2">
+                                <%= attraction.getHowToReach() != null ? attraction.getHowToReach() : "Accessible by local buses and taxis from major cities." %>
+                            </p>
+                        </div>
+
+                        <div>
+                            <h2 class="text-xl font-semibold text-[#002B5B]">Entry Fee</h2>
+                            <p class="text-gray-600 mt-2">
+                                <%= attraction.getEntryFee() != null ? attraction.getEntryFee() : "NPR 500 for foreigners, NPR 100 for locals" %>
+                            </p>
+                        </div>
+
+                        <div>
+                            <h2 class="text-xl font-semibold text-[#002B5B]">Opening Hours</h2>
+                            <p class="text-gray-600 mt-2">
+                                <%= attraction.getOpeningHours() != null ? attraction.getOpeningHours() : "9:00 AM - 5:00 PM" %>
+                            </p>
+                        </div>
+
+                        <div>
+                            <h2 class="text-xl font-semibold text-[#002B5B]">Nearby Attractions</h2>
+                            <p class="text-gray-600 mt-2">
+                                <%= attraction.getNearbyAttractions() != null ? attraction.getNearbyAttractions() : "Other temples and markets nearby." %>
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -170,11 +195,14 @@
                 
                 <!-- Comment Form -->
                 <div class="mb-8">
-                    <form class="space-y-4">
+                    <form class="space-y-4" action="${pageContext.request.contextPath}/attraction-detail" method="post">
+                        <input type="hidden" name="attractionId" value="<%= attraction.getId() %>">
                         <div>
                             <textarea class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F4A300]" 
+                                      name="commentText" 
                                       rows="3" 
-                                      placeholder="Write your comment..."></textarea>
+                                      placeholder="Write your comment..." 
+                                      required></textarea>
                         </div>
                         <div class="flex justify-end">
                             <button type="submit" class="bg-[#F4A300] text-white px-6 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
@@ -184,21 +212,26 @@
                     </form>
                 </div>
 
-                <!-- Comments List -->
+                <!-- Dynamic Comments List -->
                 <div class="space-y-6">
-                    <!-- Comment 1 -->
+                    <% if (comments != null && !comments.isEmpty()) {
+                        for (AttractionComment comment : comments) {
+                            String timeAgo = "Unknown time";
+                            if (comment.getCreatedAt() != null) {
+                                long daysAgo = java.time.Duration.between(comment.getCreatedAt().toInstant(), java.time.Instant.now()).toDays();
+                                timeAgo = daysAgo + " day" + (daysAgo != 1 ? "s" : "") + " ago";
+                            }
+                    %>
                     <div class="flex space-x-4">
-                        <img src="https://ui-avatars.com/api/?name=John+Doe&background=002B5B&color=fff" 
+                        <img src="https://ui-avatars.com/api/?name=<%= comment.getUsername() != null ? comment.getUsername().replace(" ", "+") : "Unknown" %>&background=002B5B&color=fff" 
                              alt="User" 
                              class="w-12 h-12 rounded-full">
                         <div class="flex-1">
                             <div class="flex items-center justify-between">
-                                <h3 class="font-semibold text-[#002B5B]">John Doe</h3>
-                                <span class="text-sm text-gray-500">2 days ago</span>
+                                <h3 class="font-semibold text-[#002B5B]"><%= comment.getUsername() != null ? comment.getUsername() : "Anonymous" %></h3>
+                                <span class="text-sm text-gray-500"><%= timeAgo %></span>
                             </div>
-                            <p class="text-gray-600 mt-1">
-                                The view from the base camp is absolutely breathtaking. A must-visit destination for any nature lover!
-                            </p>
+                            <p class="text-gray-600 mt-1"><%= comment.getCommentText() != null ? comment.getCommentText() : "No comment text" %></p>
                             <div class="flex items-center space-x-4 mt-2">
                                 <button class="text-gray-500 hover:text-[#F4A300]">
                                     <i class="far fa-thumbs-up"></i> Like
@@ -209,30 +242,10 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Comment 2 -->
-                    <div class="flex space-x-4">
-                        <img src="https://ui-avatars.com/api/?name=Jane+Smith&background=002B5B&color=fff" 
-                             alt="User" 
-                             class="w-12 h-12 rounded-full">
-                        <div class="flex-1">
-                            <div class="flex items-center justify-between">
-                                <h3 class="font-semibold text-[#002B5B]">Jane Smith</h3>
-                                <span class="text-sm text-gray-500">1 week ago</span>
-                            </div>
-                            <p class="text-gray-600 mt-1">
-                                The trek to base camp was challenging but worth every step. The local guides were incredibly knowledgeable and helpful.
-                            </p>
-                            <div class="flex items-center space-x-4 mt-2">
-                                <button class="text-gray-500 hover:text-[#F4A300]">
-                                    <i class="far fa-thumbs-up"></i> Like
-                                </button>
-                                <button class="text-gray-500 hover:text-[#F4A300]">
-                                    <i class="far fa-comment"></i> Reply
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <% }
+                    } else { %>
+                    <div class="text-center text-gray-500">No comments yet.</div>
+                    <% } %>
                 </div>
             </div>
         </div>
@@ -251,11 +264,11 @@
                 <div>
                     <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
                     <ul class="space-y-2">
-                        <li><a href="foods.html" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
-                        <li><a href="attractions.html" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
-                        <li><a href="music.html" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
-                        <li><a href="movies.html" class="text-gray-300 hover:text-[#F4A300]">Movies</a></li>
-                        <li><a href="sports.html" class="text-gray-300 hover:text-[#F4A300]">Sports</a></li>
+                        <li><a href="${pageContext.request.contextPath}/foods" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
+                        <li><a href="${pageContext.request.contextPath}/attractions" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
+                        <li><a href="${pageContext.request.contextPath}/music" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
+                        <li><a href="${pageContext.request.contextPath}/movies" class="text-gray-300 hover:text-[#F4A300]">Movies</a></li>
+                        <li><a href="${pageContext.request.contextPath}/sports" class="text-gray-300 hover:text-[#F4A300]">Sports</a></li>
                     </ul>
                 </div>
                 <div>
@@ -285,9 +298,9 @@
                 </div>
             </div>
             <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
-                <p>&copy; 2024 Nepal Navigator. All rights reserved.</p>
+                <p>© 2025 Nepal Navigator. All rights reserved.</p>
             </div>
         </div>
     </footer>
 </body>
-</html> 
+</html>

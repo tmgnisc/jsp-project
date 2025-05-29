@@ -23,10 +23,10 @@
                 <div class="hidden md:flex space-x-6">
                     <a href="index" class="hover:text-[#F4A300]">Home</a>
                     <a href="foods" class="hover:text-[#F4A300]">Foods</a>
-                    <a href="scenery" class="hover:text-[#F4A300]">Attractions</a>
+                    <a href="attractions" class="hover:text-[#F4A300]">Attractions</a>
                     <a href="music" class="hover:text-[#F4A300]">Music</a>
-                    <a href="movie" class="hover:text-[#F4A300]">Movies</a>
-                    <a href="sport" class="hover:text-[#F4A300]">Sports</a>
+                    <a href="movies" class="hover:text-[#F4A300]">Movies</a>
+                    <a href="sports" class="hover:text-[#F4A300]">Sports</a>
                     <a href="login" class="hover:text-[#F4A300]">Login/Register</a>
                 </div>
                 <button class="md:hidden">
@@ -205,10 +205,10 @@
                 <div>
                     <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
                     <ul class="space-y-2">
-                        <li><a href="index.jsp" class="text-gray-300 hover:text-[#F4A300]">Home</a></li>
-                        <li><a href="foods.jsp" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
-                        <li><a href="scenery.jsp" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
-                        <li><a href="music.jsp" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
+                        <li><a href="index" class="text-gray-300 hover:text-[#F4A300]">Home</a></li>
+                        <li><a href="foods" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
+                        <li><a href="attractions" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
+                        <li><a href="music" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
                     </ul>
                 </div>
                 <div>

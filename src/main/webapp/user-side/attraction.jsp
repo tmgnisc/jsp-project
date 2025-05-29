@@ -1,24 +1,18 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
-<%@ page import="model.Movie" %>
+<%@ page import="model.Attraction" %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nepali Movies - Nepal Navigator</title>
+    <title>Nepali Attractions - Nepal Navigator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-        }
-        .movie-image {
-            width: 100%;
-            height: 200px;
-            border-radius: 8px;
-            object-fit: cover;
         }
     </style>
 </head>
@@ -53,12 +47,12 @@
     </nav>
 
     <!-- Hero Section -->
-    <div class="relative h-[300px] bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');">
+    <div class="relative h-[300px] bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1596431449745-38ee90d8c96d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');">
         <div class="absolute inset-0 bg-black bg-opacity-50"></div>
         <div class="relative container mx-auto px-4 h-full flex items-center">
             <div class="text-white">
-                <h1 class="text-4xl font-bold mb-4">Nepali Movies</h1>
-                <p class="text-xl">Explore the rich cinematic heritage of Nepal</p>
+                <h1 class="text-4xl font-bold mb-4">Nepali Attractions</h1>
+                <p class="text-xl">Explore the breathtaking destinations of Nepal</p>
             </div>
         </div>
     </div>
@@ -67,20 +61,27 @@
     <div class="bg-white shadow-md py-6">
         <div class="container mx-auto px-4">
             <div class="max-w-3xl mx-auto">
-                <form action="${pageContext.request.contextPath}/movies" method="GET" class="flex flex-col md:flex-row gap-4">
+                <form action="${pageContext.request.contextPath}/attractions" method="GET" class="flex flex-col md:flex-row gap-4">
                     <div class="flex-1">
                         <input type="text" name="search" 
                                value="<%= request.getAttribute("searchQuery") != null ? request.getAttribute("searchQuery") : "" %>" 
-                               placeholder="Search for movies..." 
+                               placeholder="Search for attractions..." 
                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-transparent">
                     </div>
                     <div class="flex gap-4">
-                        <select name="genre" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-transparent">
-                            <option value="all" <%= "all".equals(request.getAttribute("selectedGenre")) || request.getAttribute("selectedGenre") == null ? "selected" : "" %>>All Genres</option>
-                            <option value="drama" <%= "drama".equals(request.getAttribute("selectedGenre")) ? "selected" : "" %>>Drama</option>
-                            <option value="comedy" <%= "comedy".equals(request.getAttribute("selectedGenre")) ? "selected" : "" %>>Comedy</option>
-                            <option value="action" <%= "action".equals(request.getAttribute("selectedGenre")) ? "selected" : "" %>>Action</option>
-                            <option value="romance" <%= "romance".equals(request.getAttribute("selectedGenre")) ? "selected" : "" %>>Romance</option>
+                        <select name="location" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-transparent">
+                            <option value="all" <%= "all".equals(request.getAttribute("selectedLocation")) || request.getAttribute("selectedLocation") == null ? "selected" : "" %>>All Locations</option>
+                            <option value="Kathmandu" <%= "Kathmandu".equals(request.getAttribute("selectedLocation")) ? "selected" : "" %>>Kathmandu</option>
+                            <option value="Pokhara" <%= "Pokhara".equals(request.getAttribute("selectedLocation")) ? "selected" : "" %>>Pokhara</option>
+                            <option value="Lumbini" <%= "Lumbini".equals(request.getAttribute("selectedLocation")) ? "selected" : "" %>>Lumbini</option>
+                            <option value="Chitwan" <%= "Chitwan".equals(request.getAttribute("selectedLocation")) ? "selected" : "" %>>Chitwan</option>
+                        </select>
+                        <select name="category" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-transparent">
+                            <option value="all" <%= "all".equals(request.getAttribute("selectedCategory")) || request.getAttribute("selectedCategory") == null ? "selected" : "" %>>All Categories</option>
+                            <option value="Historical" <%= "Historical".equals(request.getAttribute("selectedCategory")) ? "selected" : "" %>>Historical</option>
+                            <option value="Natural" <%= "Natural".equals(request.getAttribute("selectedCategory")) ? "selected" : "" %>>Natural</option>
+                            <option value="Religious" <%= "Religious".equals(request.getAttribute("selectedCategory")) ? "selected" : "" %>>Religious</option>
+                            <option value="Adventure" <%= "Adventure".equals(request.getAttribute("selectedCategory")) ? "selected" : "" %>>Adventure</option>
                         </select>
                         <button type="submit" class="bg-[#F4A300] text-white px-6 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
                             <i class="fas fa-search mr-2"></i>Search
@@ -91,46 +92,30 @@
         </div>
     </div>
 
-    <!-- Movies Grid -->
+    <!-- Attractions Grid -->
     <div class="container mx-auto px-4 py-12">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <%
-                List<Movie> movieList = (List<Movie>) request.getAttribute("movieList");
-                if (movieList != null && !movieList.isEmpty()) {
-                    for (Movie movie : movieList) {
+                List<Attraction> attractions = (List<Attraction>) request.getAttribute("attractions");
+                if (attractions != null && !attractions.isEmpty()) {
+                    for (Attraction attraction : attractions) {
             %>
             <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                <img src="${pageContext.request.contextPath}<%= movie.getImage() != null ? movie.getImage() : "/images/placeholder.jpg" %>" 
-                     alt="<%= movie.getTitle() != null ? movie.getTitle() : "Movie Image" %>" 
-                     class="movie-image" 
+                <img src="${pageContext.request.contextPath}<%= attraction.getImage() != null ? attraction.getImage() : "/images/placeholder.jpg" %>" 
+                     alt="<%= attraction.getName() != null ? attraction.getName() : "Attraction Image" %>" 
+                     class="w-full h-48 object-cover" 
                      onerror="this.src='https://via.placeholder.com/500'">
                 <div class="p-6">
                     <div class="flex justify-between items-start">
                         <div>
-                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= movie.getTitle() != null ? movie.getTitle() : "Untitled Movie" %></h3>
-                            <p class="text-gray-600 mb-2"><%= movie.getDescription() != null ? movie.getDescription() : "No description available." %></p>
-                            <div class="flex items-center text-sm text-gray-500">
-                                <div class="flex text-yellow-400 mr-2">
-                                    <% float rating = movie.getRating();
-                                       int fullStars = (int) rating;
-                                       boolean hasHalfStar = rating - fullStars >= 0.5;
-                                       for (int i = 0; i < fullStars; i++) { %>
-                                           <i class="fas fa-star"></i>
-                                       <% }
-                                          if (hasHalfStar) { %>
-                                           <i class="fas fa-star-half-alt"></i>
-                                       <% }
-                                          for (int i = fullStars + (hasHalfStar ? 1 : 0); i < 5; i++) { %>
-                                           <i class="far fa-star"></i>
-                                       <% } %>
-                                </div>
-                                <span><%= movie.getRating() %>/5</span>
-                            </div>
+                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= attraction.getName() != null ? attraction.getName() : "Unnamed Attraction" %></h3>
+                            <p class="text-gray-600 mb-2"><%= attraction.getDescription() != null ? attraction.getDescription() : "No description available." %></p>
+                            <p class="text-sm text-gray-500"><i class="fas fa-map-marker-alt mr-2"></i><%= attraction.getLocation() != null ? attraction.getLocation() : "Unknown Location" %></p>
                         </div>
-                        <span class="bg-[#F4A300] text-white px-3 py-1 rounded-full text-sm"><%= movie.getGenre() != null ? movie.getGenre() : "N/A" %></span>
+                        <span class="bg-[#F4A300] text-white px-3 py-1 rounded-full text-sm"><%= attraction.getCategory() != null ? attraction.getCategory() : "Uncategorized" %></span>
                     </div>
                     <div class="mt-6">
-                        <a href="${pageContext.request.contextPath}/movie-detail?id=<%= movie.getId() %>" 
+                        <a href="${pageContext.request.contextPath}/attraction-detail?id=<%= attraction.getId() %>" 
                            class="bg-[#F4A300] text-white px-4 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
                             View Details
                         </a>
@@ -141,7 +126,7 @@
                     }
                 } else {
             %>
-            <div class="col-span-3 text-center text-gray-500">No movies found matching your criteria.</div>
+            <div class="col-span-3 text-center text-gray-500">No attractions found matching your criteria.</div>
             <%
                 }
             %>
@@ -163,8 +148,6 @@
                         <li><a href="${pageContext.request.contextPath}/foods" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
                         <li><a href="${pageContext.request.contextPath}/attractions" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
                         <li><a href="${pageContext.request.contextPath}/music" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
-                        <li><a href="${pageContext.request.contextPath}/movies" class="text-gray-300 hover:text-[#F4A300]">Movies</a></li>
-                        <li><a href="${pageContext.request.contextPath}/sports" class="text-gray-300 hover:text-[#F4A300]">Sports</a></li>
                     </ul>
                 </div>
                 <div>

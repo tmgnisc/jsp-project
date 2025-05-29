@@ -1,5 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -13,10 +12,21 @@
         body {
             font-family: 'Poppins', sans-serif;
         }
+        .youtube-player {
+            width: 100%;
+            height: 150px;
+            border-radius: 8px;
+        }
+        .artist-thumbnail {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
-     <!-- Navigation -->
+    <!-- Navigation -->
     <nav class="bg-[#002B5B] text-white shadow-lg">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center py-4">
@@ -24,15 +34,12 @@
                 <div class="hidden md:flex space-x-6">
                     <a href="index" class="hover:text-[#F4A300]">Home</a>
                     <a href="foods" class="hover:text-[#F4A300]">Foods</a>
-                    <a href="scenery" class="hover:text-[#F4A300]">Attractions</a>
+                    <a href="attractions" class="hover:text-[#F4A300]">Attractions</a>
                     <a href="music" class="hover:text-[#F4A300]">Music</a>
                     <a href="movies" class="hover:text-[#F4A300]">Movies</a>
-                    <a href="sport" class="hover:text-[#F4A300]">Sports</a>
-                    <!-- Dynamically change based on login state -->
-                    <% 
-                        String username = (String) session.getAttribute("username");
-                        if (username != null) { 
-                    %>
+                    <a href="sports" class="hover:text-[#F4A300]">Sports</a>
+                    <% String username = (String) session.getAttribute("username");
+                       if (username != null) { %>
                         <span class="text-white">Welcome, <%= username %>!</span>
                         <a href="logout" class="hover:text-[#F4A300]">Logout</a>
                     <% } else { %>
@@ -61,23 +68,26 @@
     <div class="bg-white shadow-md py-6">
         <div class="container mx-auto px-4">
             <div class="max-w-3xl mx-auto">
-                <div class="flex flex-col md:flex-row gap-4">
-                    <div class="flex-1">
-                        <input type="text" placeholder="Search for songs or artists..." class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-transparent">
+                <form action="music" method="get">
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <div class="flex-1">
+                            <input type="text" name="search" value="${searchQuery}" placeholder="Search for artists..." 
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-transparent">
+                        </div>
+                        <div class="flex gap-4">
+                            <select name="genre" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-transparent">
+                                <option value="all" ${selectedGenre == 'all' ? 'selected' : ''}>All Genres</option>
+                                <option value="folk" ${selectedGenre == 'folk' ? 'selected' : ''}>Folk</option>
+                                <option value="pop" ${selectedGenre == 'pop' ? 'selected' : ''}>Pop</option>
+                                <option value="rock" ${selectedGenre == 'rock' ? 'selected' : ''}>Rock</option>
+                                <option value="classical" ${selectedGenre == 'classical' ? 'selected' : ''}>Classical</option>
+                            </select>
+                            <button type="submit" class="bg-[#F4A300] text-white px-6 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
+                                <i class="fas fa-search mr-2"></i>Search
+                            </button>
+                        </div>
                     </div>
-                    <div class="flex gap-4">
-                        <select class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-transparent">
-                            <option value="">All Genres</option>
-                            <option value="folk">Folk</option>
-                            <option value="pop">Pop</option>
-                            <option value="rock">Rock</option>
-                            <option value="classical">Classical</option>
-                        </select>
-                        <button class="bg-[#F4A300] text-white px-6 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
-                            <i class="fas fa-search mr-2"></i>Search
-                        </button>
-                    </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
@@ -85,199 +95,103 @@
     <!-- Music Grid -->
     <div class="container mx-auto px-4 py-12">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Music Card 1 -->
+            <%@ page import="java.util.List, model.Music" %>
+            <% List<Music> musicList = (List<Music>) request.getAttribute("musicList");
+               if (musicList != null && !musicList.isEmpty()) {
+                   for (Music music : musicList) {
+                       String youtubeUrl = music.getYoutubeChannelUrl();
+                       String videoId = "";
+                       if (youtubeUrl != null && youtubeUrl.contains("watch?v=")) {
+                           videoId = youtubeUrl.split("v=")[1].split("&")[0];
+                       }
+            %>
             <div class="bg-white rounded-lg shadow-lg overflow-hidden">
                 <div class="p-6">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2">Nepali Folk Song</h3>
-                            <p class="text-gray-600 mb-2">Traditional Nepali folk music</p>
-                            <p class="text-sm text-gray-500"><i class="fas fa-user mr-2"></i>Traditional Artist</p>
-                        </div>
-                        <span class="bg-[#F4A300] text-white px-3 py-1 rounded-full text-sm">Folk</span>
+                    <!-- YouTube Player -->
+                    <div class="mb-4">
+                        <% if (!videoId.isEmpty()) { %>
+                            <iframe class="youtube-player" 
+                                    src="https://www.youtube.com/embed/<%= videoId %>?rel=0" 
+                                    frameborder="0" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    allowfullscreen>
+                            </iframe>
+                        <% } else { %>
+                            <img src="https://ui-avatars.com/api/?name=<%= music.getArtistName() %>&size=200" 
+                                 alt="<%= music.getArtistName() %> Fallback" 
+                                 class="youtube-player">
+                        <% } %>
                     </div>
-                    
-                    <!-- Music Links -->
-                    <div class="mt-4 space-y-2">
-                        <a href="#" class="flex items-center text-[#F4A300] hover:text-[#A31621]">
-                            <i class="fab fa-youtube mr-2"></i>
-                            <span>Watch on YouTube</span>
-                        </a>
-                        <a href="#" class="flex items-center text-[#F4A300] hover:text-[#A31621]">
-                            <i class="fab fa-spotify mr-2"></i>
-                            <span>Listen on Spotify</span>
-                        </a>
-                    </div>
-                    
-                    <!-- Comments Section -->
-                    <div class="mt-6">
-                        <h4 class="font-semibold text-gray-700 mb-3">Comments</h4>
-                        <div class="space-y-4">
-                            <div class="bg-gray-50 p-3 rounded">
-                                <div class="flex items-center mb-2">
-                                    <img src="https://ui-avatars.com/api/?name=Alex+Brown" alt="User" class="w-8 h-8 rounded-full mr-2">
-                                    <div>
-                                        <p class="font-medium text-sm">Alex Brown</p>
-                                        <p class="text-xs text-gray-500">1 week ago</p>
-                                    </div>
-                                </div>
-                                <p class="text-sm text-gray-600">Beautiful traditional melody that captures the essence of Nepal.</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Comment Input -->
-                        <div class="mt-4">
-                            <textarea placeholder="Write a comment..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-transparent"></textarea>
-                            <button class="mt-2 bg-[#F4A300] text-white px-4 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
-                                Post Comment
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Music Card 2 -->
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                <div class="p-6">
                     <div class="flex justify-between items-start">
                         <div>
-                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2">Modern Nepali Pop</h3>
-                            <p class="text-gray-600 mb-2">Contemporary Nepali pop music</p>
-                            <p class="text-sm text-gray-500"><i class="fas fa-user mr-2"></i>Modern Artist</p>
+                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2">
+                                <a href="music-detail?id=<%= music.getId() %>" class="hover:text-[#F4A300]"><%= music.getArtistName() %></a>
+                            </h3>
+                            <p class="text-gray-600 mb-2">Formed in <%= music.getFormationYear() %></p>
+                            <p class="text-sm text-gray-500"><i class="fas fa-user mr-2"></i><%= music.getArtistName() %></p>
                         </div>
-                        <span class="bg-[#F4A300] text-white px-3 py-1 rounded-full text-sm">Pop</span>
+                        <span class="bg-[#F4A300] text-white px-3 py-1 rounded-full text-sm"><%= music.getGenre() %></span>
                     </div>
                     
                     <!-- Music Links -->
                     <div class="mt-4 space-y-2">
-                        <a href="#" class="flex items-center text-[#F4A300] hover:text-[#A31621]">
+                        <a href="<%= youtubeUrl != null ? youtubeUrl : '#' %>" 
+                           class="flex items-center text-[#F4A300] hover:text-[#A31621]">
                             <i class="fab fa-youtube mr-2"></i>
-                            <span>Watch on YouTube</span>
-                        </a>
-                        <a href="#" class="flex items-center text-[#F4A300] hover:text-[#A31621]">
-                            <i class="fab fa-spotify mr-2"></i>
-                            <span>Listen on Spotify</span>
+                            <span>Visit YouTube Channel</span>
                         </a>
                     </div>
                     
-                    <!-- Comments Section -->
+                    <!-- Comment Prompt -->
                     <div class="mt-6">
-                        <h4 class="font-semibold text-gray-700 mb-3">Comments</h4>
-                        <div class="space-y-4">
-                            <div class="bg-gray-50 p-3 rounded">
-                                <div class="flex items-center mb-2">
-                                    <img src="https://ui-avatars.com/api/?name=Lisa+Wang" alt="User" class="w-8 h-8 rounded-full mr-2">
-                                    <div>
-                                        <p class="font-medium text-sm">Lisa Wang</p>
-                                        <p class="text-xs text-gray-500">3 days ago</p>
-                                    </div>
-                                </div>
-                                <p class="text-sm text-gray-600">Great modern take on Nepali music! Love the fusion of traditional and contemporary elements.</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Comment Input -->
-                        <div class="mt-4">
-                            <textarea placeholder="Write a comment..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-transparent"></textarea>
-                            <button class="mt-2 bg-[#F4A300] text-white px-4 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
-                                Post Comment
-                            </button>
-                        </div>
+                        <a href="music-detail?id=<%= music.getId() %>" 
+                           class="text-[#F4A300] hover:text-[#A31621]">
+                            View Details and Comments
+                        </a>
                     </div>
                 </div>
             </div>
-
-            <!-- Music Card 3 -->
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                <div class="p-6">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2">Classical Nepali</h3>
-                            <p class="text-gray-600 mb-2">Timeless classical compositions</p>
-                            <p class="text-sm text-gray-500"><i class="fas fa-user mr-2"></i>Classical Artist</p>
-                        </div>
-                        <span class="bg-[#F4A300] text-white px-3 py-1 rounded-full text-sm">Classical</span>
-                    </div>
-                    
-                    <!-- Music Links -->
-                    <div class="mt-4 space-y-2">
-                        <a href="#" class="flex items-center text-[#F4A300] hover:text-[#A31621]">
-                            <i class="fab fa-youtube mr-2"></i>
-                            <span>Watch on YouTube</span>
-                        </a>
-                        <a href="#" class="flex items-center text-[#F4A300] hover:text-[#A31621]">
-                            <i class="fab fa-spotify mr-2"></i>
-                            <span>Listen on Spotify</span>
-                        </a>
-                    </div>
-                    
-                    <!-- Comments Section -->
-                    <div class="mt-6">
-                        <h4 class="font-semibold text-gray-700 mb-3">Comments</h4>
-                        <div class="space-y-4">
-                            <div class="bg-gray-50 p-3 rounded">
-                                <div class="flex items-center mb-2">
-                                    <img src="https://ui-avatars.com/api/?name=Tom+Wilson" alt="User" class="w-8 h-8 rounded-full mr-2">
-                                    <div>
-                                        <p class="font-medium text-sm">Tom Wilson</p>
-                                        <p class="text-xs text-gray-500">5 days ago</p>
-                                    </div>
-                                </div>
-                                <p class="text-sm text-gray-600">The classical instruments create such a magical atmosphere.</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Comment Input -->
-                        <div class="mt-4">
-                            <textarea placeholder="Write a comment..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-transparent"></textarea>
-                            <button class="mt-2 bg-[#F4A300] text-white px-4 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
-                                Post Comment
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <% }
+               } else { %>
+               <p class="text-center text-gray-600 col-span-full">No artists found.</p>
+            <% } %>
         </div>
 
-        <!-- Related Celebrities Section -->
+        <!-- Famous Artists Section -->
         <div class="mt-16">
             <h2 class="text-3xl font-bold text-[#002B5B] mb-8">Famous Nepali Artists</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- Artist Card 1 -->
+                <% if (musicList != null && !musicList.isEmpty()) {
+                       int count = 0;
+                       for (Music music : musicList) {
+                           if (count >= 4) break;
+                           String youtubeUrl = music.getYoutubeChannelUrl();
+                           String videoId = "";
+                           if (youtubeUrl != null && youtubeUrl.contains("watch?v=")) {
+                               videoId = youtubeUrl.split("v=")[1].split("&")[0];
+                           }
+                %>
                 <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img src="https://ui-avatars.com/api/?name=Artist+1&size=200" alt="Artist 1" class="w-full h-48 object-cover">
+                    <% if (!videoId.isEmpty()) { %>
+                        <img src="https://img.youtube.com/vi/<%= videoId %>/hqdefault.jpg" 
+                             alt="<%= music.getArtistName() %> Thumbnail" 
+                             class="artist-thumbnail">
+                    <% } else { %>
+                        <img src="https://ui-avatars.com/api/?name=<%= music.getArtistName() %>&size=200" 
+                             alt="<%= music.getArtistName() %> Fallback" 
+                             class="artist-thumbnail">
+                    <% } %>
                     <div class="p-4">
-                        <h3 class="text-lg font-semibold text-[#002B5B]">Nepali Artist 1</h3>
-                        <p class="text-sm text-gray-600">Folk Music</p>
+                        <h3 class="text-lg font-semibold text-[#002B5B]"><%= music.getArtistName() %></h3>
+                        <p class="text-sm text-gray-600"><%= music.getGenre() %> Music</p>
                     </div>
                 </div>
-
-                <!-- Artist Card 2 -->
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img src="https://ui-avatars.com/api/?name=Artist+2&size=200" alt="Artist 2" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <h3 class="text-lg font-semibold text-[#002B5B]">Nepali Artist 2</h3>
-                        <p class="text-sm text-gray-600">Pop Music</p>
-                    </div>
-                </div>
-
-                <!-- Artist Card 3 -->
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img src="https://ui-avatars.com/api/?name=Artist+3&size=200" alt="Artist 3" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <h3 class="text-lg font-semibold text-[#002B5B]">Nepali Artist 3</h3>
-                        <p class="text-sm text-gray-600">Classical Music</p>
-                    </div>
-                </div>
-
-                <!-- Artist Card 4 -->
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img src="https://ui-avatars.com/api/?name=Artist+4&size=200" alt="Artist 4" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <h3 class="text-lg font-semibold text-[#002B5B]">Nepali Artist 4</h3>
-                        <p class="text-sm text-gray-600">Rock Music</p>
-                    </div>
-                </div>
+                <%      count++;
+                       }
+                   } else { %>
+                <p class="text-center text-gray-600 col-span-full">No famous artists available.</p>
+                <% } %>
             </div>
         </div>
     </div>
@@ -293,10 +207,12 @@
                 <div>
                     <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
                     <ul class="space-y-2">
-                        <li><a href="index.html" class="text-gray-300 hover:text-[#F4A300]">Home</a></li>
-                        <li><a href="foods.html" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
-                        <li><a href="scenery.html" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
-                        <li><a href="music.html" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
+                        <li><a href="index" class="text-gray-300 hover:text-[#F4A300]">Home</a></li>
+                        <li><a href="foods" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
+                        <li><a href="attractions" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
+                        <li><a href="music" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
+                        <li><a href="movies" class="text-gray-300 hover:text-[#F4A300]">Movies</a></li>
+                        <li><a href="sports" class="text-gray-300 hover:text-[#F4A300]">Sports</a></li>
                     </ul>
                 </div>
                 <div>
@@ -318,9 +234,9 @@
                 </div>
             </div>
             <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
-                <p>&copy; 2024 Nepal Navigator. All rights reserved.</p>
+                <p>© 2024 Nepal Navigator. All rights reserved.</p>
             </div>
         </div>
     </footer>
 </body>
-</html> 
+</html>
