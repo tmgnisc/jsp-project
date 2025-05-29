@@ -15,7 +15,7 @@ import model.Movie;
 import utility.DatabaseConnection;
 import utility.DynamicTableCreator;
 
-@WebServlet("/movies")
+@WebServlet("/movie-dashboard")
 @MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, // 2MB
                  maxFileSize = 1024 * 1024 * 10,      // 10MB
                  maxRequestSize = 1024 * 1024 * 50)   // 50MB

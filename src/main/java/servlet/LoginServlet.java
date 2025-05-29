@@ -6,6 +6,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import controller.UserControllerImplements;
 import model.User;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -56,12 +57,26 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        // Successful login
+        // Successful login - Set session attributes
         request.getSession().setAttribute("user", user); // Store full user object
         request.getSession().setAttribute("username", user.getUsername()); // Store username separately
         request.getSession().setAttribute("email", user.getEmail()); // Store email separately
+        request.getSession().setAttribute("role", user.getRole()); // Store role in session
         request.getSession().setAttribute("notify", "Login successful! Welcome, " + user.getUsername() + ".");
-        request.getRequestDispatcher("/user-side/index.jsp").forward(request, response);
+
+        // Redirect based on role
+        String redirectPage;
+        String role = user.getRole().toLowerCase(); // Ensure case-insensitive comparison
+        if ("admin".equals(role)) {
+            redirectPage = "/admin-side/dashboard.jsp";
+        } else if ("tourist".equals(role) || "local".equals(role)) {
+            // Redirect to /index to let IndexServlet handle data fetching
+            redirectPage = "/index";
+        } else {
+            // Default fallback
+            redirectPage = "/index";
+        }
+        response.sendRedirect(request.getContextPath() + redirectPage); // Use redirect instead of forward
     }
 
     private String validateLogin(String email, String password) {
@@ -96,6 +111,6 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-    	request.getRequestDispatcher("/user-side/login.jsp").forward(request, response);
+        request.getRequestDispatcher("/user-side/login.jsp").forward(request, response);
     }
 }

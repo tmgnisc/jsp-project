@@ -174,4 +174,50 @@ public class AttractionControllerImplements implements AttractionController {
             return false;
         }
     }
+    
+    public int getTotalAttractions() {
+        int count = 0;
+        String sql = "SELECT COUNT(*) AS total FROM attractions"; 
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                count = rs.getInt("total");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+    
+    public List<Attraction> getTopAttractions(int limit) {
+        List<Attraction> attractions = new ArrayList<>();
+        String sql = "SELECT id, name, location, description, category, image, best_time_to_visit, how_to_reach, entry_fee, opening_hours, nearby_attractions " +
+                     "FROM attractions ORDER BY id DESC LIMIT ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, limit);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Attraction attraction = new Attraction(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("location"),
+                        rs.getString("description"),
+                        rs.getString("category"),
+                        rs.getString("image"),
+                        rs.getString("best_time_to_visit"),
+                        rs.getString("how_to_reach"),
+                        rs.getString("entry_fee"),
+                        rs.getString("opening_hours"),
+                        rs.getString("nearby_attractions")
+                    );
+                    attractions.add(attraction);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return attractions;
+    }
 }

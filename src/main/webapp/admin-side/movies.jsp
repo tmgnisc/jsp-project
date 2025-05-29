@@ -21,6 +21,24 @@
     </style>
 </head>
 <body class="bg-gray-100">
+<%
+    // Check if user is authenticated
+    String username = (String) session.getAttribute("username");
+    String role = (String) session.getAttribute("role");
+
+    if (username == null || role == null) {
+        // User is not logged in or role is not set, redirect to login
+        response.sendRedirect(request.getContextPath() + "/login");
+        return;
+    }
+
+    // Check if the user has the "admin" role
+    if (!"admin".equalsIgnoreCase(role)) {
+        // User is not an admin, redirect to index page
+        response.sendRedirect(request.getContextPath() + "/index");
+        return;
+    }
+%>
     <div class="flex h-screen">
         <!-- Sidebar -->
         <div class="w-64 bg-[#002B5B] text-white">
@@ -32,27 +50,27 @@
                     <i class="fas fa-tachometer-alt w-6"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="foods" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="food-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-utensils w-6"></i>
                     <span>Foods</span>
                 </a>
-                <a href="attractions" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="attraction-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-mountain w-6"></i>
                     <span>Attractions</span>
                 </a>
-                <a href="music" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="music-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-music w-6"></i>
                     <span>Music</span>
                 </a>
-                <a href="movies" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="movie-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-film w-6"></i>
                     <span>Movies</span>
                 </a>
-                <a href="sports" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="sports-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-running w-6"></i>
                     <span>Sports</span>
                 </a>
-                <a href="users" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="user-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-users w-6"></i>
                     <span>Users</span>
                 </a>
@@ -136,7 +154,7 @@
                                     <button onclick="showEditMovieModal(<%=item.getId()%>)" class="text-[#F4A300] hover:text-[#A31621] mr-3">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                   <form action="${pageContext.request.contextPath}/movies" method="post" style="display:inline;">
+                                   <form action="${pageContext.request.contextPath}/movie-dashboard" method="post" style="display:inline;">
 									    <input type="hidden" name="action" value="delete">
 									    <input type="hidden" name="id" value="<%=item.getId()%>">
 									    <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this movie?')">
@@ -161,7 +179,7 @@
         <div class="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
             <div class="mt-3">
                 <h3 class="text-lg font-medium text-[#002B5B] mb-4" id="modalTitle">Add New Movie</h3>
-                <form id="movieForm" action="${pageContext.request.contextPath}/movies" method="post" enctype="multipart/form-data" class="space-y-4">
+                <form id="movieForm" action="${pageContext.request.contextPath}/movie-dashboard" method="post" enctype="multipart/form-data" class="space-y-4">
                     <input type="hidden" name="action" id="formAction" value="add">
                     <input type="hidden" name="id" id="movieId" value="0">
                     <div>
@@ -226,7 +244,7 @@
             document.getElementById('formAction').value = 'edit';
             document.getElementById('movieId').value = id;
 
-            fetch('${pageContext.request.contextPath}/movies?action=getMovie&id=' + id)
+            fetch('${pageContext.request.contextPath}/movie-dashboard?action=getMovie&id=' + id)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -258,7 +276,7 @@
 
         function deleteMovie(id) {
             if (confirm('Are you sure you want to delete this movie?')) {
-                fetch('${pageContext.request.contextPath}/movies', {
+                fetch('${pageContext.request.contextPath}/movie-dashboard', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',

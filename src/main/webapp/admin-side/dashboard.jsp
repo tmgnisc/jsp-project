@@ -1,5 +1,5 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.net.URLEncoder" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,6 +16,24 @@
     </style>
 </head>
 <body class="bg-gray-100">
+ <%
+    // Check if user is authenticated
+    String username = (String) session.getAttribute("username");
+    String role = (String) session.getAttribute("role");
+
+    if (username == null || role == null) {
+        // User is not logged in or role is not set, redirect to login
+        response.sendRedirect(request.getContextPath() + "/login");
+        return;
+    }
+
+    // Check if the user has the "admin" role
+    if (!"admin".equalsIgnoreCase(role)) {
+        // User is not an admin, redirect to index page
+        response.sendRedirect(request.getContextPath() + "/index");
+        return;
+    }
+%>
     <div class="flex h-screen">
         <!-- Sidebar -->
         <div class="w-64 bg-[#002B5B] text-white">
@@ -27,31 +45,31 @@
                     <i class="fas fa-tachometer-alt w-6"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="foods" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="food-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-utensils w-6"></i>
                     <span>Foods</span>
                 </a>
-                <a href="attractions" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="attraction-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-mountain w-6"></i>
                     <span>Attractions</span>
                 </a>
-                <a href="music" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="music-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-music w-6"></i>
                     <span>Music</span>
                 </a>
-                <a href="movies" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="movie-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-film w-6"></i>
                     <span>Movies</span>
                 </a>
-                <a href="sports" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="sports-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-running w-6"></i>
                     <span>Sports</span>
                 </a>
-                <a href="users" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="user-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-users w-6"></i>
                     <span>Users</span>
                 </a>
-                <a href="index" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="logout" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-sign-out-alt w-6"></i>
                     <span>Logout</span>
                 </a>
@@ -65,16 +83,30 @@
                 <div class="flex justify-between items-center px-8 py-4">
                     <h1 class="text-2xl font-semibold text-[#002B5B]">Dashboard</h1>
                     <div class="flex items-center space-x-4">
-                        <span class="text-gray-600">Welcome, Admin</span>
-                        <img src="https://ui-avatars.com/api/?name=Admin&background=002B5B&color=fff" alt="Admin" class="w-10 h-10 rounded-full">
+                        <span class="text-gray-600">Welcome, <%= username %></span>
+                        <img src="https://ui-avatars.com/api/?name=<%= URLEncoder.encode(username, "UTF-8") %>&background=002B5B&color=fff" alt="Admin" class="w-10 h-10 rounded-full">
                     </div>
                 </div>
             </div>
 
+            <!-- Notification -->
+         <%
+		    String notify = (String) request.getAttribute("notify");
+		    if (notify != null && !notify.isEmpty()) {
+		%>
+		    <div class="p-8">
+		        <div class="<%= notify.contains("successfully") ? "bg-green-100 border-green-500 text-green-700" : "bg-red-100 border-red-500 text-red-700" %> border-l-4 p-4 mb-6" role="alert">
+		            <p><%= notify %></p>
+		        </div>
+		    </div>
+		<%
+		    }
+		%>
+
             <!-- Dashboard Content -->
             <div class="p-8">
                 <!-- Stats Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
                     <div class="bg-white rounded-lg shadow-md p-6">
                         <div class="flex items-center">
                             <div class="p-3 rounded-full bg-blue-100 text-blue-600">
@@ -82,7 +114,7 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-gray-500 text-sm">Total Foods</h3>
-                                <p class="text-2xl font-semibold text-[#002B5B]">24</p>
+                                <p class="text-2xl font-semibold text-[#002B5B]"><%= request.getAttribute("totalFoods") != null ? request.getAttribute("totalFoods") : 0 %></p>
                             </div>
                         </div>
                     </div>
@@ -93,7 +125,7 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-gray-500 text-sm">Total Attractions</h3>
-                                <p class="text-2xl font-semibold text-[#002B5B]">18</p>
+                                <p class="text-2xl font-semibold text-[#002B5B]"><%= request.getAttribute("totalAttractions") != null ? request.getAttribute("totalAttractions") : 0 %></p>
                             </div>
                         </div>
                     </div>
@@ -104,18 +136,40 @@
                             </div>
                             <div class="ml-4">
                                 <h3 class="text-gray-500 text-sm">Total Users</h3>
-                                <p class="text-2xl font-semibold text-[#002B5B]">156</p>
+                                <p class="text-2xl font-semibold text-[#002B5B]"><%= request.getAttribute("totalUsers") != null ? request.getAttribute("totalUsers") : 0 %></p>
                             </div>
                         </div>
                     </div>
                     <div class="bg-white rounded-lg shadow-md p-6">
                         <div class="flex items-center">
                             <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
-                                <i class="fas fa-comments text-2xl"></i>
+                                <i class="fas fa-music text-2xl"></i>
                             </div>
                             <div class="ml-4">
-                                <h3 class="text-gray-500 text-sm">Total Comments</h3>
-                                <p class="text-2xl font-semibold text-[#002B5B]">89</p>
+                                <h3 class="text-gray-500 text-sm">Total Music</h3>
+                                <p class="text-2xl font-semibold text-[#002B5B]"><%= request.getAttribute("totalMusic") != null ? request.getAttribute("totalMusic") : 0 %></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-red-100 text-red-600">
+                                <i class="fas fa-film text-2xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-gray-500 text-sm">Total Movies</h3>
+                                <p class="text-2xl font-semibold text-[#002B5B]"><%= request.getAttribute("totalMovies") != null ? request.getAttribute("totalMovies") : 0 %></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-indigo-100 text-indigo-600">
+                                <i class="fas fa-running text-2xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-gray-500 text-sm">Total Sports</h3>
+                                <p class="text-2xl font-semibold text-[#002B5B]"><%= request.getAttribute("totalSports") != null ? request.getAttribute("totalSports") : 0 %></p>
                             </div>
                         </div>
                     </div>
@@ -158,4 +212,4 @@
         </div>
     </div>
 </body>
-</html> 
+</html>

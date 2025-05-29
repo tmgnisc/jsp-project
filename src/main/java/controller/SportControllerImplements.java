@@ -162,4 +162,47 @@ public class SportControllerImplements implements SportController {
             return false;
         }
     }
+    
+    public int getTotalSports() {
+        int count = 0;
+        String sql = "SELECT COUNT(*) AS total FROM sports"; 
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                count = rs.getInt("total");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+    
+    public List<Sport> getTopSports(int limit) {
+        List<Sport> sportsList = new ArrayList<>();
+        String sql = "SELECT id, name, description, category, status, history, rules, image " +
+                     "FROM sports ORDER BY id DESC LIMIT ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, limit);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Sport sport = new Sport(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        rs.getString("category"),
+                        rs.getString("status"),
+                        rs.getString("history"),
+                        rs.getString("rules"),
+                        rs.getString("image")
+                    );
+                    sportsList.add(sport);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return sportsList;
+    }
 }

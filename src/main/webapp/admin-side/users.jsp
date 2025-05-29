@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="model.User" %>
 <%@ page import="java.util.List" %>
+<%@ page import="java.net.URLEncoder" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -21,6 +22,24 @@
     </style>
 </head>
 <body class="bg-gray-100">
+   <%
+    // Check if user is authenticated
+    String username = (String) session.getAttribute("username");
+    String role = (String) session.getAttribute("role");
+
+    if (username == null || role == null) {
+        // User is not logged in or role is not set, redirect to login
+        response.sendRedirect(request.getContextPath() + "/login");
+        return;
+    }
+
+    // Check if the user has the "admin" role
+    if (!"admin".equalsIgnoreCase(role)) {
+        // User is not an admin, redirect to index page
+        response.sendRedirect(request.getContextPath() + "/index");
+        return;
+    }
+%>
     <div class="flex h-screen">
         <!-- Sidebar -->
         <div class="w-64 bg-[#002B5B] text-white">
@@ -32,31 +51,31 @@
                     <i class="fas fa-tachometer-alt w-6"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="foods" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="food-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-utensils w-6"></i>
                     <span>Foods</span>
                 </a>
-                <a href="attractions" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="attraction-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-mountain w-6"></i>
                     <span>Attractions</span>
                 </a>
-                <a href="music" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="music-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-music w-6"></i>
                     <span>Music</span>
                 </a>
-                <a href="movies" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="movie-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-film w-6"></i>
                     <span>Movies</span>
                 </a>
-                <a href="sports" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="sports-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-running w-6"></i>
                     <span>Sports</span>
                 </a>
-                <a href="users" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="user-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-users w-6"></i>
                     <span>Users</span>
                 </a>
-                <a href="index" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="logout" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-sign-out-alt w-6"></i>
                     <span>Logout</span>
                 </a>
@@ -70,8 +89,8 @@
                 <div class="flex justify-between items-center px-8 py-4">
                     <h1 class="text-2xl font-semibold text-[#002B5B]">Users Management</h1>
                     <div class="flex items-center space-x-4">
-                        <span class="text-gray-600">Welcome, Admin</span>
-                        <img src="https://ui-avatars.com/api/?name=Admin&background=002B5B&color=fff" alt="Admin" class="w-10 h-10 rounded-full">
+                        <span class="text-gray-600">Welcome, <%= username %></span>
+                        <img src="https://ui-avatars.com/api/?name=<%= URLEncoder.encode(username, "UTF-8") %>&background=002B5B&color=fff" alt="Admin" class="w-10 h-10 rounded-full">
                     </div>
                 </div>
             </div>
@@ -122,34 +141,34 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 h-10 w-10">
-                                            <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=<%=item.getFullName().replace(" ", "+")%>&background=002B5B&color=fff" alt="">
+                                            <img class="h-10 w-10 rounded-full" src="https://ui-avatars.com/api/?name=<%= URLEncoder.encode(item.getFullName().replace(" ", "+"), "UTF-8") %>&background=002B5B&color=fff" alt="">
                                         </div>
                                         <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900"><%=item.getFullName()%></div>
-                                            <div class="text-sm text-gray-500">@<%=item.getUsername()%></div>
+                                            <div class="text-sm font-medium text-gray-900"><%= item.getFullName() %></div>
+                                            <div class="text-sm text-gray-500">@<%= item.getUsername() %></div>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900"><%=item.getEmail()%></div>
+                                    <div class="text-sm text-gray-900"><%= item.getEmail() %></div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                        <%=item.getRole().substring(0, 1).toUpperCase() + item.getRole().substring(1)%>
+                                        <%= item.getRole().substring(0, 1).toUpperCase() + item.getRole().substring(1) %>
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                        <%=item.getStatus().substring(0, 1).toUpperCase() + item.getStatus().substring(1)%>
+                                        <%= item.getStatus().substring(0, 1).toUpperCase() + item.getStatus().substring(1) %>
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <button onclick="showEditUserModal(<%=item.getId()%>)" class="text-[#F4A300] hover:text-[#A31621] mr-3">
+                                    <button onclick="showEditUserModal(<%= item.getId() %>)" class="text-[#F4A300] hover:text-[#A31621] mr-3">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <form action="${pageContext.request.contextPath}/users" method="post" style="display:inline;">
+                                    <form action="${pageContext.request.contextPath}/user-dashboard" method="post" style="display:inline;">
                                         <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" value="<%=item.getId()%>">
+                                        <input type="hidden" name="id" value="<%= item.getId() %>">
                                         <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this user?')">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -172,7 +191,7 @@
         <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <div class="mt-3">
                 <h3 class="text-lg font-medium text-[#002B5B] mb-4" id="modalTitle">Add New User</h3>
-                <form id="userForm" action="${pageContext.request.contextPath}/users" method="post" class="space-y-4">
+                <form id="userForm" action="${pageContext.request.contextPath}/user-dashboard" method="post" class="space-y-4">
                     <input type="hidden" name="action" id="formAction" value="add">
                     <input type="hidden" name="id" id="userId" value="0">
                     <div>
@@ -188,14 +207,15 @@
                         <input type="text" name="username" id="username" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" required>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Password</label>
-                        <input type="password" name="password" id="password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" required>
+                        <label class="block text-sm font-medium text-gray-700">Password <span id="passwordLabel" class="text-gray-500 text-xs"></span></label>
+                        <input type="password" name="password" id="password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" placeholder="Enter new password (optional for edit)">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Role</label>
                         <select name="role" id="role" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" required>
-                            <option value="user">User</option>
                             <option value="admin">Admin</option>
+                            <option value="tourist">Tourist</option>
+                            <option value="local">Local</option>
                         </select>
                     </div>
                     <div>
@@ -223,6 +243,8 @@
             document.getElementById('modalTitle').textContent = 'Add New User';
             document.getElementById('formAction').value = 'add';
             document.getElementById('userId').value = '0';
+            document.getElementById('passwordLabel').textContent = '';
+            document.getElementById('password').setAttribute('required', 'required');
             document.getElementById('userForm').reset();
             document.getElementById('userModal').classList.remove('hidden');
         }
@@ -231,8 +253,10 @@
             document.getElementById('modalTitle').textContent = 'Edit User';
             document.getElementById('formAction').value = 'edit';
             document.getElementById('userId').value = id;
+            document.getElementById('passwordLabel').textContent = '(Leave blank to keep existing)';
+            document.getElementById('password').removeAttribute('required');
 
-            fetch('${pageContext.request.contextPath}/users?action=getUser&id=' + id)
+            fetch('${pageContext.request.contextPath}/user-dashboard?action=getUser&id=' + id)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -247,7 +271,7 @@
                     document.getElementById('fullName').value = data.fullName || '';
                     document.getElementById('email').value = data.email || '';
                     document.getElementById('username').value = data.username || '';
-                    document.getElementById('password').value = data.password || ''; // Note: In production, handle securely
+                    document.getElementById('password').value = ''; // Clear password field
                     document.getElementById('role').value = data.role || '';
                     document.getElementById('status').value = data.status || '';
                     document.getElementById('userModal').classList.remove('hidden');
@@ -260,26 +284,6 @@
 
         function closeUserModal() {
             document.getElementById('userModal').classList.add('hidden');
-        }
-
-        function deleteUser(id) {
-            if (confirm('Are you sure you want to delete this user?')) {
-                fetch('${pageContext.request.contextPath}/users', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'action=delete&id=' + id
-                })
-                .then(response => response.text())
-                .then(data => {
-                    location.reload();
-                })
-                .catch(error => {
-                    console.error('Error deleting user:', error);
-                    alert('Failed to delete user.');
-                });
-            }
         }
     </script>
 </body>

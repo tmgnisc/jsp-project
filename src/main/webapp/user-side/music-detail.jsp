@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sport Detail - Nepal Navigator</title>
+    <title>Music Detail - Nepal Navigator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -23,22 +23,32 @@
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <nav class="bg-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <a href="index.html" class="text-2xl font-bold text-[#002B5B]">Nepal Navigator</a>
+     <!-- Navigation -->
+    <nav class="bg-[#002B5B] text-white shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <a href="index" class="text-2xl font-bold text-[#F4A300]">Nepal Navigator</a>
+                <div class="hidden md:flex space-x-6">
+                    <a href="index" class="hover:text-[#F4A300]">Home</a>
+                    <a href="foods" class="hover:text-[#F4A300]">Foods</a>
+                    <a href="scenery" class="hover:text-[#F4A300]">Attractions</a>
+                    <a href="music" class="hover:text-[#F4A300]">Music</a>
+                    <a href="movies" class="hover:text-[#F4A300]">Movies</a>
+                    <a href="sport" class="hover:text-[#F4A300]">Sports</a>
+                    <!-- Dynamically change based on login state -->
+                    <% 
+                        String username = (String) session.getAttribute("username");
+                        if (username != null) { 
+                    %>
+                        <span class="text-white">Welcome, <%= username %>!</span>
+                        <a href="logout" class="hover:text-[#F4A300]">Logout</a>
+                    <% } else { %>
+                        <a href="login" class="hover:text-[#F4A300]">Login/Register</a>
+                    <% } %>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <a href="foods.html" class="text-gray-600 hover:text-[#F4A300]">Foods</a>
-                    <a href="attractions.html" class="text-gray-600 hover:text-[#F4A300]">Attractions</a>
-                    <a href="music.html" class="text-gray-600 hover:text-[#F4A300]">Music</a>
-                    <a href="movies.html" class="text-gray-600 hover:text-[#F4A300]">Movies</a>
-                    <a href="sports.html" class="text-gray-600 hover:text-[#F4A300]">Sports</a>
-                    <button class="bg-[#F4A300] text-white px-4 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
-                        Login / Register
-                    </button>
-                </div>
+                <button class="md:hidden">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
             </div>
         </div>
     </nav>
@@ -55,27 +65,27 @@
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-                            <a href="sports.html" class="text-gray-600 hover:text-[#F4A300]">Sports</a>
+                            <a href="music.html" class="text-gray-600 hover:text-[#F4A300]">Music</a>
                         </div>
                     </li>
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-                            <span class="text-gray-500">Nepal National Cricket Team</span>
+                            <span class="text-gray-500">Nepathya</span>
                         </div>
                     </li>
                 </ol>
             </nav>
         </div>
 
-        <!-- Sport Detail -->
+        <!-- Music Detail -->
         <div class="bg-white rounded-lg shadow-lg overflow-hidden">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
                 <!-- Image Gallery -->
                 <div class="space-y-4">
                     <div class="relative h-96 rounded-lg overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1531415074968-036ba1b575da?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                             alt="Nepal Cricket Team" 
+                        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
+                             alt="Nepathya" 
                              class="w-full h-full object-cover">
                         <div class="absolute top-4 right-4">
                             <button class="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100">
@@ -84,72 +94,72 @@
                         </div>
                     </div>
                     <div class="grid grid-cols-4 gap-4">
-                        <img src="https://images.unsplash.com/photo-1531415074968-036ba1b575da?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" 
-                             alt="Nepal Cricket Team" 
+                        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" 
+                             alt="Nepathya" 
                              class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
-                        <img src="https://images.unsplash.com/photo-1531415074968-036ba1b575da?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" 
-                             alt="Nepal Cricket Team" 
+                        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" 
+                             alt="Nepathya" 
                              class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
-                        <img src="https://images.unsplash.com/photo-1531415074968-036ba1b575da?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" 
-                             alt="Nepal Cricket Team" 
+                        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" 
+                             alt="Nepathya" 
                              class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
-                        <img src="https://images.unsplash.com/photo-1531415074968-036ba1b575da?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" 
-                             alt="Nepal Cricket Team" 
+                        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" 
+                             alt="Nepathya" 
                              class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
                     </div>
                 </div>
 
-                <!-- Team Information -->
+                <!-- Music Information -->
                 <div class="space-y-6">
                     <div>
-                        <h1 class="text-3xl font-bold text-[#002B5B]">Nepal National Cricket Team</h1>
+                        <h1 class="text-3xl font-bold text-[#002B5B]">Nepathya</h1>
                         <div class="flex items-center mt-2">
                             <div class="flex text-yellow-400">
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
                                 <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
                             </div>
-                            <span class="text-gray-600 ml-2">5.0 (150 reviews)</span>
+                            <span class="text-gray-600 ml-2">4.5 (180 reviews)</span>
                         </div>
                     </div>
 
                     <div class="space-y-4">
                         <div>
-                            <h2 class="text-xl font-semibold text-[#002B5B]">Team Overview</h2>
+                            <h2 class="text-xl font-semibold text-[#002B5B]">About the Artist</h2>
                             <p class="text-gray-600 mt-2">
-                                The Nepal national cricket team represents Nepal in international cricket. The team is governed by the Cricket Association of Nepal (CAN) and has been an associate member of the International Cricket Council (ICC) since 1996. The team has shown remarkable progress in recent years, particularly in T20 cricket.
+                                Nepathya is one of Nepal's most popular and influential rock bands. Formed in 1990, the band has been at the forefront of Nepali rock music, blending traditional Nepali folk music with modern rock elements. Their music often addresses social issues and promotes Nepali culture.
                             </p>
                         </div>
 
                         <div>
-                            <h2 class="text-xl font-semibold text-[#002B5B]">Team Details</h2>
-                            <div class="mt-2 space-y-2">
-                                <div class="flex items-center text-gray-600">
-                                    <i class="fas fa-trophy w-6"></i>
-                                    <span>ICC Status: Associate Member</span>
-                                </div>
-                                <div class="flex items-center text-gray-600">
-                                    <i class="fas fa-calendar w-6"></i>
-                                    <span>Founded: 1996</span>
-                                </div>
-                                <div class="flex items-center text-gray-600">
-                                    <i class="fas fa-map-marker-alt w-6"></i>
-                                    <span>Home Ground: Tribhuvan University International Cricket Ground</span>
-                                </div>
-                            </div>
+                            <h2 class="text-xl font-semibold text-[#002B5B]">Popular Albums</h2>
+                            <ul class="list-disc list-inside text-gray-600 mt-2">
+                                <li>Bheda Ko Oon Jasto (1995)</li>
+                                <li>Timro Mann Ma (1997)</li>
+                                <li>Resham (2001)</li>
+                                <li>Ghatana (2005)</li>
+                                <li>Mero Maya (2010)</li>
+                            </ul>
                         </div>
 
                         <div>
-                            <h2 class="text-xl font-semibold text-[#002B5B]">Key Players</h2>
-                            <ul class="list-disc list-inside text-gray-600 mt-2">
-                                <li>Rohit Paudel (Captain)</li>
-                                <li>Sandeep Lamichhane</li>
-                                <li>Kushal Bhurtel</li>
-                                <li>Aasif Sheikh</li>
-                                <li>Gyanendra Malla</li>
-                            </ul>
+                            <h2 class="text-xl font-semibold text-[#002B5B]">Band Members</h2>
+                            <div class="mt-2 space-y-2">
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-user w-6"></i>
+                                    <span>Amrit Gurung - Lead Vocals</span>
+                                </div>
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-guitar w-6"></i>
+                                    <span>Deepak Bajracharya - Guitar</span>
+                                </div>
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-drum w-6"></i>
+                                    <span>Subin Shakya - Drums</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -188,7 +198,7 @@
                                 <span class="text-sm text-gray-500">2 days ago</span>
                             </div>
                             <p class="text-gray-600 mt-1">
-                                The team has shown incredible improvement in recent years. Sandeep Lamichhane's bowling is world-class!
+                                Their live performances are absolutely amazing! The way they blend traditional and modern music is unique.
                             </p>
                             <div class="flex items-center space-x-4 mt-2">
                                 <button class="text-gray-500 hover:text-[#F4A300]">
@@ -212,7 +222,7 @@
                                 <span class="text-sm text-gray-500">1 week ago</span>
                             </div>
                             <p class="text-gray-600 mt-1">
-                                The passion and dedication of these players is inspiring. They've made Nepal proud on the international stage.
+                                Their lyrics are so meaningful and their music has been the soundtrack of my life. Truly legendary band!
                             </p>
                             <div class="flex items-center space-x-4 mt-2">
                                 <button class="text-gray-500 hover:text-[#F4A300]">

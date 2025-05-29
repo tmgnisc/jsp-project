@@ -166,4 +166,48 @@ public class MusicControllerImplements implements MusicController {
             return false;
         }
     }
+    
+    public int getTotalMusic() {
+        int count = 0;
+        String sql = "SELECT COUNT(*) AS total FROM music"; 
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                count = rs.getInt("total");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+    
+    public List<Music> getTopMusic(int limit) {
+        List<Music> musicList = new ArrayList<>();
+        String sql = "SELECT id, artist_name, genre, formation_year, description, popular_songs, achievements, youtube_channel_url, image " +
+                     "FROM music ORDER BY id DESC LIMIT ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, limit);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Music music = new Music(
+                        rs.getInt("id"),
+                        rs.getString("artist_name"),
+                        rs.getString("genre"),
+                        rs.getInt("formation_year"),
+                        rs.getString("description"),
+                        rs.getString("popular_songs"),
+                        rs.getString("achievements"),
+                        rs.getString("youtube_channel_url"),
+                        rs.getString("image")
+                    );
+                    musicList.add(music);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return musicList;
+    }
 }

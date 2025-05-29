@@ -10,12 +10,14 @@ public class FoodItem {
     private String preparationMethod;
     private String servingSuggestions;
     private String culturalSignificance;
+    private String region;
+    private String tag;
 
     public FoodItem() {}
 
     public FoodItem(int id, String name, String description, String category, String image, 
                     String ingredients, String preparationMethod, String servingSuggestions, 
-                    String culturalSignificance) {
+                    String culturalSignificance, String region, String tag) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -25,6 +27,8 @@ public class FoodItem {
         this.preparationMethod = preparationMethod;
         this.servingSuggestions = servingSuggestions;
         this.culturalSignificance = culturalSignificance;
+        this.region = region;
+        this.tag = tag;
     }
 
     // Getters and Setters
@@ -46,4 +50,8 @@ public class FoodItem {
     public void setServingSuggestions(String servingSuggestions) { this.servingSuggestions = servingSuggestions; }
     public String getCulturalSignificance() { return culturalSignificance; }
     public void setCulturalSignificance(String culturalSignificance) { this.culturalSignificance = culturalSignificance; }
+    public String getRegion() { return region; }
+    public void setRegion(String region) { this.region = region; }
+    public String getTag() { return tag; }
+    public void setTag(String tag) { this.tag = tag; }
 }

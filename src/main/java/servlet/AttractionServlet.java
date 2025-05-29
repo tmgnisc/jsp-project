@@ -15,7 +15,7 @@ import model.Attraction;
 import utility.DatabaseConnection;
 import utility.DynamicTableCreator;
 
-@WebServlet("/attractions")
+@WebServlet("/attraction-dashboard")
 @MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, // 2MB
                  maxFileSize = 1024 * 1024 * 10,      // 10MB
                  maxRequestSize = 1024 * 1024 * 50)   // 50MB

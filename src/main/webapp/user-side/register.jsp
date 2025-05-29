@@ -93,7 +93,7 @@
                         <select id="role" name="role" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] focus:z-10 sm:text-sm">
                             <option value="" disabled selected>Select your role</option>
                             <option value="tourist">Tourist</option>
-                            <option value="registered_user">Registered User</option>
+                            <option value="registered_user">Local</option>
                         </select>
                     </div>
                 </div>
@@ -154,7 +154,7 @@
                 </div>
             </div>
             <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
-                <p>© 2024 Nepal Navigator. All rights reserved.</p>
+                <p>© 2025 Nepal Navigator. All rights reserved.</p>
             </div>
         </div>
     </footer>

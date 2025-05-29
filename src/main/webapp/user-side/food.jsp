@@ -1,12 +1,177 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.util.List" %>
+<%@ page import="model.FoodItem" %>
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nepali Foods - Nepal Navigator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
 </head>
-<body>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-[#002B5B] text-white shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <a href="index" class="text-2xl font-bold text-[#F4A300]">Nepal Navigator</a>
+                <div class="hidden md:flex space-x-6">
+                    <a href="index" class="hover:text-[#F4A300]">Home</a>
+                    <a href="foods" class="hover:text-[#F4A300]">Foods</a>
+                    <a href="scenery" class="hover:text-[#F4A300]">Attractions</a>
+                    <a href="music" class="hover:text-[#F4A300]">Music</a>
+                    <a href="movies" class="hover:text-[#F4A300]">Movies</a>
+                    <a href="sport" class="hover:text-[#F4A300]">Sports</a>
+                    <% 
+                        String username = (String) session.getAttribute("username");
+                        if (username != null) { 
+                    %>
+                        <span class="text-white">Welcome, <%= username %>!</span>
+                        <a href="logout" class="hover:text-[#F4A300]">Logout</a>
+                    <% } else { %>
+                        <a href="login" class="hover:text-[#F4A300]">Login/Register</a>
+                    <% } %>
+                </div>
+                <button class="md:hidden">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
 
+    <!-- Hero Section -->
+    <div class="relative h-[300px] bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1585937421612-70a008356fbe?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');">
+        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div class="relative container mx-auto px-4 h-full flex items-center">
+            <div class="text-white">
+                <h1 class="text-4xl font-bold mb-4">Nepali Cuisine</h1>
+                <p class="text-xl">Discover the rich and diverse flavors of Nepal</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Section -->
+    <div class="bg-white shadow-md py-6">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl mx-auto">
+                <form action="${pageContext.request.contextPath}/foods" method="GET" class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1">
+                        <input type="text" name="search" 
+                               value="<%= request.getAttribute("searchQuery") != null ? request.getAttribute("searchQuery") : "" %>" 
+                               placeholder="Search for foods..." 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-transparent">
+                    </div>
+                    <div class="flex gap-4">
+                        <select name="region" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-transparent">
+                            <option value="all" <%= "all".equals(request.getAttribute("selectedRegion")) || request.getAttribute("selectedRegion") == null ? "selected" : "" %>>All Regions</option>
+                            <option value="Kathmandu" <%= "Kathmandu".equals(request.getAttribute("selectedRegion")) ? "selected" : "" %>>Kathmandu</option>
+                            <option value="Pokhara" <%= "Pokhara".equals(request.getAttribute("selectedRegion")) ? "selected" : "" %>>Pokhara</option>
+                            <option value="Terai" <%= "Terai".equals(request.getAttribute("selectedRegion")) ? "selected" : "" %>>Terai</option>
+                            <option value="Himalayan" <%= "Himalayan".equals(request.getAttribute("selectedRegion")) ? "selected" : "" %>>Himalayan</option>
+                        </select>
+                        <select name="tag" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-transparent">
+                            <option value="all" <%= "all".equals(request.getAttribute("selectedTag")) || request.getAttribute("selectedTag") == null ? "selected" : "" %>>All Tags</option>
+                            <option value="Popular" <%= "Popular".equals(request.getAttribute("selectedTag")) ? "selected" : "" %>>Popular</option>
+                            <option value="Traditional" <%= "Traditional".equals(request.getAttribute("selectedTag")) ? "selected" : "" %>>Traditional</option>
+                            <option value="Spicy" <%= "Spicy".equals(request.getAttribute("selectedTag")) ? "selected" : "" %>>Spicy</option>
+                            <option value="Festival Food" <%= "Festival Food".equals(request.getAttribute("selectedTag")) ? "selected" : "" %>>Festival Food</option>
+                        </select>
+                        <button type="submit" class="bg-[#F4A300] text-white px-6 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
+                            <i class="fas fa-search mr-2"></i>Search
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Foods Grid -->
+    <div class="container mx-auto px-4 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <%
+                List<FoodItem> foodItems = (List<FoodItem>) request.getAttribute("foodItems");
+                if (foodItems != null && !foodItems.isEmpty()) {
+                    for (FoodItem food : foodItems) {
+            %>
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <img src="${pageContext.request.contextPath}<%= food.getImage() != null ? food.getImage() : "/images/placeholder.jpg" %>" 
+                     alt="<%= food.getName() != null ? food.getName() : "Food Image" %>" 
+                     class="w-full h-48 object-cover" 
+                     onerror="this.src='https://via.placeholder.com/500'">
+                <div class="p-6">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= food.getName() != null ? food.getName() : "Unnamed Food" %></h3>
+                            <p class="text-gray-600 mb-2"><%= food.getDescription() != null ? food.getDescription() : "No description available." %></p>
+                            <p class="text-sm text-gray-500"><i class="fas fa-map-marker-alt mr-2"></i><%= food.getRegion() != null ? food.getRegion() : "Unknown Region" %></p>
+                        </div>
+                        <span class="bg-[#F4A300] text-white px-3 py-1 rounded-full text-sm"><%= food.getTag() != null ? food.getTag() : "Untagged" %></span>
+                    </div>
+                    <div class="mt-6">
+                        <a href="${pageContext.request.contextPath}/food-detail?id=<%= food.getId() %>" 
+                           class="bg-[#F4A300] text-white px-4 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <%
+                    }
+                } else {
+            %>
+            <div class="col-span-3 text-center text-gray-500">No foods found matching your criteria.</div>
+            <%
+                }
+            %>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-[#002B5B] text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold text-[#F4A300] mb-4">Nepal Navigator</h3>
+                    <p class="text-gray-300">Discover the beauty and culture of Nepal through our comprehensive guide.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="index" class="text-gray-300 hover:text-[#F4A300]">Home</a></li>
+                        <li><a href="foods" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
+                        <li><a href="scenery" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
+                        <li><a href="music" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contact Us</h4>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><i class="fas fa-envelope mr-2"></i> info@nepalnavigator.com</li>
+                        <li><i class="fas fa-phone mr-2"></i> +977 1234567890</li>
+                        <li><i class="fas fa-map-marker-alt mr-2"></i> Kathmandu, Nepal</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Follow Us</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-300 hover:text-[#F4A300]"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-300 hover:text-[#F4A300]"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-300 hover:text-[#F4A300]"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-300 hover:text-[#F4A300]"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
+                <p>© 2025 Nepal Navigator. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>

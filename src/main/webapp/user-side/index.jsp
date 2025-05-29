@@ -1,5 +1,10 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.util.List" %>
+<%@ page import="model.FoodItem" %>
+<%@ page import="model.Attraction" %>
+<%@ page import="model.Music" %>
+<%@ page import="model.Movie" %>
+<%@ page import="model.Sport" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -64,30 +69,26 @@
         <section class="mb-16">
             <h2 class="text-3xl font-bold text-[#002B5B] mb-8">Top 3 Foods</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Food Card 1 -->
+                <%
+                    List<FoodItem> topFoods = (List<FoodItem>) request.getAttribute("topFoods");
+                    if (topFoods != null && !topFoods.isEmpty()) {
+                        for (FoodItem food : topFoods) {
+                %>
                 <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1585937421612-70a008356fbe?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Momo" class="w-full h-48 object-cover">
+                    <img src="${pageContext.request.contextPath}<%= food.getImage() != null ? food.getImage() : "/images/placeholder.jpg" %>" alt="<%= food.getName() %>" class="w-full h-48 object-cover" onerror="this.src='https://via.placeholder.com/500'">
                     <div class="p-6">
-                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2">Momo</h3>
-                        <p class="text-gray-600">Delicious dumplings filled with meat or vegetables, a Nepali favorite.</p>
+                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= food.getName() %></h3>
+                        <p class="text-gray-600"><%= food.getDescription() != null ? food.getDescription() : "No description available." %></p>
                     </div>
                 </div>
-                <!-- Food Card 2 -->
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1585937421612-70a008356fbe?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Dal Bhat" class="w-full h-48 object-cover">
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2">Dal Bhat</h3>
-                        <p class="text-gray-600">Traditional Nepali meal with lentil soup and rice.</p>
-                    </div>
-                </div>
-                <!-- Food Card 3 -->
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1585937421612-70a008356fbe?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Sel Roti" class="w-full h-48 object-cover">
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2">Sel Roti</h3>
-                        <p class="text-gray-600">Sweet, ring-shaped bread made from rice flour.</p>
-                    </div>
-                </div>
+                <%
+                        }
+                    } else {
+                %>
+                <div class="col-span-3 text-center text-gray-500">No foods available.</div>
+                <%
+                    }
+                %>
             </div>
         </section>
 
@@ -95,30 +96,26 @@
         <section class="mb-16">
             <h2 class="text-3xl font-bold text-[#002B5B] mb-8">Top 3 Tourist Attractions</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Attraction Card 1 -->
+                <%
+                    List<Attraction> topAttractions = (List<Attraction>) request.getAttribute("topAttractions");
+                    if (topAttractions != null && !topAttractions.isEmpty()) {
+                        for (Attraction attraction : topAttractions) {
+                %>
                 <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Mount Everest" class="w-full h-48 object-cover">
+                    <img src="${pageContext.request.contextPath}<%= attraction.getImage() != null ? attraction.getImage() : "/images/placeholder.jpg" %>" alt="<%= attraction.getName() %>" class="w-full h-48 object-cover" onerror="this.src='https://via.placeholder.com/500'">
                     <div class="p-6">
-                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2">Mount Everest</h3>
-                        <p class="text-gray-600">The world's highest peak, a must-visit for adventure seekers.</p>
+                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= attraction.getName() %></h3>
+                        <p class="text-gray-600"><%= attraction.getDescription() != null ? attraction.getDescription() : "No description available." %></p>
                     </div>
                 </div>
-                <!-- Attraction Card 2 -->
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Pashupatinath Temple" class="w-full h-48 object-cover">
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2">Pashupatinath Temple</h3>
-                        <p class="text-gray-600">Ancient Hindu temple complex in Kathmandu.</p>
-                    </div>
-                </div>
-                <!-- Attraction Card 3 -->
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Pokhara" class="w-full h-48 object-cover">
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2">Pokhara</h3>
-                        <p class="text-gray-600">Beautiful city with stunning views of the Annapurna range.</p>
-                    </div>
-                </div>
+                <%
+                        }
+                    } else {
+                %>
+                <div class="col-span-3 text-center text-gray-500">No attractions available.</div>
+                <%
+                    }
+                %>
             </div>
         </section>
 
@@ -126,30 +123,26 @@
         <section class="mb-16">
             <h2 class="text-3xl font-bold text-[#002B5B] mb-8">Top 3 Songs</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Music Card 1 -->
+                <%
+                    List<Music> topMusic = (List<Music>) request.getAttribute("topMusic");
+                    if (topMusic != null && !topMusic.isEmpty()) {
+                        for (Music music : topMusic) {
+                %>
                 <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Song 1" class="w-full h-48 object-cover">
+                    <img src="${pageContext.request.contextPath}<%= music.getImage() != null ? music.getImage() : "/images/placeholder.jpg" %>" alt="<%= music.getArtistName() %>" class="w-full h-48 object-cover" onerror="this.src='https://via.placeholder.com/500'">
                     <div class="p-6">
-                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2">Nepali Folk Song</h3>
-                        <p class="text-gray-600">Traditional Nepali folk music that captures the essence of the culture.</p>
+                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= music.getArtistName() %></h3>
+                        <p class="text-gray-600"><%= music.getDescription() != null ? music.getDescription() : "No description available." %></p>
                     </div>
                 </div>
-                <!-- Music Card 2 -->
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Song 2" class="w-full h-48 object-cover">
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2">Modern Nepali Pop</h3>
-                        <p class="text-gray-600">Contemporary Nepali pop music that's taking the nation by storm.</p>
-                    </div>
-                </div>
-                <!-- Music Card 3 -->
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Song 3" class="w-full h-48 object-cover">
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2">Classical Nepali</h3>
-                        <p class="text-gray-600">Timeless classical compositions from Nepal's rich musical heritage.</p>
-                    </div>
-                </div>
+                <%
+                        }
+                    } else {
+                %>
+                <div class="col-span-3 text-center text-gray-500">No songs available.</div>
+                <%
+                    }
+                %>
             </div>
         </section>
 
@@ -157,30 +150,26 @@
         <section class="mb-16">
             <h2 class="text-3xl font-bold text-[#002B5B] mb-8">Top 3 Movies</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Movie Card 1 -->
+                <%
+                    List<Movie> topMovies = (List<Movie>) request.getAttribute("topMovies");
+                    if (topMovies != null && !topMovies.isEmpty()) {
+                        for (Movie movie : topMovies) {
+                %>
                 <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Movie 1" class="w-full h-48 object-cover">
+                    <img src="${pageContext.request.contextPath}<%= movie.getImage() != null ? movie.getImage() : "/images/placeholder.jpg" %>" alt="<%= movie.getTitle() %>" class="w-full h-48 object-cover" onerror="this.src='https://via.placeholder.com/500'">
                     <div class="p-6">
-                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2">Nepali Classic</h3>
-                        <p class="text-gray-600">A masterpiece of Nepali cinema that tells a compelling story.</p>
+                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= movie.getTitle() %></h3>
+                        <p class="text-gray-600"><%= movie.getDescription() != null ? movie.getDescription() : "No description available." %></p>
                     </div>
                 </div>
-                <!-- Movie Card 2 -->
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Movie 2" class="w-full h-48 object-cover">
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2">Modern Nepali Film</h3>
-                        <p class="text-gray-600">Contemporary Nepali cinema that pushes boundaries.</p>
-                    </div>
-                </div>
-                <!-- Movie Card 3 -->
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Movie 3" class="w-full h-48 object-cover">
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2">Documentary</h3>
-                        <p class="text-gray-600">An insightful documentary about Nepal's culture and history.</p>
-                    </div>
-                </div>
+                <%
+                        }
+                    } else {
+                %>
+                <div class="col-span-3 text-center text-gray-500">No movies available.</div>
+                <%
+                    }
+                %>
             </div>
         </section>
 
@@ -188,30 +177,26 @@
         <section class="mb-16">
             <h2 class="text-3xl font-bold text-[#002B5B] mb-8">Top 3 Sports</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Sport Card 1 -->
+                <%
+                    List<Sport> topSports = (List<Sport>) request.getAttribute("topSports");
+                    if (topSports != null && !topSports.isEmpty()) {
+                        for (Sport sport : topSports) {
+                %>
                 <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Sport 1" class="w-full h-48 object-cover">
+                    <img src="${pageContext.request.contextPath}<%= sport.getImage() != null ? sport.getImage() : "/images/placeholder.jpg" %>" alt="<%= sport.getName() %>" class="w-full h-48 object-cover" onerror="this.src='https://via.placeholder.com/500'">
                     <div class="p-6">
-                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2">Cricket</h3>
-                        <p class="text-gray-600">Nepal's most popular sport, with a growing international presence.</p>
+                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= sport.getName() %></h3>
+                        <p class="text-gray-600"><%= sport.getDescription() != null ? sport.getDescription() : "No description available." %></p>
                     </div>
                 </div>
-                <!-- Sport Card 2 -->
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Sport 2" class="w-full h-48 object-cover">
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2">Football</h3>
-                        <p class="text-gray-600">A beloved sport with passionate fans across the country.</p>
-                    </div>
-                </div>
-                <!-- Sport Card 3 -->
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Sport 3" class="w-full h-48 object-cover">
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-[#002B5B] mb-2">Martial Arts</h3>
-                        <p class="text-gray-600">Traditional Nepali martial arts with a rich history.</p>
-                    </div>
-                </div>
+                <%
+                        }
+                    } else {
+                %>
+                <div class="col-span-3 text-center text-gray-500">No sports available.</div>
+                <%
+                    }
+                %>
             </div>
         </section>
     </div>
@@ -227,10 +212,10 @@
                 <div>
                     <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
                     <ul class="space-y-2">
-                        <li><a href="index.html" class="text-gray-300 hover:text-[#F4A300]">Home</a></li>
-                        <li><a href="foods.html" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
-                        <li><a href="scenery.html" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
-                        <li><a href="music.html" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
+                        <li><a href="index" class="text-gray-300 hover:text-[#F4A300]">Home</a></li>
+                        <li><a href="foods" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
+                        <li><a href="scenery" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
+                        <li><a href="music" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
                     </ul>
                 </div>
                 <div>
@@ -252,7 +237,7 @@
                 </div>
             </div>
             <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
-                <p>&copy; 2024 Nepal Navigator. All rights reserved.</p>
+                <p>© 2025 Nepal Navigator. All rights reserved.</p>
             </div>
         </div>
     </footer>

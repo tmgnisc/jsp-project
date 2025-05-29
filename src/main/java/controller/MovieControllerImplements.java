@@ -162,4 +162,47 @@ public class MovieControllerImplements implements MovieController {
             return false;
         }
     }
+    
+    public int getTotalMovies() {
+        int count = 0;
+        String sql = "SELECT COUNT(*) AS total FROM movies"; 
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                count = rs.getInt("total");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+    
+    public List<Movie> getTopMovies(int limit) {
+        List<Movie> movies = new ArrayList<>();
+        String sql = "SELECT id, title, description, genre, rating, trailer_url, ticket_booking_url, image " +
+                     "FROM movies ORDER BY id DESC LIMIT ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, limit);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Movie movie = new Movie(
+                        rs.getInt("id"),
+                        rs.getString("title"),
+                        rs.getString("description"),
+                        rs.getString("genre"),
+                        rs.getFloat("rating"),
+                        rs.getString("trailer_url"),
+                        rs.getString("ticket_booking_url"),
+                        rs.getString("image")
+                    );
+                    movies.add(movie);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return movies;
+    }
 }

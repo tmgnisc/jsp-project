@@ -15,29 +15,24 @@ import model.FoodItem;
 import utility.DatabaseConnection;
 import utility.DynamicTableCreator;
 
-@SuppressWarnings("serial")
-@WebServlet("/foods")
+@WebServlet("/food-dashboard")
 @MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, // 2MB
                  maxFileSize = 1024 * 1024 * 10,      // 10MB
                  maxRequestSize = 1024 * 1024 * 50)   // 50MB
+
 public class FoodServlet extends HttpServlet {
     private FoodItemControllerImplements controller;
-    private static final String UPLOAD_DIR = "assets/img"; // Relative to web app root
+    private static final String UPLOAD_DIR = "assets/img";
     private String uploadPath;
 
     @Override
     public void init() throws ServletException {
-        DynamicTableCreator.createTableFromModel(FoodItem.class, "food_items"); // Ensure table exists
+        DynamicTableCreator.createTableFromModel(FoodItem.class, "food_items");
         controller = new FoodItemControllerImplements();
         uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIR;
-        System.out.println("Upload path: " + uploadPath);
         File uploadDir = new File(uploadPath);
         if (!uploadDir.exists()) {
-            boolean created = uploadDir.mkdirs();
-            System.out.println("Upload directory created: " + created);
-            if (!created) {
-                System.err.println("Failed to create upload directory: " + uploadPath);
-            }
+            uploadDir.mkdirs();
         }
     }
 
@@ -52,7 +47,6 @@ public class FoodServlet extends HttpServlet {
         request.getSession().removeAttribute("notify");
 
         if ("getFoodItem".equals(action) && idStr != null) {
-            // Handle AJAX request for food item details
             try {
                 int id = Integer.parseInt(idStr);
                 List<FoodItem> foodItems = controller.getFoodItemById(id);
@@ -60,9 +54,11 @@ public class FoodServlet extends HttpServlet {
                 response.setCharacterEncoding("UTF-8");
                 if (!foodItems.isEmpty()) {
                     FoodItem item = foodItems.get(0);
-                    // Convert FoodItem to JSON
+                    // Include region and tag in JSON
                     String json = String.format(
-                        "{\"id\":%d,\"name\":\"%s\",\"description\":\"%s\",\"category\":\"%s\",\"image\":\"%s\",\"ingredients\":\"%s\",\"preparationMethod\":\"%s\",\"servingSuggestions\":\"%s\",\"culturalSignificance\":\"%s\"}",
+                        "{\"id\":%d,\"name\":\"%s\",\"description\":\"%s\",\"category\":\"%s\",\"image\":\"%s\"," +
+                        "\"ingredients\":\"%s\",\"preparationMethod\":\"%s\",\"servingSuggestions\":\"%s\"," +
+                        "\"culturalSignificance\":\"%s\",\"region\":\"%s\",\"tag\":\"%s\"}",
                         item.getId(),
                         item.getName() != null ? item.getName().replace("\"", "\\\"") : "",
                         item.getDescription() != null ? item.getDescription().replace("\"", "\\\"") : "",
@@ -71,7 +67,9 @@ public class FoodServlet extends HttpServlet {
                         item.getIngredients() != null ? item.getIngredients().replace("\"", "\\\"") : "",
                         item.getPreparationMethod() != null ? item.getPreparationMethod().replace("\"", "\\\"") : "",
                         item.getServingSuggestions() != null ? item.getServingSuggestions().replace("\"", "\\\"") : "",
-                        item.getCulturalSignificance() != null ? item.getCulturalSignificance().replace("\"", "\\\"") : ""
+                        item.getCulturalSignificance() != null ? item.getCulturalSignificance().replace("\"", "\\\"") : "",
+                        item.getRegion() != null ? item.getRegion().replace("\"", "\\\"") : "",
+                        item.getTag() != null ? item.getTag().replace("\"", "\\\"") : ""
                     );
                     response.getWriter().write(json);
                 } else {
@@ -89,7 +87,6 @@ public class FoodServlet extends HttpServlet {
             try {
                 int id = Integer.parseInt(idStr);
                 List<FoodItem> foodItems = controller.getFoodItemById(id);
-                System.out.println("Retrieved " + (foodItems != null ? foodItems.size() : 0) + " items for edit with ID: " + id);
                 if (!foodItems.isEmpty()) {
                     request.setAttribute("foodItemToEdit", foodItems.get(0));
                 } else {
@@ -97,7 +94,6 @@ public class FoodServlet extends HttpServlet {
                 }
             } catch (NumberFormatException e) {
                 request.getSession().setAttribute("notify", "Invalid food item ID.");
-                System.err.println("NumberFormatException: " + e.getMessage());
             }
         }
 
@@ -111,7 +107,6 @@ public class FoodServlet extends HttpServlet {
             throws ServletException, IOException {
         String action = request.getParameter("action");
         String idStr = request.getParameter("id");
-        System.out.println("doPost: action=" + action + ", id=" + idStr);
 
         String name = request.getParameter("name");
         String description = request.getParameter("description");
@@ -120,24 +115,19 @@ public class FoodServlet extends HttpServlet {
         String preparationMethod = request.getParameter("preparationMethod");
         String servingSuggestions = request.getParameter("servingSuggestions");
         String culturalSignificance = request.getParameter("culturalSignificance");
+        String region = request.getParameter("region");
+        String tag = request.getParameter("tag");
 
         String imagePath = null;
-        // Only process file upload for add or edit actions
         if ("add".equals(action) || "edit".equals(action)) {
             Part filePart = request.getPart("image");
             if (filePart != null && filePart.getSize() > 0) {
                 String fileName = extractFileName(filePart);
-                String absoluteFilePath = uploadPath + File.separator + fileName;
-                System.out.println("Attempting to save file to: " + absoluteFilePath);
-                try {
-                    filePart.write(absoluteFilePath);
-                    System.out.println("File saved successfully to: " + absoluteFilePath);
-                    imagePath = "/" + UPLOAD_DIR + "/" + fileName; // Relative URL: /assets/img/bangkok.png
-                    System.out.println("Image path stored: " + imagePath);
-                } catch (IOException e) {
-                    System.err.println("Error saving file: " + e.getMessage());
-                    e.printStackTrace();
-                }
+                // Avoid overwriting existing files by adding a timestamp
+                String uniqueFileName = System.currentTimeMillis() + "_" + fileName;
+                String absoluteFilePath = uploadPath + File.separator + uniqueFileName;
+                filePart.write(absoluteFilePath);
+                imagePath = "/" + UPLOAD_DIR + "/" + uniqueFileName;
             }
         }
 
@@ -149,26 +139,28 @@ public class FoodServlet extends HttpServlet {
                 notifyMessage = success ? "Food item deleted successfully!" : "Failed to delete food item.";
             } catch (NumberFormatException e) {
                 notifyMessage = "Invalid food item ID.";
-                System.err.println("NumberFormatException: " + e.getMessage());
             }
         } else if ("edit".equals(action) && idStr != null) {
             try {
                 int id = Integer.parseInt(idStr);
                 List<FoodItem> existingItems = controller.getFoodItemById(id);
-                String finalImagePath = (imagePath != null) ? imagePath : (existingItems.isEmpty() ? null : existingItems.get(0).getImage());
-                FoodItem foodItem = new FoodItem(id, name, description, category, finalImagePath, 
-                                                ingredients, preparationMethod, servingSuggestions, 
-                                                culturalSignificance);
-                boolean success = controller.editFoodItem(foodItem);
-                notifyMessage = success ? "Food item updated successfully!" : "Failed to update food item.";
+                if (existingItems.isEmpty()) {
+                    notifyMessage = "Food item not found.";
+                } else {
+                    String finalImagePath = (imagePath != null) ? imagePath : existingItems.get(0).getImage();
+                    FoodItem foodItem = new FoodItem(id, name, description, category, finalImagePath, 
+                                                    ingredients, preparationMethod, servingSuggestions, 
+                                                    culturalSignificance, region, tag);
+                    boolean success = controller.editFoodItem(foodItem);
+                    notifyMessage = success ? "Food item updated successfully!" : "Failed to update food item.";
+                }
             } catch (NumberFormatException e) {
                 notifyMessage = "Invalid food item ID.";
-                System.err.println("NumberFormatException: " + e.getMessage());
             }
         } else if ("add".equals(action)) {
             FoodItem foodItem = new FoodItem(0, name, description, category, imagePath, 
                                              ingredients, preparationMethod, servingSuggestions, 
-                                             culturalSignificance);
+                                             culturalSignificance, region, tag);
             boolean success = controller.addFoodItem(foodItem);
             notifyMessage = success ? "Food item added successfully!" : "Failed to add food item.";
         } else {
@@ -176,9 +168,7 @@ public class FoodServlet extends HttpServlet {
         }
 
         request.getSession().setAttribute("notify", notifyMessage);
-        List<FoodItem> foodItems = controller.getAllData();
-        request.setAttribute("foodItems", foodItems);
-        request.getRequestDispatcher("/admin-side/foods.jsp").forward(request, response);
+        response.sendRedirect(request.getContextPath() + "/food-dashboard");
     }
 
     @Override
@@ -189,18 +179,14 @@ public class FoodServlet extends HttpServlet {
 
     private String extractFileName(Part part) {
         String contentDisp = part.getHeader("content-disposition");
-        System.out.println("Content-Disposition: " + contentDisp);
         if (contentDisp != null) {
             String[] items = contentDisp.split(";");
             for (String s : items) {
                 if (s.trim().startsWith("filename")) {
-                    String fileName = s.substring(s.indexOf("=") + 2, s.length() - 1);
-                    System.out.println("Extracted file name: " + fileName);
-                    return fileName;
+                    return s.substring(s.indexOf("=") + 2, s.length() - 1);
                 }
             }
         }
-        System.err.println("No filename found in content-disposition.");
         return "";
     }
 }

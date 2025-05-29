@@ -235,4 +235,19 @@ public class UserControllerImplements implements UserController {
         }
         return null;
     }
+    
+    public int getTotalUsers() {
+        int count = 0;
+        String sql = "SELECT COUNT(*) AS total FROM users"; 
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                count = rs.getInt("total");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
 }

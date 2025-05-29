@@ -14,7 +14,16 @@ public class LogoutServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
+        // Invalidate the session
         request.getSession().invalidate();
-        request.getRequestDispatcher("/user-side/index.jsp").forward(request, response);
+        // Redirect to the login page with a notification
+        request.getSession().setAttribute("notify", "You have been logged out successfully.");
+        response.sendRedirect(request.getContextPath() + "/login");
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        doGet(request, response);
     }
 }
