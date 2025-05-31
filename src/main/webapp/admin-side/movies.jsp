@@ -1,6 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="model.Movie" %>
+<%@ page import="model.Celebrity" %>
 <%@ page import="java.util.List" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="java.util.ArrayList" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -22,25 +26,29 @@
 </head>
 <body class="bg-gray-100">
 <%
-    // Check if user is authenticated
     String username = (String) session.getAttribute("username");
     String role = (String) session.getAttribute("role");
 
     if (username == null || role == null) {
-        // User is not logged in or role is not set, redirect to login
         response.sendRedirect(request.getContextPath() + "/login");
         return;
     }
 
-    // Check if the user has the "admin" role
     if (!"admin".equalsIgnoreCase(role)) {
-        // User is not an admin, redirect to index page
         response.sendRedirect(request.getContextPath() + "/index");
         return;
     }
+
+    // Create a map of celebrity ID to name for easy lookup
+    List<Celebrity> celebrityList = (List<Celebrity>) request.getAttribute("celebrityList");
+    Map<Integer, String> celebrityMap = new HashMap<Integer, String>(); // Fixed for Java 6 compatibility
+    if (celebrityList != null) {
+        for (Celebrity celeb : celebrityList) {
+            celebrityMap.put(celeb.getId(), celeb.getName());
+        }
+    }
 %>
     <div class="flex h-screen">
-        <!-- Sidebar -->
         <div class="w-64 bg-[#002B5B] text-white">
             <div class="p-4">
                 <h2 class="text-2xl font-bold text-[#F4A300]">Admin Panel</h2>
@@ -66,6 +74,10 @@
                     <i class="fas fa-film w-6"></i>
                     <span>Movies</span>
                 </a>
+                <a href="celebrity-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                    <i class="fas fa-star w-6"></i>
+                    <span>Celebrities</span>
+                </a>
                 <a href="sports-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-running w-6"></i>
                     <span>Sports</span>
@@ -81,9 +93,7 @@
             </nav>
         </div>
 
-        <!-- Main Content -->
         <div class="flex-1 overflow-auto">
-            <!-- Top Bar -->
             <div class="bg-white shadow-md">
                 <div class="flex justify-between items-center px-8 py-4">
                     <h1 class="text-2xl font-semibold text-[#002B5B]">Movies Management</h1>
@@ -94,7 +104,6 @@
                 </div>
             </div>
 
-            <!-- Notification -->
             <%
                 String notify = (String) request.getAttribute("notify");
                 if (notify != null && !notify.isEmpty()) {
@@ -109,16 +118,13 @@
                 }
             %>
 
-            <!-- Content -->
             <div class="p-8">
-                <!-- Add New Movie Button -->
                 <div class="mb-6">
                     <button onclick="showAddMovieModal()" class="bg-[#F4A300] text-white px-4 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
                         <i class="fas fa-plus mr-2"></i>Add New Movie
                     </button>
                 </div>
 
-                <!-- Movies Table -->
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
@@ -127,6 +133,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Genre</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Celebrities</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
@@ -135,6 +142,16 @@
                                 List<Movie> movieList = (List<Movie>) request.getAttribute("movieList");
                                 if (movieList != null) {
                                     for (Movie item : movieList) {
+                                        // Convert celebrity IDs to names for display
+                                        List<Integer> celebIds = item.getCelebrityIds();
+                                        List<String> celebNames = new ArrayList<String>(); // Fixed for Java 6 compatibility
+                                        for (Integer celebId : celebIds) {
+                                            String celebName = celebrityMap.get(celebId);
+                                            if (celebName != null) {
+                                                celebNames.add(celebName);
+                                            }
+                                        }
+                                        String celebNamesStr = String.join(", ", celebNames);
                             %>
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -148,19 +165,22 @@
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"><%=item.getGenre()%></span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900"><%=item.getRating() + "/5"%></div>
+                                    <div class="text-sm text-gray-900"><%=item.getRating() + "/10"%></div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900"><%=celebNamesStr.isEmpty() ? "None" : celebNamesStr%></div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <button onclick="showEditMovieModal(<%=item.getId()%>)" class="text-[#F4A300] hover:text-[#A31621] mr-3">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                   <form action="${pageContext.request.contextPath}/movie-dashboard" method="post" style="display:inline;">
-									    <input type="hidden" name="action" value="delete">
-									    <input type="hidden" name="id" value="<%=item.getId()%>">
-									    <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this movie?')">
-									        <i class="fas fa-trash"></i>
-									    </button>
-									</form>
+                                    <form action="${pageContext.request.contextPath}/movie-dashboard" method="post" style="display:inline;">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="id" value="<%=item.getId()%>">
+                                        <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this movie?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                             <%
@@ -174,7 +194,6 @@
         </div>
     </div>
 
-    <!-- Add/Edit Movie Modal -->
     <div id="movieModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
         <div class="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
             <div class="mt-3">
@@ -207,7 +226,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Rating</label>
-                        <input type="number" name="rating" id="rating" step="0.1" min="0" max="5" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" required>
+                        <input type="number" name="rating" id="rating" step="0.1" min="0" max="10" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" required>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Trailer URL</label>
@@ -216,6 +235,21 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Ticket Booking URL</label>
                         <input type="url" name="ticketBookingUrl" id="ticketBookingUrl" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Celebrities</label>
+                        <select name="celebrityIds" id="celebrityIds" multiple class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm">
+                            <%
+                                if (celebrityList != null) {
+                                    for (Celebrity celeb : celebrityList) {
+                            %>
+                            <option value="<%=celeb.getId()%>"><%=celeb.getName()%></option>
+                            <%
+                                    }
+                                }
+                            %>
+                        </select>
+                        <p class="text-sm text-gray-500">Hold Ctrl (or Cmd on Mac) to select multiple celebrities.</p>
                     </div>
                     <div class="flex justify-end space-x-3">
                         <button type="button" onclick="closeMovieModal()" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
@@ -262,6 +296,13 @@
                     document.getElementById('rating').value = data.rating || '';
                     document.getElementById('trailerUrl').value = data.trailerUrl || '';
                     document.getElementById('ticketBookingUrl').value = data.ticketBookingUrl || '';
+
+                    // Select the celebrity IDs in the dropdown
+                    const celebritySelect = document.getElementById('celebrityIds');
+                    for (let option of celebritySelect.options) {
+                        option.selected = data.celebrityIds.includes(parseInt(option.value));
+                    }
+
                     document.getElementById('movieModal').classList.remove('hidden');
                 })
                 .catch(error => {
@@ -272,26 +313,6 @@
 
         function closeMovieModal() {
             document.getElementById('movieModal').classList.add('hidden');
-        }
-
-        function deleteMovie(id) {
-            if (confirm('Are you sure you want to delete this movie?')) {
-                fetch('${pageContext.request.contextPath}/movie-dashboard', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'action=delete&id=' + id
-                })
-                .then(response => response.text())
-                .then(data => {
-                    location.reload();
-                })
-                .catch(error => {
-                    console.error('Error deleting movie:', error);
-                    alert('Failed to delete movie.');
-                });
-            }
         }
     </script>
 </body>

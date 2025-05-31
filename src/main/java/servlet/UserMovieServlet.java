@@ -6,6 +6,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Collections;
 import java.util.stream.Collectors;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -15,23 +18,24 @@ import javax.servlet.http.HttpServletResponse;
 import model.Movie;
 import model.MovieComment;
 import model.User;
+import model.Celebrity;
 import controller.MovieControllerImplements;
 import controller.MovieCommentController;
+import controller.CelebrityControllerImplements;
 import utility.DatabaseConnection;
 
-/**
- * Servlet implementation class UserMovieServlet
- */
 @WebServlet({"/movies", "/movie-detail"})
 public class UserMovieServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private MovieControllerImplements movieController;
     private MovieCommentController commentController;
+    private CelebrityControllerImplements celebrityController;
 
     @Override
     public void init() throws ServletException {
         movieController = new MovieControllerImplements();
         commentController = new MovieCommentController();
+        celebrityController = new CelebrityControllerImplements();
     }
 
     @Override
@@ -59,10 +63,21 @@ public class UserMovieServlet extends HttpServlet {
                         .collect(Collectors.toList());
             }
 
+            // Fetch celebrities for each movie and store in a map
+            Map<Integer, List<Celebrity>> movieCelebritiesMap = new HashMap<>();
+            for (Movie movie : movieList) {
+                List<Integer> celebrityIds = movie.getCelebrityIds();
+                List<Celebrity> celebrities = (celebrityIds != null && !celebrityIds.isEmpty()) ? 
+                    celebrityController.getCelebritiesByIds(celebrityIds) : 
+                    Collections.emptyList();
+                movieCelebritiesMap.put(movie.getId(), celebrities != null ? celebrities : Collections.emptyList());
+            }
+
             request.setAttribute("movieList", movieList);
+            request.setAttribute("movieCelebritiesMap", movieCelebritiesMap);
             request.setAttribute("searchQuery", searchQuery);
             request.setAttribute("selectedGenre", selectedGenre);
-            request.getRequestDispatcher("user-side/movie.jsp").forward(request, response);
+            request.getRequestDispatcher("/user-side/movie.jsp").forward(request, response);
         } else if ("/movie-detail".equals(path)) {
             String idParam = request.getParameter("id");
             if (idParam != null) {
@@ -73,13 +88,23 @@ public class UserMovieServlet extends HttpServlet {
                         Movie movie = movieList.get(0);
                         List<MovieComment> comments = commentController.getCommentsByMovieId(id);
                         request.setAttribute("movie", movie);
-                        request.setAttribute("comments", comments != null ? comments : List.of());
+                        request.setAttribute("comments", comments != null ? comments : Collections.emptyList());
+
+                        // Fetch celebrities for the movie
+                        List<Integer> celebrityIds = movie.getCelebrityIds();
+                        List<Celebrity> celebrities = (celebrityIds != null && !celebrityIds.isEmpty()) ? 
+                            celebrityController.getCelebritiesByIds(celebrityIds) : 
+                            Collections.emptyList();
+                        request.setAttribute("celebrities", celebrities != null ? celebrities : Collections.emptyList());
+
                         request.getRequestDispatcher("/user-side/movie-detail.jsp").forward(request, response);
                     } else {
                         response.sendRedirect(request.getContextPath() + "/movies?error=movie_not_found");
                     }
                 } catch (NumberFormatException e) {
                     response.sendRedirect(request.getContextPath() + "/movies?error=invalid_id");
+                } catch (Exception e) {
+                    response.sendRedirect(request.getContextPath() + "/movies?error=unexpected_error");
                 }
             } else {
                 response.sendRedirect(request.getContextPath() + "/movies?error=invalid_id");
@@ -128,7 +153,7 @@ public class UserMovieServlet extends HttpServlet {
                         Movie movie = movieList.isEmpty() ? null : movieList.get(0);
                         List<MovieComment> comments = commentController.getCommentsByMovieId(movieId);
                         request.setAttribute("movie", movie);
-                        request.setAttribute("comments", comments != null ? comments : List.of());
+                        request.setAttribute("comments", comments != null ? comments : Collections.emptyList());
                         request.setAttribute("error", "Failed to post comment. Please try again.");
                         request.getRequestDispatcher("/user-side/movie-detail.jsp").forward(request, response);
                     }

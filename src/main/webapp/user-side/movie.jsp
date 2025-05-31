@@ -1,6 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.util.List" %>
-<%@ page import="model.Movie" %>
+<%@ page import="java.util.List, java.util.Map, model.Movie, model.Celebrity, java.util.Collections" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,15 +10,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-        }
-        .movie-image {
-            width: 100%;
-            height: 200px;
-            border-radius: 8px;
-            object-fit: cover;
-        }
+        body { font-family: 'Poppins', sans-serif; }
+        .movie-image { width: 100%; height: 200px; border-radius: 8px; object-fit: cover; }
+        .celebrity-image { width: 40px; height: 40px; object-fit: cover; border-radius: 50%; }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -35,10 +28,8 @@
                     <a href="${pageContext.request.contextPath}/music" class="hover:text-[#F4A300]">Music</a>
                     <a href="${pageContext.request.contextPath}/movies" class="hover:text-[#F4A300]">Movies</a>
                     <a href="${pageContext.request.contextPath}/sports" class="hover:text-[#F4A300]">Sports</a>
-                    <% 
-                        String username = (String) session.getAttribute("username");
-                        if (username != null) { 
-                    %>
+                    <% String username = (String) session.getAttribute("username");
+                       if (username != null) { %>
                         <span class="text-white">Welcome, <%= username %>!</span>
                         <a href="${pageContext.request.contextPath}/logout" class="hover:text-[#F4A300]">Logout</a>
                     <% } else { %>
@@ -96,8 +87,10 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <%
                 List<Movie> movieList = (List<Movie>) request.getAttribute("movieList");
-                if (movieList != null && !movieList.isEmpty()) {
+                Map<Integer, List<Celebrity>> movieCelebritiesMap = (Map<Integer, List<Celebrity>>) request.getAttribute("movieCelebritiesMap");
+                if (movieList != null && !movieList.isEmpty() && movieCelebritiesMap != null) {
                     for (Movie movie : movieList) {
+                        List<Celebrity> celebrities = movieCelebritiesMap.get(movie.getId());
             %>
             <div class="bg-white rounded-lg shadow-lg overflow-hidden">
                 <img src="${pageContext.request.contextPath}<%= movie.getImage() != null ? movie.getImage() : "/images/placeholder.jpg" %>" 
@@ -109,6 +102,23 @@
                         <div>
                             <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= movie.getTitle() != null ? movie.getTitle() : "Untitled Movie" %></h3>
                             <p class="text-gray-600 mb-2"><%= movie.getDescription() != null ? movie.getDescription() : "No description available." %></p>
+                            <% if (celebrities != null && !celebrities.isEmpty()) { %>
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <% for (int i = 0; i < Math.min(3, celebrities.size()); i++) { 
+                                        Celebrity celeb = celebrities.get(i); %>
+                                        <img src="${pageContext.request.contextPath}<%= celeb.getImage() != null && !celeb.getImage().isEmpty() ? celeb.getImage() : "/images/placeholder.jpg" %>" 
+                                             alt="<%= celeb.getName() != null ? celeb.getName() : "Celebrity" %>" 
+                                             class="celebrity-image" 
+                                             onerror="this.src='https://via.placeholder.com/40'">
+                                        <span class="text-sm text-gray-600"><%= celeb.getName() != null ? celeb.getName() : "Unknown" %></span>
+                                    <% } %>
+                                    <% if (celebrities.size() > 3) { %>
+                                        <span class="text-sm text-gray-500">+<%= celebrities.size() - 3 %> more</span>
+                                    <% } %>
+                                </div>
+                            <% } else { %>
+                                <p class="text-sm text-gray-600 mb-2">No celebrities listed.</p>
+                            <% } %>
                             <div class="flex items-center text-sm text-gray-500">
                                 <div class="flex text-yellow-400 mr-2">
                                     <% float rating = movie.getRating();

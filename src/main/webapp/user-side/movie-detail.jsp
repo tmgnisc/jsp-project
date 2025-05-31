@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.util.List, model.Movie, model.MovieComment, java.time.LocalDateTime, java.time.ZoneId, java.time.temporal.ChronoUnit, java.time.format.DateTimeParseException" %>
+<%@ page import="java.util.List, model.Movie, model.MovieComment, model.Celebrity, java.time.LocalDateTime, java.time.ZoneId, java.time.temporal.ChronoUnit, java.time.format.DateTimeParseException" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,39 +10,53 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
+        body { 
             font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa; /* Match music-detail.jsp background */
         }
-        .image-gallery img {
-            transition: transform 0.3s ease;
+        .image-gallery img { 
+            transition: transform 0.3s ease; 
         }
-        .image-gallery img:hover {
-            transform: scale(1.05);
+        .image-gallery img:hover { 
+            transform: scale(1.05); 
+        }
+        .celebrity-image { 
+            width: 80px; 
+            height: 80px; 
+            object-fit: cover; 
+            border-radius: 50%; 
+        }
+        .actors-section { 
+            background-color: #f9fafb; 
+            border-left: 4px solid #F4A300; 
+            padding-left: 1rem; 
         }
     </style>
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <nav class="bg-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <a href="index" class="text-2xl font-bold text-[#002B5B]">Nepal Navigator</a>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <a href="foods" class="text-gray-600 hover:text-[#F4A300]">Foods</a>
-                    <a href="attractions" class="text-gray-600 hover:text-[#F4A300]">Attractions</a>
-                    <a href="music" class="text-gray-600 hover:text-[#F4A300]">Music</a>
-                    <a href="movies" class="text-gray-600 hover:text-[#F4A300]">Movies</a>
-                    <a href="sports" class="text-gray-600 hover:text-[#F4A300]">Sports</a>
+    <nav class="bg-[#002B5B] text-white shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <a href="${pageContext.request.contextPath}/index" class="text-2xl font-bold text-[#F4A300]">Nepal Navigator</a>
+                <div class="hidden md:flex space-x-6">
+                    <a href="${pageContext.request.contextPath}/index" class="hover:text-[#F4A300]">Home</a>
+                    <a href="${pageContext.request.contextPath}/foods" class="hover:text-[#F4A300]">Foods</a>
+                    <a href="${pageContext.request.contextPath}/attractions" class="hover:text-[#F4A300]">Attractions</a>
+                    <a href="${pageContext.request.contextPath}/music" class="hover:text-[#F4A300]">Music</a>
+                    <a href="${pageContext.request.contextPath}/movies" class="hover:text-[#F4A300]">Movies</a>
+                    <a href="${pageContext.request.contextPath}/sports" class="hover:text-[#F4A300]">Sports</a>
                     <% String username = (String) session.getAttribute("username");
                        if (username != null) { %>
-                        <span class="text-gray-600">Welcome, <%= username %>!</span>
-                        <a href="logout" class="text-gray-600 hover:text-[#F4A300]">Logout</a>
+                        <span class="text-white">Welcome, <%= username %>!</span>
+                        <a href="${pageContext.request.contextPath}/logout" class="hover:text-[#F4A300]">Logout</a>
                     <% } else { %>
-                        <a href="login" class="bg-[#F4A300] text-white px-4 py-2 rounded-md hover:bg-[#A31621] transition duration-300">Login / Register</a>
+                        <a href="${pageContext.request.contextPath}/login" class="hover:text-[#F4A300]">Login/Register</a>
                     <% } %>
                 </div>
+                <button class="md:hidden">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
             </div>
         </div>
     </nav>
@@ -54,12 +68,12 @@
             <nav class="flex" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
                     <li class="inline-flex items-center">
-                        <a href="index" class="text-gray-600 hover:text-[#F4A300]">Home</a>
+                        <a href="${pageContext.request.contextPath}/index" class="text-gray-600 hover:text-[#F4A300]">Home</a>
                     </li>
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-                            <a href="movies" class="text-gray-600 hover:text-[#F4A300]">Movies</a>
+                            <a href="${pageContext.request.contextPath}/movies" class="text-gray-600 hover:text-[#F4A300]">Movies</a>
                         </div>
                     </li>
                     <li>
@@ -74,6 +88,8 @@
 
         <!-- Movie Detail -->
         <% Movie movie = (Movie) request.getAttribute("movie");
+           @SuppressWarnings("unchecked")
+           List<Celebrity> celebrities = (List<Celebrity>) request.getAttribute("celebrities");
            if (movie == null) { %>
             <p class="text-red-500">Error: Movie details not found.</p>
         <% } else { %>
@@ -112,7 +128,7 @@
                 <!-- Movie Information -->
                 <div class="space-y-6">
                     <div>
-                        <h1 class="text-3xl font-bold text-[#002B5B]">${movie.title}</h1>
+                        <h1 class="text-3xl font-bold text-[#002B5B]">${movie.title != null ? movie.title : "Untitled Movie"}</h1>
                         <div class="flex items-center mt-2">
                             <div class="flex text-yellow-400">
                                 <% float rating = movie.getRating();
@@ -148,6 +164,30 @@
                             </div>
                         </div>
 
+                       
+                        <!-- Actors Section -->
+						<div class="actors-section">
+						    <h2 class="text-2xl font-bold text-[#002B5B] mb-4">Actors</h2>
+						    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+						        <% if (celebrities != null && !celebrities.isEmpty()) {
+						               for (Celebrity celeb : celebrities) { %>
+						                <div class="flex items-center space-x-4 p-2 bg-white rounded-lg shadow hover:shadow-md transition-shadow">
+						                    <a href="${pageContext.request.contextPath}/celebrity-details?id=<%= celeb.getId() %>" 
+						                       class="flex items-center space-x-4">
+						                        <img src="${pageContext.request.contextPath}<%= celeb.getImage() != null && !celeb.getImage().isEmpty() ? celeb.getImage() : "/images/placeholder.jpg" %>" 
+						                             alt="<%= celeb.getName() != null ? celeb.getName() : "Celebrity" %>" 
+						                             class="celebrity-image" 
+						                             onerror="this.src='https://via.placeholder.com/80'">
+						                        <span class="text-gray-800 font-medium text-lg"><%= celeb.getName() != null ? celeb.getName() : "Unknown" %></span>
+						                    </a>
+						                </div>
+						        <% }
+						           } else { %>
+						            <p class="text-gray-600">No actors listed for this movie.</p>
+						        <% } %>
+						    </div>
+						</div>
+
                         <!-- Movie Links -->
                         <div>
                             <h2 class="text-xl font-semibold text-[#002B5B]">Links</h2>
@@ -176,7 +216,7 @@
                 
                 <!-- Comment Form -->
                 <div class="mb-8 p-4 bg-white rounded-lg shadow">
-                    <form action="movie-detail" method="post" class="comment-form">
+                    <form action="${pageContext.request.contextPath}/movie-detail" method="post" class="comment-form">
                         <input type="hidden" name="movieId" value="${movie.id}">
                         <div class="mb-2">
                             <textarea name="commentText" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F4A300] comment-form" 
@@ -226,10 +266,10 @@
                              class="w-12 h-12 rounded-full">
                         <div class="flex-1">
                             <div class="flex items-center justify-between">
-                                <h3 class="font-semibold text-[#002B5B]"><%= comment.getUsername() %></h3>
+                                <h3 class="font-semibold text-[#002B5B]"><%= comment.getUsername() != null ? comment.getUsername() : "Anonymous" %></h3>
                                 <span class="text-sm text-gray-500"><%= timeAgo %></span>
                             </div>
-                            <p class="text-gray-600 mt-1"><%= comment.getCommentText() %></p>
+                            <p class="text-gray-600 mt-1"><%= comment.getCommentText() != null ? comment.getCommentText() : "No comment text available." %></p>
                             <div class="flex items-center space-x-4 mt-2">
                                 <button class="text-gray-500 hover:text-[#F4A300]">
                                     <i class="far fa-thumbs-up"></i> Like
@@ -241,7 +281,7 @@
                         </div>
                     </div>
                     <%      } catch (DateTimeParseException e) { %>
-                            <p class="text-red-500 text-sm">Error parsing comment timestamp: <%= comment.getCreatedAt() %></p>
+                            <p class="text-red-500 text-sm">Error parsing comment timestamp: <%= comment.getCreatedAt() != null ? comment.getCreatedAt() : "Unknown timestamp" %></p>
                         <% }
                            }
                        } else { %>
@@ -266,11 +306,11 @@
                 <div>
                     <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
                     <ul class="space-y-2">
-                        <li><a href="foods" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
-                        <li><a href="scenery" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
-                        <li><a href="music" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
-                        <li><a href="movies" class="text-gray-300 hover:text-[#F4A300]">Movies</a></li>
-                        <li><a href="sport" class="text-gray-600 hover:text-[#F4A300]">Sports</a></li>
+                        <li><a href="${pageContext.request.contextPath}/foods" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
+                        <li><a href="${pageContext.request.contextPath}/attractions" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
+                        <li><a href="${pageContext.request.contextPath}/music" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
+                        <li><a href="${pageContext.request.contextPath}/movies" class="text-gray-300 hover:text-[#F4A300]">Movies</a></li>
+                        <li><a href="${pageContext.request.contextPath}/sports" class="text-gray-300 hover:text-[#F4A300]">Sports</a></li>
                     </ul>
                 </div>
                 <div>
@@ -300,7 +340,7 @@
                 </div>
             </div>
             <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
-                <p>© 2024 Nepal Navigator. All rights reserved.</p>
+                <p>© 2025 Nepal Navigator. All rights reserved.</p>
             </div>
         </div>
     </footer>
