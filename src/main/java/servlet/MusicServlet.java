@@ -2,6 +2,8 @@ package servlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -11,7 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import controller.MusicControllerImplements;
+import controller.CelebrityControllerImplements;
 import model.Music;
+import model.Celebrity;
 import utility.DatabaseConnection;
 import utility.DynamicTableCreator;
 
@@ -22,13 +26,15 @@ import utility.DynamicTableCreator;
 public class MusicServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private MusicControllerImplements controller;
+    private CelebrityControllerImplements celebrityController;
     private static final String UPLOAD_DIR = "assets/img";
     private String uploadPath;
 
     @Override
     public void init() throws ServletException {
-        DynamicTableCreator.createTableFromModel(Music.class, "music"); // Ensure table exists
+        DynamicTableCreator.createTableFromModel(Music.class, "music");
         controller = new MusicControllerImplements();
+        celebrityController = new CelebrityControllerImplements();
         uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIR;
         System.out.println("Upload path: " + uploadPath);
         File uploadDir = new File(uploadPath);
@@ -59,8 +65,10 @@ public class MusicServlet extends HttpServlet {
                 response.setCharacterEncoding("UTF-8");
                 if (!musicList.isEmpty()) {
                     Music item = musicList.get(0);
+                    String celebrityIdsStr = item.getCelebrityIds() != null ? 
+                        String.join(",", item.getCelebrityIds().stream().map(String::valueOf).toArray(String[]::new)) : "";
                     String json = String.format(
-                        "{\"id\":%d,\"artistName\":\"%s\",\"genre\":\"%s\",\"formationYear\":%d,\"description\":\"%s\",\"popularSongs\":\"%s\",\"achievements\":\"%s\",\"youtubeChannelUrl\":\"%s\",\"image\":\"%s\"}",
+                        "{\"id\":%d,\"artistName\":\"%s\",\"genre\":\"%s\",\"formationYear\":%d,\"description\":\"%s\",\"popularSongs\":\"%s\",\"achievements\":\"%s\",\"youtubeChannelUrl\":\"%s\",\"image\":\"%s\",\"celebrityIds\":\"%s\"}",
                         item.getId(),
                         item.getArtistName() != null ? item.getArtistName().replace("\"", "\\\"") : "",
                         item.getGenre() != null ? item.getGenre().replace("\"", "\\\"") : "",
@@ -69,7 +77,8 @@ public class MusicServlet extends HttpServlet {
                         item.getPopularSongs() != null ? item.getPopularSongs().replace("\"", "\\\"") : "",
                         item.getAchievements() != null ? item.getAchievements().replace("\"", "\\\"") : "",
                         item.getYoutubeChannelUrl() != null ? item.getYoutubeChannelUrl().replace("\"", "\\\"") : "",
-                        item.getImage() != null ? item.getImage().replace("\"", "\\\"") : ""
+                        item.getImage() != null ? item.getImage().replace("\"", "\\\"") : "",
+                        celebrityIdsStr
                     );
                     response.getWriter().write(json);
                 } else {
@@ -100,7 +109,9 @@ public class MusicServlet extends HttpServlet {
         }
 
         List<Music> musicList = controller.getAllData();
+        List<Celebrity> celebrityList = celebrityController.getAllData(); // Fetch all celebrities for the form
         request.setAttribute("musicList", musicList);
+        request.setAttribute("celebrityList", celebrityList);
         request.getRequestDispatcher("/admin-side/music.jsp").forward(request, response);
     }
 
@@ -116,12 +127,25 @@ public class MusicServlet extends HttpServlet {
         String popularSongs = request.getParameter("popularSongs");
         String achievements = request.getParameter("achievements");
         String youtubeChannelUrl = request.getParameter("youtubeChannelUrl");
+        String[] celebrityIdsArray = request.getParameterValues("celebrityIds"); // Get selected celebrity IDs
 
         int formationYear;
         try {
             formationYear = Integer.parseInt(formationYearStr);
         } catch (NumberFormatException e) {
             formationYear = 0;
+        }
+
+        // Convert celebrity IDs to List<Integer>
+        List<Integer> celebrityIds = new ArrayList<>();
+        if (celebrityIdsArray != null) {
+            for (String celebrityId : celebrityIdsArray) {
+                try {
+                    celebrityIds.add(Integer.parseInt(celebrityId));
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid celebrity ID: " + celebrityId);
+                }
+            }
         }
 
         String imagePath = null;
@@ -158,7 +182,7 @@ public class MusicServlet extends HttpServlet {
                 List<Music> existingItems = controller.getMusicById(id);
                 String finalImagePath = (imagePath != null) ? imagePath : (existingItems.isEmpty() ? null : existingItems.get(0).getImage());
                 Music music = new Music(id, artistName, genre, formationYear, description,
-                                        popularSongs, achievements, youtubeChannelUrl, finalImagePath);
+                                        popularSongs, achievements, youtubeChannelUrl, finalImagePath, celebrityIds);
                 boolean success = controller.editMusic(music);
                 notifyMessage = success ? "Music updated successfully!" : "Failed to update music.";
             } catch (NumberFormatException e) {
@@ -166,7 +190,7 @@ public class MusicServlet extends HttpServlet {
             }
         } else if ("add".equals(action)) {
             Music music = new Music(0, artistName, genre, formationYear, description,
-                                    popularSongs, achievements, youtubeChannelUrl, imagePath);
+                                    popularSongs, achievements, youtubeChannelUrl, imagePath, celebrityIds);
             boolean success = controller.addMusic(music);
             notifyMessage = success ? "Music added successfully!" : "Failed to add music.";
         } else {
@@ -175,7 +199,9 @@ public class MusicServlet extends HttpServlet {
 
         request.getSession().setAttribute("notify", notifyMessage);
         List<Music> musicList = controller.getAllData();
+        List<Celebrity> celebrityList = celebrityController.getAllData();
         request.setAttribute("musicList", musicList);
+        request.setAttribute("celebrityList", celebrityList);
         request.getRequestDispatcher("/admin-side/music.jsp").forward(request, response);
     }
 

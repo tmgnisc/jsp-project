@@ -182,7 +182,38 @@
                 </div>
             </div>
 
-           
+            <!-- Associated Music -->
+            <div class="border-t border-gray-200 p-8 section-box">
+                <h2 class="text-2xl font-semibold text-[#002B5B] mb-6">Music</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <% List<Music> musics = (List<Music>) request.getAttribute("musics");
+                       if (musics != null && !musics.isEmpty()) {
+                           for (Music music : musics) { %>
+                    <div class="bg-white rounded-lg shadow overflow-hidden">
+                        <img src="${pageContext.request.contextPath}<%= music.getImage() != null ? music.getImage() : "/images/placeholder.jpg" %>" 
+                             alt="<%= music.getArtistName() != null ? music.getArtistName() : "Music Image" %>" 
+                             class="item-image" 
+                             onerror="this.src='https://via.placeholder.com/500'">
+                        <div class="p-4">
+                            <h3 class="text-lg font-semibold text-[#002B5B] mb-2"><%= music.getArtistName() != null ? music.getArtistName() : "Unknown Artist" %></h3>
+                            <p class="text-gray-600 text-sm mb-2"><%= music.getDescription() != null ? music.getDescription() : "No description available." %></p>
+                            <p class="text-sm text-gray-500 mb-2"><i class="fas fa-music mr-2"></i><%= music.getGenre() != null ? music.getGenre() : "Unknown Genre" %></p>
+                            <p class="text-sm text-gray-500 mb-2"><i class="fas fa-calendar-alt mr-2"></i><%= music.getFormationYear() > 0 ? music.getFormationYear() : "N/A" %></p>
+                            <div class="mt-4">
+                                <a href="${pageContext.request.contextPath}/music-detail?id=<%= music.getId() %>" 
+                                   class="text-[#F4A300] hover:text-[#A31621] text-sm">
+                                    View Details →
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <%      }
+                       } else { %>
+                        <p class="text-gray-500">No associated music found.</p>
+                    <% } %>
+                </div>
+            </div>
+
         </div>
         <% } %>
 

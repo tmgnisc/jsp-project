@@ -1,6 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="model.Music" %>
-<%@ page import="java.util.List" %>
+<%@ page import="model.Music, model.Celebrity, java.util.List" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -22,31 +21,27 @@
 </head>
 <body class="bg-gray-100">
 <%
-    // Check if user is authenticated
     String username = (String) session.getAttribute("username");
     String role = (String) session.getAttribute("role");
 
     if (username == null || role == null) {
-        // User is not logged in or role is not set, redirect to login
         response.sendRedirect(request.getContextPath() + "/login");
         return;
     }
 
-    // Check if the user has the "admin" role
     if (!"admin".equalsIgnoreCase(role)) {
-        // User is not an admin, redirect to index page
         response.sendRedirect(request.getContextPath() + "/index");
         return;
     }
 %>
     <div class="flex h-screen">
         <!-- Sidebar -->
-         <div class="w-64 bg-[#002B5B] text-white">
+        <div class="w-64 bg-[#002B5B] text-white">
             <div class="p-4">
                 <h2 class="text-2xl font-bold text-[#F4A300]">Admin Panel</h2>
             </div>
             <nav class="mt-8">
-                <a href="dashboard" class="flex items-center px-4 py-3 bg-[#F4A300] text-white">
+                <a href="dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-tachometer-alt w-6"></i>
                     <span>Dashboard</span>
                 </a>
@@ -58,7 +53,7 @@
                     <i class="fas fa-mountain w-6"></i>
                     <span>Attractions</span>
                 </a>
-                <a href="music-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="music-dashboard" class="flex items-center px-4 py-3 bg-[#F4A300] text-white">
                     <i class="fas fa-music w-6"></i>
                     <span>Music</span>
                 </a>
@@ -141,13 +136,13 @@
                                     <img src="${pageContext.request.contextPath}<%=item.getImage() != null ? item.getImage() : "/images/placeholder.jpg"%>" alt="Music" class="w-16 h-16 object-cover rounded" onerror="this.src='https://via.placeholder.com/100'">
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900"><%=item.getArtistName()%></div>
+                                    <div class="text-sm font-medium text-gray-900"><%=item.getArtistName() != null ? item.getArtistName() : "N/A"%></div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"><%=item.getGenre()%></span>
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"><%=item.getGenre() != null ? item.getGenre() : "N/A"%></span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900"><%=item.getFormationYear()%></div>
+                                    <div class="text-sm text-gray-900"><%=item.getFormationYear() > 0 ? item.getFormationYear() : "N/A"%></div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <button onclick="showEditMusicModal(<%=item.getId()%>)" class="text-[#F4A300] hover:text-[#A31621] mr-3">
@@ -204,6 +199,21 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Formation Year</label>
                         <input type="number" name="formationYear" id="formationYear" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Associated Celebrities</label>
+                        <select name="celebrityIds" id="celebrityIds" multiple class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm">
+                            <%
+                                List<Celebrity> celebrityList = (List<Celebrity>) request.getAttribute("celebrityList");
+                                if (celebrityList != null) {
+                                    for (Celebrity celebrity : celebrityList) {
+                            %>
+                            <option value="<%= celebrity.getId() %>"><%= celebrity.getName() != null ? celebrity.getName() : "N/A" %></option>
+                            <%
+                                    }
+                                }
+                            %>
+                        </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Description</label>
@@ -267,6 +277,12 @@
                     document.getElementById('popularSongs').value = data.popularSongs || '';
                     document.getElementById('achievements').value = data.achievements || '';
                     document.getElementById('youtubeChannelUrl').value = data.youtubeChannelUrl || '';
+                    // Handle multi-select for celebrityIds
+                    const celebrityIds = data.celebrityIds ? data.celebrityIds.split(',') : [];
+                    const select = document.getElementById('celebrityIds');
+                    for (let option of select.options) {
+                        option.selected = celebrityIds.includes(option.value);
+                    }
                     document.getElementById('musicModal').classList.remove('hidden');
                 })
                 .catch(error => {
@@ -277,26 +293,6 @@
 
         function closeMusicModal() {
             document.getElementById('musicModal').classList.add('hidden');
-        }
-
-        function deleteMusic(id) {
-            if (confirm('Are you sure you want to delete this music?')) {
-                fetch('${pageContext.request.contextPath}/musi-dashboard', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'action=delete&id=' + id
-                })
-                .then(response => response.text())
-                .then(data => {
-                    location.reload();
-                })
-                .catch(error => {
-                    console.error('Error deleting music:', error);
-                    alert('Failed to delete music.');
-                });
-            }
         }
     </script>
 </body>

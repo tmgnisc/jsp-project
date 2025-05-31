@@ -5,15 +5,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import model.Music;
 import utility.DatabaseConnection;
 
 public class MusicControllerImplements implements MusicController {
 
-    public MusicControllerImplements() {
-        
-    }
+    public MusicControllerImplements() {}
 
     private boolean ensureConnection() {
         Connection conn = DatabaseConnection.getConnection();
@@ -33,7 +33,7 @@ public class MusicControllerImplements implements MusicController {
             return false;
         }
 
-        String sql = "INSERT INTO music (artist_name, genre, formation_year, description, popular_songs, achievements, youtube_channel_url, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO music (artist_name, genre, formation_year, description, popular_songs, achievements, youtube_channel_url, image, celebrity_ids) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, m.getArtistName());
@@ -44,6 +44,10 @@ public class MusicControllerImplements implements MusicController {
             pstmt.setString(6, m.getAchievements());
             pstmt.setString(7, m.getYoutubeChannelUrl());
             pstmt.setString(8, m.getImage());
+            // Convert List<Integer> to comma-separated string
+            String celebrityIdsStr = m.getCelebrityIds() != null ? 
+                m.getCelebrityIds().stream().map(String::valueOf).collect(Collectors.joining(",")) : null;
+            pstmt.setString(9, celebrityIdsStr);
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {
@@ -76,6 +80,15 @@ public class MusicControllerImplements implements MusicController {
                 item.setAchievements(rs.getString("achievements"));
                 item.setYoutubeChannelUrl(rs.getString("youtube_channel_url"));
                 item.setImage(rs.getString("image"));
+                // Parse celebrity_ids into List<Integer>
+                String celebrityIdsStr = rs.getString("celebrity_ids");
+                List<Integer> celebrityIds = (celebrityIdsStr != null && !celebrityIdsStr.isEmpty()) ?
+                    Arrays.stream(celebrityIdsStr.split(","))
+                          .map(String::trim)
+                          .map(Integer::parseInt)
+                          .collect(Collectors.toList()) :
+                    new ArrayList<>();
+                item.setCelebrityIds(celebrityIds);
                 musicList.add(item);
             }
         } catch (SQLException e) {
@@ -129,6 +142,15 @@ public class MusicControllerImplements implements MusicController {
                     item.setAchievements(rs.getString("achievements"));
                     item.setYoutubeChannelUrl(rs.getString("youtube_channel_url"));
                     item.setImage(rs.getString("image"));
+                    // Parse celebrity_ids into List<Integer>
+                    String celebrityIdsStr = rs.getString("celebrity_ids");
+                    List<Integer> celebrityIds = (celebrityIdsStr != null && !celebrityIdsStr.isEmpty()) ?
+                        Arrays.stream(celebrityIdsStr.split(","))
+                              .map(String::trim)
+                              .map(Integer::parseInt)
+                              .collect(Collectors.toList()) :
+                        new ArrayList<>();
+                    item.setCelebrityIds(celebrityIds);
                     musicList.add(item);
                 }
             }
@@ -146,7 +168,7 @@ public class MusicControllerImplements implements MusicController {
             return false;
         }
 
-        String sql = "UPDATE music SET artist_name = ?, genre = ?, formation_year = ?, description = ?, popular_songs = ?, achievements = ?, youtube_channel_url = ?, image = ? WHERE id = ?";
+        String sql = "UPDATE music SET artist_name = ?, genre = ?, formation_year = ?, description = ?, popular_songs = ?, achievements = ?, youtube_channel_url = ?, image = ?, celebrity_ids = ? WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, m.getArtistName());
@@ -157,7 +179,11 @@ public class MusicControllerImplements implements MusicController {
             pstmt.setString(6, m.getAchievements());
             pstmt.setString(7, m.getYoutubeChannelUrl());
             pstmt.setString(8, m.getImage());
-            pstmt.setInt(9, m.getId());
+            // Convert List<Integer> to comma-separated string
+            String celebrityIdsStr = m.getCelebrityIds() != null ? 
+                m.getCelebrityIds().stream().map(String::valueOf).collect(Collectors.joining(",")) : null;
+            pstmt.setString(9, celebrityIdsStr);
+            pstmt.setInt(10, m.getId());
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {
@@ -166,10 +192,10 @@ public class MusicControllerImplements implements MusicController {
             return false;
         }
     }
-    
+
     public int getTotalMusic() {
         int count = 0;
-        String sql = "SELECT COUNT(*) AS total FROM music"; 
+        String sql = "SELECT COUNT(*) AS total FROM music";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
@@ -181,16 +207,23 @@ public class MusicControllerImplements implements MusicController {
         }
         return count;
     }
-    
+
     public List<Music> getTopMusic(int limit) {
         List<Music> musicList = new ArrayList<>();
-        String sql = "SELECT id, artist_name, genre, formation_year, description, popular_songs, achievements, youtube_channel_url, image " +
+        String sql = "SELECT id, artist_name, genre, formation_year, description, popular_songs, achievements, youtube_channel_url, image, celebrity_ids " +
                      "FROM music ORDER BY id DESC LIMIT ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, limit);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
+                    String celebrityIdsStr = rs.getString("celebrity_ids");
+                    List<Integer> celebrityIds = (celebrityIdsStr != null && !celebrityIdsStr.isEmpty()) ?
+                        Arrays.stream(celebrityIdsStr.split(","))
+                              .map(String::trim)
+                              .map(Integer::parseInt)
+                              .collect(Collectors.toList()) :
+                        new ArrayList<>();
                     Music music = new Music(
                         rs.getInt("id"),
                         rs.getString("artist_name"),
@@ -200,7 +233,8 @@ public class MusicControllerImplements implements MusicController {
                         rs.getString("popular_songs"),
                         rs.getString("achievements"),
                         rs.getString("youtube_channel_url"),
-                        rs.getString("image")
+                        rs.getString("image"),
+                        celebrityIds
                     );
                     musicList.add(music);
                 }

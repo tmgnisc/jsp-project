@@ -37,7 +37,7 @@ public class CelebrityDetailsServlet extends HttpServlet {
             if (celebrity != null) {
                 movies = fetchMoviesByCelebrityId(id);
                 sports = fetchSportsByCelebrityId(id);
-//                musics = fetchMusicByCelebrityId(id);
+                musics = fetchMusicByCelebrityId(id); // Uncommented and fixed
             } else {
                 request.setAttribute("error", "Celebrity not found.");
             }
@@ -139,35 +139,36 @@ public class CelebrityDetailsServlet extends HttpServlet {
         return sports;
     }
 
-//    private List<Music> fetchMusicByCelebrityId(int celebrityId) throws SQLException {
-//        List<Music> musics = new ArrayList<>();
-//        String sql = "SELECT id, title, description, genre, image, celebrity_ids FROM musics";
-//        try (Connection conn = DatabaseConnection.getConnection();
-//             PreparedStatement pstmt = conn.prepareStatement(sql);
-//             ResultSet rs = pstmt.executeQuery()) {
-//            while (rs.next()) {
-//                String celebrityIds = rs.getString("celebrity_ids");
-//                if (celebrityIds != null && !celebrityIds.trim().isEmpty()) {
-//                    String[] ids = celebrityIds.split(",");
-//                    for (String id : ids) {
-//                        try {
-//                            if (Integer.parseInt(id.trim()) == celebrityId) {
-//                                Music music = new Music();
-//                                music.setId(rs.getInt("id"));
-////                                music.setTitle(rs.getString("title"));
-//                                music.setDescription(rs.getString("description"));
-//                                music.setGenre(rs.getString("genre"));
-//                                music.setImage(rs.getString("image"));
-//                                musics.add(music);
-//                                break;
-//                            }
-//                        } catch (NumberFormatException e) {
-//                            continue;
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        return musics;
-//    }
+    private List<Music> fetchMusicByCelebrityId(int celebrityId) throws SQLException {
+        List<Music> musics = new ArrayList<>();
+        String sql = "SELECT id, artist_name, description, genre, formation_year, image, celebrity_ids FROM music"; // Fixed table name
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                String celebrityIds = rs.getString("celebrity_ids");
+                if (celebrityIds != null && !celebrityIds.trim().isEmpty()) {
+                    String[] ids = celebrityIds.split(",");
+                    for (String id : ids) {
+                        try {
+                            if (Integer.parseInt(id.trim()) == celebrityId) {
+                                Music music = new Music();
+                                music.setId(rs.getInt("id"));
+                                music.setArtistName(rs.getString("artist_name")); // Fixed field name
+                                music.setDescription(rs.getString("description"));
+                                music.setGenre(rs.getString("genre"));
+                                music.setFormationYear(rs.getInt("formation_year"));
+                                music.setImage(rs.getString("image"));
+                                musics.add(music);
+                                break;
+                            }
+                        } catch (NumberFormatException e) {
+                            continue;
+                        }
+                    }
+                }
+            }
+        }
+        return musics;
+    }
 }

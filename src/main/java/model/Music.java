@@ -1,6 +1,6 @@
 package model;
 
-
+import java.util.List;
 
 public class Music {
     private int id;
@@ -12,11 +12,13 @@ public class Music {
     private String achievements;
     private String youtubeChannelUrl;
     private String image;
+    private List<Integer> celebrityIds; // New field for celebrity IDs
 
     public Music() {}
 
     public Music(int id, String artistName, String genre, int formationYear, String description,
-                 String popularSongs, String achievements, String youtubeChannelUrl, String image) {
+                 String popularSongs, String achievements, String youtubeChannelUrl, String image, 
+                 List<Integer> celebrityIds) {
         this.id = id;
         this.artistName = artistName;
         this.genre = genre;
@@ -26,6 +28,7 @@ public class Music {
         this.achievements = achievements;
         this.youtubeChannelUrl = youtubeChannelUrl;
         this.image = image;
+        this.celebrityIds = celebrityIds;
     }
 
     // Getters and Setters
@@ -47,4 +50,6 @@ public class Music {
     public void setYoutubeChannelUrl(String youtubeChannelUrl) { this.youtubeChannelUrl = youtubeChannelUrl; }
     public String getImage() { return image; }
     public void setImage(String image) { this.image = image; }
+    public List<Integer> getCelebrityIds() { return celebrityIds; }
+    public void setCelebrityIds(List<Integer> celebrityIds) { this.celebrityIds = celebrityIds; }
 }
