@@ -31,6 +31,11 @@ public class RegisterServlet extends HttpServlet {
         String confirmPassword = request.getParameter("confirm-password");
         String role = request.getParameter("role");
 
+        // Store form data in request to retain it on error
+        request.setAttribute("username", username);
+        request.setAttribute("email", email);
+        request.setAttribute("role", role);
+
         // Validate inputs
         String errorMessage = validateRegistration(username, email, password, confirmPassword, role);
         if (errorMessage != null) {
@@ -59,7 +64,7 @@ public class RegisterServlet extends HttpServlet {
         boolean success = controller.addUser(user);
         if (success) {
             request.getSession().setAttribute("notify", "Registration successful! Please log in.");
-            response.sendRedirect(request.getContextPath() + "/index.jsp");
+            response.sendRedirect(request.getContextPath() + "/login");
         } else {
             request.setAttribute("error", "Registration failed. Please try again.");
             request.getRequestDispatcher("/user-side/register.jsp").forward(request, response);
@@ -85,7 +90,7 @@ public class RegisterServlet extends HttpServlet {
         if (!password.equals(confirmPassword)) {
             return "Passwords do not match.";
         }
-        if (role == null || role.trim().isEmpty() || !role.matches("tourist|registered_user")) {
+        if (role == null || role.trim().isEmpty() || !role.matches("tourist|local")) {
             return "Invalid role selected.";
         }
         return null; // No errors
@@ -95,7 +100,14 @@ public class RegisterServlet extends HttpServlet {
         // Check if username already exists
         User existingUser = controller.getUserByUsername(username);
         if (existingUser != null) {
-            return "Username already exists.";
+            // Suggest an available username by appending a number
+            int suffix = 1;
+            String suggestedUsername = username + suffix;
+            while (controller.getUserByUsername(suggestedUsername) != null) {
+                suffix++;
+                suggestedUsername = username + suffix;
+            }
+            return "Username already exists. Try " + suggestedUsername + " instead.";
         }
 
         // Check if email already exists
@@ -118,6 +130,6 @@ public class RegisterServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        response.sendRedirect(request.getContextPath() + "/user-side/register.jsp");
+        request.getRequestDispatcher("/user-side/register.jsp").forward(request, response);
     }
 }

@@ -2,8 +2,9 @@
 <%@ page import="model.FoodItem" %>
 <%@ page import="model.Comment" %>
 <%@ page import="java.util.List" %>
+<%@ page import="java.time.LocalDateTime, java.time.ZoneId, java.time.temporal.ChronoUnit, java.time.format.DateTimeParseException" %>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +15,7 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa; /* Consistent with other detail pages */
         }
         .image-gallery img {
             transition: transform 0.3s ease;
@@ -90,11 +92,12 @@
         <div class="bg-white rounded-lg shadow-lg overflow-hidden">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
                 <!-- Image Gallery -->
-                <div class="space-y-4">
+                <div class="space-y-4 image-gallery">
                     <div class="relative h-96 rounded-lg overflow-hidden">
-                        <img src="${pageContext.request.contextPath}<%= food.getImage() != null ? food.getImage() : "https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" %>" 
-                             alt="<%= food.getName() != null ? food.getName() : "Momo" %>" 
-                             class="w-full h-full object-cover">
+                        <img src="${pageContext.request.contextPath}<%= food.getImage() != null ? food.getImage() : "/images/placeholder.jpg" %>" 
+                             alt="<%= food.getName() != null ? food.getName() : "Food Image" %>" 
+                             class="w-full h-full object-cover"
+                             onerror="this.src='https://via.placeholder.com/800'">
                         <div class="absolute top-4 right-4">
                             <button class="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100">
                                 <i class="fas fa-heart text-red-500"></i>
@@ -102,25 +105,19 @@
                         </div>
                     </div>
                     <div class="grid grid-cols-4 gap-4">
-                        <img src="${pageContext.request.contextPath}<%= food.getImage() != null ? food.getImage() : "https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" %>" 
-                             alt="<%= food.getName() != null ? food.getName() : "Momo" %>" 
-                             class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
-                        <img src="${pageContext.request.contextPath}<%= food.getImage() != null ? food.getImage() : "https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" %>" 
-                             alt="<%= food.getName() != null ? food.getName() : "Momo" %>" 
-                             class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
-                        <img src="${pageContext.request.contextPath}<%= food.getImage() != null ? food.getImage() : "https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" %>" 
-                             alt="<%= food.getName() != null ? food.getName() : "Momo" %>" 
-                             class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
-                        <img src="${pageContext.request.contextPath}<%= food.getImage() != null ? food.getImage() : "https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" %>" 
-                             alt="<%= food.getName() != null ? food.getName() : "Momo" %>" 
-                             class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
+                        <% for (int i = 0; i < 4; i++) { %>
+                            <img src="${pageContext.request.contextPath}<%= food.getImage() != null ? food.getImage() : "/images/placeholder.jpg" %>" 
+                                 alt="<%= food.getName() != null ? food.getName() : "Food Image" %>" 
+                                 class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75"
+                                 onerror="this.src='https://via.placeholder.com/200'">
+                        <% } %>
                     </div>
                 </div>
 
                 <!-- Food Information -->
                 <div class="space-y-6">
                     <div>
-                        <h1 class="text-3xl font-bold text-[#002B5B]"><%= food.getName() != null ? food.getName() : "Momo" %></h1>
+                        <h1 class="text-3xl font-bold text-[#002B5B]"><%= food.getName() != null ? food.getName() : "Unknown Food" %></h1>
                         <div class="flex items-center mt-2">
                             <div class="flex text-yellow-400">
                                 <i class="fas fa-star"></i>
@@ -137,26 +134,21 @@
                         <div>
                             <h2 class="text-xl font-semibold text-[#002B5B]">Description</h2>
                             <p class="text-gray-600 mt-2">
-                                <%= food.getDescription() != null ? food.getDescription() : "Momo is a type of South Asian dumpling, popular across the Indian subcontinent and the Himalayan regions of broader South Asia. Momos are native to Southwest Chinese region of Tibet, Bhutan, Nepal, North Indian region of Ladakh, Northeast Indian regions of Sikkim, Assam, and Arunachal Pradesh, and East Indian region of Darjeeling." %>
+                                <%= food.getDescription() != null ? food.getDescription() : "No description available." %>
                             </p>
                         </div>
 
                         <div>
                             <h2 class="text-xl font-semibold text-[#002B5B]">Ingredients</h2>
                             <ul class="list-disc list-inside text-gray-600 mt-2">
-                                <% if (food.getIngredients() != null) {
+                                <% if (food.getIngredients() != null && !food.getIngredients().trim().isEmpty()) {
                                     String[] ingredients = food.getIngredients().split(",");
                                     for (String ingredient : ingredients) {
                                 %>
                                     <li><%= ingredient.trim() %></li>
                                 <% }
                                 } else { %>
-                                    <li>All-purpose flour</li>
-                                    <li>Minced meat (chicken, pork, or buffalo)</li>
-                                    <li>Onions</li>
-                                    <li>Garlic</li>
-                                    <li>Ginger</li>
-                                    <li>Spices (cumin, coriander, turmeric)</li>
+                                    <li>No ingredients listed.</li>
                                 <% } %>
                             </ul>
                         </div>
@@ -166,7 +158,7 @@
                             <div class="mt-2 space-y-2">
                                 <div class="flex items-center text-gray-600">
                                     <i class="fas fa-map-marker-alt w-6"></i>
-                                    <span><%= food.getRegion() != null ? food.getRegion() : "Kathmandu, Nepal" %></span>
+                                    <span><%= food.getRegion() != null ? food.getRegion() : "Not specified" %></span>
                                 </div>
                                 <div class="flex items-center text-gray-600">
                                     <i class="fas fa-utensils w-6"></i>
@@ -183,7 +175,7 @@
                 <h2 class="text-2xl font-semibold text-[#002B5B] mb-6">Comments</h2>
                 
                 <!-- Comment Form -->
-                <div class="mb-8">
+                <div class="mb-8 p-4 bg-white rounded-lg shadow">
                     <form class="space-y-4" action="${pageContext.request.contextPath}/food-detail" method="post">
                         <input type="hidden" name="foodId" value="<%= food.getId() %>">
                         <div>
@@ -198,18 +190,34 @@
                                 Post Comment
                             </button>
                         </div>
+                        <% String error = (String) request.getAttribute("error");
+                           if (error != null) { %>
+                            <p class="text-red-500 mt-2"><%= error %></p>
+                        <% } %>
                     </form>
                 </div>
 
                 <!-- Dynamic Comments List -->
                 <div class="space-y-6">
                     <% if (comments != null && !comments.isEmpty()) {
+                        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Kathmandu"));
                         for (Comment comment : comments) {
                             String timeAgo = "Unknown time";
-                            if (comment.getCreatedAt() != null) {
-                                long daysAgo = java.time.Duration.between(comment.getCreatedAt().toInstant(), java.time.Instant.now()).toDays();
-                                timeAgo = daysAgo + " day" + (daysAgo != 1 ? "s" : "") + " ago";
-                            }
+                            try {
+                                if (comment.getCreatedAt() != null) {
+                                    LocalDateTime commentTime = comment.getCreatedAt().toInstant()
+                                        .atZone(ZoneId.of("Asia/Kathmandu")).toLocalDateTime();
+                                    long minutesAgo = ChronoUnit.MINUTES.between(commentTime, now);
+                                    if (minutesAgo < 60) {
+                                        timeAgo = minutesAgo + " minutes ago";
+                                    } else if (minutesAgo < 1440) {
+                                        long hoursAgo = minutesAgo / 60;
+                                        timeAgo = hoursAgo + " hours ago";
+                                    } else {
+                                        long daysAgo = minutesAgo / 1440;
+                                        timeAgo = daysAgo + " days ago";
+                                    }
+                                }
                     %>
                     <div class="flex space-x-4">
                         <img src="https://ui-avatars.com/api/?name=<%= comment.getUsername() != null ? comment.getUsername().replace(" ", "+") : "Unknown" %>&background=002B5B&color=fff" 
@@ -231,15 +239,19 @@
                             </div>
                         </div>
                     </div>
-                    <% }
+                    <%      } catch (Exception e) { %>
+                            <p class="text-red-500 text-sm">Error parsing comment timestamp: <%= comment.getCreatedAt() != null ? comment.getCreatedAt() : "Unknown timestamp" %></p>
+                        <% }
+                        }
                     } else { %>
-                    <div class="text-center text-gray-500">No comments yet.</div>
+                    <div class="text-center text-gray-500">No comments yet. Be the first to comment!</div>
                     <% } %>
                 </div>
             </div>
         </div>
+    </div>
 
-    <!-- Footer -->
+    <!-- Updated Footer (Matching movie-detail.jsp) -->
     <footer class="bg-[#002B5B] text-white mt-12">
         <div class="max-w-7xl mx-auto px-4 py-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -252,6 +264,7 @@
                 <div>
                     <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
                     <ul class="space-y-2">
+                        <li><a href="${pageContext.request.contextPath}/index" class="text-gray-300 hover:text-[#F4A300]">Home</a></li>
                         <li><a href="${pageContext.request.contextPath}/foods" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
                         <li><a href="${pageContext.request.contextPath}/attractions" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
                         <li><a href="${pageContext.request.contextPath}/music" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>

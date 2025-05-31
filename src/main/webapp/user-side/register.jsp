@@ -11,6 +11,7 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa; /* Consistent with other pages */
         }
     </style>
 </head>
@@ -19,15 +20,15 @@
     <nav class="bg-[#002B5B] text-white shadow-lg">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center py-4">
-                <a href="index.jsp" class="text-2xl font-bold text-[#F4A300]">Nepal Navigator</a>
+                <a href="${pageContext.request.contextPath}/index" class="text-2xl font-bold text-[#F4A300]">Nepal Navigator</a>
                 <div class="hidden md:flex space-x-6">
-                    <a href="index" class="hover:text-[#F4A300]">Home</a>
-                    <a href="food" class="hover:text-[#F4A300]">Foods</a>
-                    <a href="attractions" class="hover:text-[#F4A300]">Attractions</a>
-                    <a href="music" class="hover:text-[#F4A300]">Music</a>
-                    <a href="movie" class="hover:text-[#F4A300]">Movies</a>
-                    <a href="sports" class="hover:text-[#F4A300]">Sports</a>
-                    <a href="login" class="hover:text-[#F4A300]">Login/Register</a>
+                    <a href="${pageContext.request.contextPath}/index" class="hover:text-[#F4A300]">Home</a>
+                    <a href="${pageContext.request.contextPath}/foods" class="hover:text-[#F4A300]">Foods</a>
+                    <a href="${pageContext.request.contextPath}/attractions" class="hover:text-[#F4A300]">Attractions</a>
+                    <a href="${pageContext.request.contextPath}/music" class="hover:text-[#F4A300]">Music</a>
+                    <a href="${pageContext.request.contextPath}/movies" class="hover:text-[#F4A300]">Movies</a>
+                    <a href="${pageContext.request.contextPath}/sports" class="hover:text-[#F4A300]">Sports</a>
+                    <a href="${pageContext.request.contextPath}/login" class="hover:text-[#F4A300]">Login/Register</a>
                 </div>
                 <button class="md:hidden">
                     <i class="fas fa-bars text-2xl"></i>
@@ -45,7 +46,7 @@
                 </h2>
                 <p class="mt-2 text-center text-sm text-gray-600">
                     Or
-                    <a href="login.jsp" class="font-medium text-[#F4A300] hover:text-[#A31621]">
+                    <a href="${pageContext.request.contextPath}/login" class="font-medium text-[#F4A300] hover:text-[#A31621]">
                         sign in to your existing account
                     </a>
                 </p>
@@ -74,32 +75,42 @@
                 <div class="rounded-md shadow-sm -space-y-px">
                     <div>
                         <label for="username" class="sr-only">Username</label>
-                        <input id="username" name="username" type="text" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] focus:z-10 sm:text-sm" placeholder="Username">
+                        <input id="username" name="username" type="text" value="<%= request.getAttribute("username") != null ? request.getAttribute("username") : "" %>" required 
+                               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] focus:z-10 sm:text-sm" 
+                               placeholder="Username">
                     </div>
                     <div>
                         <label for="email-address" class="sr-only">Email address</label>
-                        <input id="email-address" name="email" type="email" autocomplete="email" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] focus:z-10 sm:text-sm" placeholder="Email address">
+                        <input id="email-address" name="email" type="email" value="<%= request.getAttribute("email") != null ? request.getAttribute("email") : "" %>" autocomplete="email" required 
+                               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] focus:z-10 sm:text-sm" 
+                               placeholder="Email address">
                     </div>
                     <div>
                         <label for="password" class="sr-only">Password</label>
-                        <input id="password" name="password" type="password" autocomplete="new-password" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] focus:z-10 sm:text-sm" placeholder="Password">
+                        <input id="password" name="password" type="password" autocomplete="new-password" required 
+                               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] focus:z-10 sm:text-sm" 
+                               placeholder="Password">
                     </div>
                     <div>
                         <label for="confirm-password" class="sr-only">Confirm Password</label>
-                        <input id="confirm-password" name="confirm-password" type="password" autocomplete="new-password" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] focus:z-10 sm:text-sm" placeholder="Confirm Password">
+                        <input id="confirm-password" name="confirm-password" type="password" autocomplete="new-password" required 
+                               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] focus:z-10 sm:text-sm" 
+                               placeholder="Confirm Password">
                     </div>
                     <div>
                         <label for="role" class="sr-only">Role</label>
-                        <select id="role" name="role" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] focus:z-10 sm:text-sm">
-                            <option value="" disabled selected>Select your role</option>
-                            <option value="tourist">Tourist</option>
-                            <option value="registered_user">Local</option>
+                        <select id="role" name="role" value="<%= request.getAttribute("role") != null ? request.getAttribute("role") : "" %>" required 
+                                class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] focus:z-10 sm:text-sm">
+                            <option value="" disabled <%= request.getAttribute("role") == null ? "selected" : "" %>>Select your role</option>
+                            <option value="tourist" <%= "tourist".equals(request.getAttribute("role")) ? "selected" : "" %>>Tourist</option>
+                            <option value="local" <%= "local".equals(request.getAttribute("role")) ? "selected" : "" %>>Local</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="flex items-center">
-                    <input id="terms" name="terms" type="checkbox" required class="h-4 w-4 text-[#F4A300] focus:ring-[#F4A300] border-gray-300 rounded">
+                    <input id="terms" name="terms" type="checkbox" required 
+                           class="h-4 w-4 text-[#F4A300] focus:ring-[#F4A300] border-gray-300 rounded">
                     <label for="terms" class="ml-2 block text-sm text-gray-900">
                         I agree to the
                         <a href="#" class="font-medium text-[#F4A300] hover:text-[#A31621]">Terms and Conditions</a>
@@ -118,7 +129,7 @@
         </div>
     </div>
 
-    <!-- Footer -->
+    <!-- Updated Footer -->
     <footer class="bg-[#002B5B] text-white py-12">
         <div class="container mx-auto px-4">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -129,10 +140,12 @@
                 <div>
                     <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
                     <ul class="space-y-2">
-                        <li><a href="index.jsp" class="text-gray-300 hover:text-[#F4A300]">Home</a></li>
-                        <li><a href="foods.jsp" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
-                        <li><a href="scenery.jsp" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
-                        <li><a href="music.jsp" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
+                        <li><a href="${pageContext.request.contextPath}/index" class="text-gray-300 hover:text-[#F4A300]">Home</a></li>
+                        <li><a href="${pageContext.request.contextPath}/foods" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
+                        <li><a href="${pageContext.request.contextPath}/attractions" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
+                        <li><a href="${pageContext.request.contextPath}/music" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
+                        <li><a href="${pageContext.request.contextPath}/movies" class="text-gray-300 hover:text-[#F4A300]">Movies</a></li>
+                        <li><a href="${pageContext.request.contextPath}/sports" class="text-gray-300 hover:text-[#F4A300]">Sports</a></li>
                     </ul>
                 </div>
                 <div>

@@ -45,7 +45,7 @@
                 </h2>
                 <p class="mt-2 text-center text-sm text-gray-600">
                     Or
-                    <a href="register.jsp" class="font-medium text-[#F4A300] hover:text-[#A31621]">
+                    <a href="register" class="font-medium text-[#F4A300] hover:text-[#A31621]">
                         create a new account
                     </a>
                 </p>
