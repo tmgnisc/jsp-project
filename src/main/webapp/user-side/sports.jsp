@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.util.List, model.Sport, model.SportComment, java.time.LocalDateTime, java.time.ZoneId, java.time.temporal.ChronoUnit" %>
+<%@ page import="java.util.List, java.util.Map, model.Sport, model.Celebrity, java.util.Collections" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,15 +10,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-        }
-        .sport-image {
-            width: 100%;
-            height: 200px;
-            border-radius: 8px;
-            object-fit: cover;
-        }
+        body { font-family: 'Poppins', sans-serif; }
+        .sport-image { width: 100%; height: 200px; border-radius: 8px; object-fit: cover; }
+        .celebrity-image { width: 40px; height: 40px; object-fit: cover; border-radius: 50%; }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -34,10 +28,8 @@
                     <a href="${pageContext.request.contextPath}/music" class="hover:text-[#F4A300]">Music</a>
                     <a href="${pageContext.request.contextPath}/movies" class="hover:text-[#F4A300]">Movies</a>
                     <a href="${pageContext.request.contextPath}/sports" class="hover:text-[#F4A300]">Sports</a>
-                    <% 
-                        String username = (String) session.getAttribute("username");
-                        if (username != null) { 
-                    %>
+                    <% String username = (String) session.getAttribute("username");
+                       if (username != null) { %>
                         <span class="text-white">Welcome, <%= username %>!</span>
                         <a href="${pageContext.request.contextPath}/logout" class="hover:text-[#F4A300]">Logout</a>
                     <% } else { %>
@@ -52,12 +44,12 @@
     </nav>
 
     <!-- Hero Section -->
-    <div class="relative h-[300px] bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1544735716-392fe2489ffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');">
+    <div class="relative h-[300px] bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1517649763962-0c623066013b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');">
         <div class="absolute inset-0 bg-black bg-opacity-50"></div>
         <div class="relative container mx-auto px-4 h-full flex items-center">
             <div class="text-white">
                 <h1 class="text-4xl font-bold mb-4">Nepali Sports</h1>
-                <p class="text-xl">Discover the vibrant sports culture of Nepal</p>
+                <p class="text-xl">Explore the vibrant sports culture of Nepal</p>
             </div>
         </div>
     </div>
@@ -95,9 +87,10 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <%
                 List<Sport> sportList = (List<Sport>) request.getAttribute("sportList");
-                LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Kathmandu"));
-                if (sportList != null && !sportList.isEmpty()) {
+                Map<Integer, List<Celebrity>> sportCelebritiesMap = (Map<Integer, List<Celebrity>>) request.getAttribute("sportCelebritiesMap");
+                if (sportList != null && !sportList.isEmpty() && sportCelebritiesMap != null) {
                     for (Sport sport : sportList) {
+                        List<Celebrity> celebrities = sportCelebritiesMap.get(sport.getId());
             %>
             <div class="bg-white rounded-lg shadow-lg overflow-hidden">
                 <img src="${pageContext.request.contextPath}<%= sport.getImage() != null ? sport.getImage() : "/images/placeholder.jpg" %>" 
@@ -109,80 +102,28 @@
                         <div>
                             <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= sport.getName() != null ? sport.getName() : "Unnamed Sport" %></h3>
                             <p class="text-gray-600 mb-2"><%= sport.getDescription() != null ? sport.getDescription() : "No description available." %></p>
+                            <% if (celebrities != null && !celebrities.isEmpty()) { %>
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <% for (int i = 0; i < Math.min(3, celebrities.size()); i++) { 
+                                        Celebrity celeb = celebrities.get(i); %>
+                                        <img src="${pageContext.request.contextPath}<%= celeb.getImage() != null && !celeb.getImage().isEmpty() ? celeb.getImage() : "/images/placeholder.jpg" %>" 
+                                             alt="<%= celeb.getName() != null ? celeb.getName() : "Celebrity" %>" 
+                                             class="celebrity-image" 
+                                             onerror="this.src='https://via.placeholder.com/40'">
+                                        <span class="text-sm text-gray-600"><%= celeb.getName() != null ? celeb.getName() : "Unknown" %></span>
+                                    <% } %>
+                                    <% if (celebrities.size() > 3) { %>
+                                        <span class="text-sm text-gray-500">+<%= celebrities.size() - 3 %> more</span>
+                                    <% } %>
+                                </div>
+                            <% } else { %>
+                                <p class="text-sm text-gray-600 mb-2">No celebrities listed.</p>
+                            <% } %>
                             <p class="text-sm text-gray-500"><i class="fas fa-trophy mr-2"></i><%= sport.getStatus() != null ? sport.getStatus() : "Unknown Status" %></p>
                         </div>
                         <span class="bg-[#F4A300] text-white px-3 py-1 rounded-full text-sm"><%= sport.getCategory() != null ? sport.getCategory() : "Uncategorized" %></span>
                     </div>
-                    
-                    <!-- Comments Section -->
                     <div class="mt-6">
-                        <h4 class="font-semibold text-gray-700 mb-3">Comments</h4>
-                        <%
-                            List<SportComment> comments = (List<SportComment>) request.getAttribute("comments_" + sport.getId());
-                            if (comments != null && !comments.isEmpty()) {
-                                for (SportComment comment : comments) {
-                                    try {
-                                        LocalDateTime commentTime = LocalDateTime.parse(comment.getCreatedAt(), java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-                                                .atZone(ZoneId.of("Asia/Kathmandu")).toLocalDateTime();
-                                        long minutesAgo = ChronoUnit.MINUTES.between(commentTime, now);
-                                        String timeAgo;
-                                        if (minutesAgo < 60) {
-                                            timeAgo = minutesAgo + " minutes ago";
-                                        } else if (minutesAgo < 1440) {
-                                            long hoursAgo = minutesAgo / 60;
-                                            timeAgo = hoursAgo + " hours ago";
-                                        } else {
-                                            long daysAgo = minutesAgo / 1440;
-                                            timeAgo = daysAgo + " days ago";
-                                        }
-                        %>
-                        <div class="bg-gray-50 p-3 rounded mb-4">
-                            <div class="flex items-center mb-2">
-                                <img src="https://ui-avatars.com/api/?name=<%= comment.getUsername() %>&background=002B5B&color=fff" 
-                                     alt="User" 
-                                     class="w-8 h-8 rounded-full mr-2">
-                                <div>
-                                    <p class="font-medium text-sm"><%= comment.getUsername() %></p>
-                                    <p class="text-xs text-gray-500"><%= timeAgo %></p>
-                                </div>
-                            </div>
-                            <p class="text-sm text-gray-600"><%= comment.getCommentText() %></p>
-                            <div class="flex items-center space-x-4 mt-2">
-                                <button class="text-gray-500 hover:text-[#F4A300]">
-                                    <i class="far fa-thumbs-up"></i> Like
-                                </button>
-                                <button class="text-gray-500 hover:text-[#F4A300]">
-                                    <i class="far fa-comment"></i> Reply
-                                </button>
-                            </div>
-                        </div>
-                        <%      } catch (Exception e) { %>
-                                <p class="text-red-500 text-sm">Error parsing timestamp for comment by <%= comment.getUsername() %>.</p>
-                            <% }
-                                }
-                            } else { %>
-                            <p class="text-gray-500 text-sm">No comments yet.</p>
-                        <% } %>
-                        
-                        <!-- Comment Input -->
-                        <form action="${pageContext.request.contextPath}/sports" method="post" class="mt-4">
-                            <input type="hidden" name="sportId" value="<%= sport.getId() %>">
-                            <div>
-                                <textarea name="commentText" placeholder="Write a comment..." 
-                                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-transparent"></textarea>
-                            </div>
-                            <div class="flex justify-end mt-2">
-                                <button type="submit" class="bg-[#F4A300] text-white px-4 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
-                                    Post Comment
-                                </button>
-                            </div>
-                            <% String error = (String) request.getAttribute("error_" + sport.getId());
-                               if (error != null) { %>
-                                <p class="text-red-500 mt-2"><%= error %></p>
-                            <% } %>
-                        </form>
-                    </div>
-                    <div class="mt-4">
                         <a href="${pageContext.request.contextPath}/sport-detail?id=<%= sport.getId() %>" 
                            class="bg-[#F4A300] text-white px-4 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
                             View Details
@@ -204,7 +145,6 @@
         <div class="mt-16">
             <h2 class="text-3xl font-bold text-[#002B5B] mb-8">Upcoming Sports Events</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Dynamic events can be added here if data is available -->
                 <div class="bg-white rounded-lg shadow-lg overflow-hidden">
                     <div class="p-6">
                         <h3 class="text-xl font-semibold text-[#002B5B] mb-2">National Cricket Championship</h3>

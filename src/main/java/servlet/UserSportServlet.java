@@ -2,6 +2,9 @@ package servlet;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Collections;
 import java.util.stream.Collectors;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -10,20 +13,24 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import model.Sport;
 import model.SportComment;
+import model.Celebrity;
 import model.User;
 import controller.SportControllerImplements;
 import controller.SportCommentController;
+import controller.CelebrityControllerImplements;
 
 @WebServlet({"/sports", "/sport-detail"})
 public class UserSportServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private SportControllerImplements sportController;
     private SportCommentController commentController;
+    private CelebrityControllerImplements celebrityController;
 
     @Override
     public void init() throws ServletException {
         sportController = new SportControllerImplements();
         commentController = new SportCommentController();
+        celebrityController = new CelebrityControllerImplements();
     }
 
     @Override
@@ -44,20 +51,27 @@ public class UserSportServlet extends HttpServlet {
                         .collect(Collectors.toList());
             }
 
-            if (category != null && !category.trim().isEmpty() && !"all".equals(category.toLowerCase())) {
+            String selectedCategory = (category != null && !category.trim().isEmpty()) ? category.toLowerCase() : "all";
+            if (!"all".equals(selectedCategory)) {
                 sportList = sportList.stream()
-                        .filter(sport -> sport.getCategory() != null && sport.getCategory().toLowerCase().equals(category.toLowerCase()))
+                        .filter(sport -> sport.getCategory() != null && sport.getCategory().toLowerCase().equals(selectedCategory))
                         .collect(Collectors.toList());
             }
 
+            // Fetch celebrities for each sport and store in a map
+            Map<Integer, List<Celebrity>> sportCelebritiesMap = new HashMap<>();
             for (Sport sport : sportList) {
-                List<SportComment> comments = commentController.getCommentsBySportId(sport.getId());
-                request.setAttribute("comments_" + sport.getId(), comments);
+                List<Integer> celebrityIds = sport.getCelebrityIds();
+                List<Celebrity> celebrities = (celebrityIds != null && !celebrityIds.isEmpty()) ? 
+                    celebrityController.getCelebritiesByIds(celebrityIds) : 
+                    Collections.emptyList();
+                sportCelebritiesMap.put(sport.getId(), celebrities != null ? celebrities : Collections.emptyList());
             }
 
             request.setAttribute("sportList", sportList);
+            request.setAttribute("sportCelebritiesMap", sportCelebritiesMap);
             request.setAttribute("searchQuery", searchQuery);
-            request.setAttribute("selectedCategory", category);
+            request.setAttribute("selectedCategory", selectedCategory);
             request.getRequestDispatcher("/user-side/sports.jsp").forward(request, response);
         } else if ("/sport-detail".equals(path)) {
             String idParam = request.getParameter("id");
@@ -68,8 +82,14 @@ public class UserSportServlet extends HttpServlet {
                     if (!sportList.isEmpty()) {
                         Sport sport = sportList.get(0);
                         List<SportComment> comments = commentController.getCommentsBySportId(id);
+                        // Fetch celebrities for the sport
+                        List<Integer> celebrityIds = sport.getCelebrityIds();
+                        List<Celebrity> celebrities = (celebrityIds != null && !celebrityIds.isEmpty()) ? 
+                            celebrityController.getCelebritiesByIds(celebrityIds) : 
+                            Collections.emptyList();
                         request.setAttribute("sport", sport);
-                        request.setAttribute("comments", comments != null ? comments : List.of());
+                        request.setAttribute("comments", comments != null ? comments : Collections.emptyList());
+                        request.setAttribute("celebrities", celebrities != null ? celebrities : Collections.emptyList());
                         request.getRequestDispatcher("/user-side/sport-detail.jsp").forward(request, response);
                     } else {
                         response.sendRedirect(request.getContextPath() + "/sports?error=sport_not_found");
@@ -92,7 +112,8 @@ public class UserSportServlet extends HttpServlet {
 
         User user = (User) request.getSession().getAttribute("user");
         if (user == null) {
-            request.getSession().setAttribute("redirectAfterLogin", request.getRequestURI());
+            String redirectUrl = "/sports".equals(path) ? request.getRequestURI() : request.getRequestURI() + "?id=" + sportIdParam;
+            request.getSession().setAttribute("redirectAfterLogin", redirectUrl);
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
@@ -111,19 +132,29 @@ public class UserSportServlet extends HttpServlet {
                 } else {
                     if ("/sports".equals(path)) {
                         List<Sport> sportList = sportController.getAllData();
+                        Map<Integer, List<Celebrity>> sportCelebritiesMap = new HashMap<>();
                         for (Sport sport : sportList) {
-                            List<SportComment> comments = commentController.getCommentsBySportId(sport.getId());
-                            request.setAttribute("comments_" + sport.getId(), comments);
+                            List<Integer> celebrityIds = sport.getCelebrityIds();
+                            List<Celebrity> celebrities = (celebrityIds != null && !celebrityIds.isEmpty()) ? 
+                                celebrityController.getCelebritiesByIds(celebrityIds) : 
+                                Collections.emptyList();
+                            sportCelebritiesMap.put(sport.getId(), celebrities != null ? celebrities : Collections.emptyList());
                         }
                         request.setAttribute("sportList", sportList);
+                        request.setAttribute("sportCelebritiesMap", sportCelebritiesMap);
                         request.setAttribute("error_" + sportId, "Failed to post comment. Please try again.");
                         request.getRequestDispatcher("/user-side/sports.jsp").forward(request, response);
                     } else if ("/sport-detail".equals(path)) {
                         List<Sport> sportList = sportController.getSportById(sportId);
                         Sport sport = sportList.isEmpty() ? null : sportList.get(0);
                         List<SportComment> comments = commentController.getCommentsBySportId(sportId);
+                        List<Integer> celebrityIds = sport != null ? sport.getCelebrityIds() : Collections.emptyList();
+                        List<Celebrity> celebrities = (celebrityIds != null && !celebrityIds.isEmpty()) ? 
+                            celebrityController.getCelebritiesByIds(celebrityIds) : 
+                            Collections.emptyList();
                         request.setAttribute("sport", sport);
-                        request.setAttribute("comments", comments != null ? comments : List.of());
+                        request.setAttribute("comments", comments != null ? comments : Collections.emptyList());
+                        request.setAttribute("celebrities", celebrities != null ? celebrities : Collections.emptyList());
                         request.setAttribute("error", "Failed to post comment. Please try again.");
                         request.getRequestDispatcher("/user-side/sport-detail.jsp").forward(request, response);
                     }

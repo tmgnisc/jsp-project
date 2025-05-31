@@ -2,6 +2,8 @@ package servlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -10,7 +12,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
+import controller.CelebrityControllerImplements;
 import controller.SportControllerImplements;
+import model.Celebrity;
 import model.Sport;
 import utility.DatabaseConnection;
 import utility.DynamicTableCreator;
@@ -22,13 +26,15 @@ import utility.DynamicTableCreator;
 public class SportsServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private SportControllerImplements controller;
+    private CelebrityControllerImplements celebrityController;
     private static final String UPLOAD_DIR = "assets/img";
     private String uploadPath;
 
     @Override
     public void init() throws ServletException {
-        DynamicTableCreator.createTableFromModel(Sport.class, "sports"); // Ensure table exists
+        DynamicTableCreator.createTableFromModel(Sport.class, "sports");
         controller = new SportControllerImplements();
+        celebrityController = new CelebrityControllerImplements();
         uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIR;
         System.out.println("Upload path: " + uploadPath);
         File uploadDir = new File(uploadPath);
@@ -59,8 +65,15 @@ public class SportsServlet extends HttpServlet {
                 response.setCharacterEncoding("UTF-8");
                 if (!sportList.isEmpty()) {
                     Sport item = sportList.get(0);
+                    StringBuilder celebIdsJson = new StringBuilder("[");
+                    List<Integer> celebIds = item.getCelebrityIds();
+                    for (int i = 0; i < celebIds.size(); i++) {
+                        celebIdsJson.append(celebIds.get(i));
+                        if (i < celebIds.size() - 1) celebIdsJson.append(",");
+                    }
+                    celebIdsJson.append("]");
                     String json = String.format(
-                        "{\"id\":%d,\"name\":\"%s\",\"description\":\"%s\",\"category\":\"%s\",\"status\":\"%s\",\"history\":\"%s\",\"rules\":\"%s\",\"image\":\"%s\"}",
+                        "{\"id\":%d,\"name\":\"%s\",\"description\":\"%s\",\"category\":\"%s\",\"status\":\"%s\",\"history\":\"%s\",\"rules\":\"%s\",\"image\":\"%s\",\"celebrityIds\":%s}",
                         item.getId(),
                         item.getName() != null ? item.getName().replace("\"", "\\\"") : "",
                         item.getDescription() != null ? item.getDescription().replace("\"", "\\\"") : "",
@@ -68,7 +81,8 @@ public class SportsServlet extends HttpServlet {
                         item.getStatus() != null ? item.getStatus().replace("\"", "\\\"") : "",
                         item.getHistory() != null ? item.getHistory().replace("\"", "\\\"") : "",
                         item.getRules() != null ? item.getRules().replace("\"", "\\\"") : "",
-                        item.getImage() != null ? item.getImage().replace("\"", "\\\"") : ""
+                        item.getImage() != null ? item.getImage().replace("\"", "\\\"") : "",
+                        celebIdsJson.toString()
                     );
                     response.getWriter().write(json);
                 } else {
@@ -98,6 +112,8 @@ public class SportsServlet extends HttpServlet {
             }
         }
 
+        List<Celebrity> celebrityList = celebrityController.getAllData();
+        request.setAttribute("celebrityList", celebrityList);
         List<Sport> sportList = controller.getAllData();
         request.setAttribute("sportList", sportList);
         request.getRequestDispatcher("/admin-side/sports.jsp").forward(request, response);
@@ -125,21 +141,36 @@ public class SportsServlet extends HttpServlet {
             String status = request.getParameter("status");
             String history = request.getParameter("history");
             String rules = request.getParameter("rules");
+            String[] celebrityIdsArray = request.getParameterValues("celebrityIds");
+
+            List<Integer> celebrityIds = new ArrayList<>();
+            if (celebrityIdsArray != null) {
+                for (String id : celebrityIdsArray) {
+                    if (!id.trim().isEmpty()) {
+                        celebrityIds.add(Integer.parseInt(id.trim()));
+                    }
+                }
+            }
 
             String imagePath = null;
             Part filePart = request.getPart("image");
             if (filePart != null && filePart.getSize() > 0) {
                 String fileName = extractFileName(filePart);
-                String absoluteFilePath = uploadPath + File.separator + fileName;
-                System.out.println("Attempting to save file to: " + absoluteFilePath);
-                try {
-                    filePart.write(absoluteFilePath);
-                    System.out.println("File saved successfully to: " + absoluteFilePath);
-                    imagePath = "/" + UPLOAD_DIR + "/" + fileName;
-                    System.out.println("Image path stored: " + imagePath);
-                } catch (IOException e) {
-                    System.err.println("Error saving file: " + e.getMessage());
-                    e.printStackTrace();
+                if (fileName != null && !fileName.isEmpty()) {
+                    String absoluteFilePath = uploadPath + File.separator + fileName;
+                    System.out.println("Attempting to save file to: " + absoluteFilePath);
+                    try {
+                        filePart.write(absoluteFilePath);
+                        System.out.println("File saved successfully to: " + absoluteFilePath);
+                        imagePath = "/" + UPLOAD_DIR + "/" + fileName;
+                        System.out.println("Image path stored: " + imagePath);
+                    } catch (IOException e) {
+                        System.err.println("Error saving file: " + e.getMessage());
+                        e.printStackTrace();
+                        notifyMessage = "Error saving image: " + e.getMessage();
+                    }
+                } else {
+                    System.err.println("No valid filename extracted for image upload.");
                 }
             }
 
@@ -147,15 +178,20 @@ public class SportsServlet extends HttpServlet {
                 try {
                     int id = Integer.parseInt(idStr);
                     List<Sport> existingItems = controller.getSportById(id);
-                    String finalImagePath = (imagePath != null) ? imagePath : (existingItems.isEmpty() ? null : existingItems.get(0).getImage());
-                    Sport sport = new Sport(id, name, description, category, status, history, rules, finalImagePath);
-                    boolean success = controller.editSport(sport);
-                    notifyMessage = success ? "Sport updated successfully!" : "Failed to update sport.";
+                    if (existingItems.isEmpty()) {
+                        notifyMessage = "Sport not found with ID: " + id;
+                    } else {
+                        String finalImagePath = (imagePath != null) ? imagePath : existingItems.get(0).getImage();
+                        Sport sport = new Sport(id, name, description, category, status, history, rules, finalImagePath, celebrityIds);
+                        boolean success = controller.editSport(sport);
+                        notifyMessage = success ? "Sport updated successfully!" : "Failed to update sport.";
+                    }
                 } catch (NumberFormatException e) {
                     notifyMessage = "Invalid sport ID.";
+                    System.err.println("NumberFormatException in edit: " + e.getMessage());
                 }
             } else if ("add".equals(action)) {
-                Sport sport = new Sport(0, name, description, category, status, history, rules, imagePath);
+                Sport sport = new Sport(0, name, description, category, status, history, rules, imagePath, celebrityIds);
                 boolean success = controller.addSport(sport);
                 notifyMessage = success ? "Sport added successfully!" : "Failed to add sport.";
             }
@@ -164,6 +200,8 @@ public class SportsServlet extends HttpServlet {
         }
 
         request.getSession().setAttribute("notify", notifyMessage);
+        List<Celebrity> celebrityList = celebrityController.getAllData();
+        request.setAttribute("celebrityList", celebrityList);
         List<Sport> sportList = controller.getAllData();
         request.setAttribute("sportList", sportList);
         request.getRequestDispatcher("/admin-side/sports.jsp").forward(request, response);

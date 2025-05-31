@@ -1,6 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="model.Sport" %>
+<%@ page import="model.Celebrity" %>
 <%@ page import="java.util.List" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="java.util.ArrayList" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -14,39 +18,44 @@
         body {
             font-family: 'Poppins', sans-serif;
         }
-        textarea, input[type="text"], select {
+        textarea, input[type="text"], input[type="number"], input[type="url"], select {
             width: 100%;
             padding: 8px;
         }
     </style>
 </head>
 <body class="bg-gray-100">
- <%
-    // Check if user is authenticated
+<%
     String username = (String) session.getAttribute("username");
     String role = (String) session.getAttribute("role");
 
     if (username == null || role == null) {
-        // User is not logged in or role is not set, redirect to login
         response.sendRedirect(request.getContextPath() + "/login");
         return;
     }
 
-    // Check if the user has the "admin" role
     if (!"admin".equalsIgnoreCase(role)) {
-        // User is not an admin, redirect to index page
         response.sendRedirect(request.getContextPath() + "/index");
         return;
     }
+
+    // Create a map of celebrity ID to name for easy lookup
+    List<Celebrity> celebrityList = (List<Celebrity>) request.getAttribute("celebrityList");
+    Map<Integer, String> celebrityMap = new HashMap<Integer, String>();
+    if (celebrityList != null) {
+        for (Celebrity celeb : celebrityList) {
+            celebrityMap.put(celeb.getId(), celeb.getName());
+        }
+    }
 %>
     <div class="flex h-screen">
-        <!-- Sidebar -->
-         <div class="w-64 bg-[#002B5B] text-white">
+        <!-- Sidebar Navigation -->
+        <div class="w-64 bg-[#002B5B] text-white">
             <div class="p-4">
                 <h2 class="text-2xl font-bold text-[#F4A300]">Admin Panel</h2>
             </div>
             <nav class="mt-8">
-                <a href="dashboard" class="flex items-center px-4 py-3 bg-[#F4A300] text-white">
+                <a href="dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-tachometer-alt w-6"></i>
                     <span>Dashboard</span>
                 </a>
@@ -66,7 +75,11 @@
                     <i class="fas fa-film w-6"></i>
                     <span>Movies</span>
                 </a>
-                <a href="sports-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="celebrity-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                    <i class="fas fa-star w-6"></i>
+                    <span>Celebrities</span>
+                </a>
+                <a href="sports-dashboard" class="flex items-center px-4 py-3 bg-[#F4A300] text-white">
                     <i class="fas fa-running w-6"></i>
                     <span>Sports</span>
                 </a>
@@ -83,7 +96,7 @@
 
         <!-- Main Content -->
         <div class="flex-1 overflow-auto">
-            <!-- Top Bar -->
+            <!-- Header -->
             <div class="bg-white shadow-md">
                 <div class="flex justify-between items-center px-8 py-4">
                     <h1 class="text-2xl font-semibold text-[#002B5B]">Sports Management</h1>
@@ -109,24 +122,23 @@
                 }
             %>
 
-            <!-- Content -->
+            <!-- Sports Table -->
             <div class="p-8">
-                <!-- Add New Sport Button -->
                 <div class="mb-6">
                     <button onclick="showAddSportModal()" class="bg-[#F4A300] text-white px-4 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
                         <i class="fas fa-plus mr-2"></i>Add New Sport
                     </button>
                 </div>
 
-                <!-- Sports Table -->
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sport Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Celebrities</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
@@ -135,6 +147,16 @@
                                 List<Sport> sportList = (List<Sport>) request.getAttribute("sportList");
                                 if (sportList != null) {
                                     for (Sport item : sportList) {
+                                        // Convert celebrity IDs to names for display
+                                        List<Integer> celebIds = item.getCelebrityIds();
+                                        List<String> celebNames = new ArrayList<String>();
+                                        for (Integer celebId : celebIds) {
+                                            String celebName = celebrityMap.get(celebId);
+                                            if (celebName != null) {
+                                                celebNames.add(celebName);
+                                            }
+                                        }
+                                        String celebNamesStr = String.join(", ", celebNames);
                             %>
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -145,14 +167,13 @@
                                     <div class="text-sm text-gray-500"><%=item.getDescription() != null ? item.getDescription() : ""%></div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                        <%=item.getCategory() != null ? item.getCategory().substring(0, 1).toUpperCase() + item.getCategory().substring(1) : ""%>
-                                    </span>
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"><%=item.getCategory()%></span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                        <%=item.getStatus() != null ? item.getStatus().substring(0, 1).toUpperCase() + item.getStatus().substring(1) : ""%>
-                                    </span>
+                                    <div class="text-sm text-gray-900"><%=item.getStatus() != null ? item.getStatus() : "N/A"%></div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900"><%=celebNamesStr.isEmpty() ? "None" : celebNamesStr%></div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <button onclick="showEditSportModal(<%=item.getId()%>)" class="text-[#F4A300] hover:text-[#A31621] mr-3">
@@ -178,7 +199,7 @@
         </div>
     </div>
 
-    <!-- Add/Edit Sport Modal -->
+    <!-- Sport Modal -->
     <div id="sportModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
         <div class="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
             <div class="mt-3">
@@ -210,19 +231,30 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Status</label>
-                        <select name="status" id="status" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" required>
-                            <option value="national">National Sport</option>
-                            <option value="popular">Popular Sport</option>
-                            <option value="traditional">Traditional Sport</option>
-                        </select>
+                        <input type="text" name="status" id="status" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">History</label>
-                        <textarea name="history" id="history" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" rows="3" required></textarea>
+                        <textarea name="history" id="history" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" rows="3"></textarea>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Rules</label>
-                        <textarea name="rules" id="rules" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" rows="3" required></textarea>
+                        <textarea name="rules" id="rules" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" rows="3"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Celebrities</label>
+                        <select name="celebrityIds" id="celebrityIds" multiple class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm">
+                            <%
+                                if (celebrityList != null) {
+                                    for (Celebrity celeb : celebrityList) {
+                            %>
+                            <option value="<%=celeb.getId()%>"><%=celeb.getName()%></option>
+                            <%
+                                    }
+                                }
+                            %>
+                        </select>
+                        <p class="text-sm text-gray-500">Hold Ctrl (or Cmd on Mac) to select multiple celebrities.</p>
                     </div>
                     <div class="flex justify-end space-x-3">
                         <button type="button" onclick="closeSportModal()" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
@@ -237,6 +269,7 @@
         </div>
     </div>
 
+    <!-- JavaScript -->
     <script>
         function showAddSportModal() {
             document.getElementById('modalTitle').textContent = 'Add New Sport';
@@ -269,6 +302,13 @@
                     document.getElementById('status').value = data.status || '';
                     document.getElementById('history').value = data.history || '';
                     document.getElementById('rules').value = data.rules || '';
+
+                    // Select the celebrity IDs in the dropdown
+                    const celebritySelect = document.getElementById('celebrityIds');
+                    for (let option of celebritySelect.options) {
+                        option.selected = data.celebrityIds.includes(parseInt(option.value));
+                    }
+
                     document.getElementById('sportModal').classList.remove('hidden');
                 })
                 .catch(error => {
@@ -279,26 +319,6 @@
 
         function closeSportModal() {
             document.getElementById('sportModal').classList.add('hidden');
-        }
-
-        function deleteSport(id) {
-            if (confirm('Are you sure you want to delete this sport?')) {
-                fetch('${pageContext.request.contextPath}/sports-dashboard', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'action=delete&id=' + id
-                })
-                .then(response => response.text())
-                .then(data => {
-                    location.reload();
-                })
-                .catch(error => {
-                    console.error('Error deleting sport:', error);
-                    alert('Failed to delete sport.');
-                });
-            }
         }
     </script>
 </body>
