@@ -18,6 +18,13 @@
             width: 100%;
             padding: 8px;
         }
+        /* Handle long names in the table */
+        .name-column {
+            max-width: 200px; /* Adjust as needed */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -66,6 +73,10 @@
                     <i class="fas fa-film w-6"></i>
                     <span>Movies</span>
                 </a>
+                <a href="celebrity-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                    <i class="fas fa-star w-6"></i>
+                    <span>Celebrities</span>
+                </a>
                 <a href="sports-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-running w-6"></i>
                     <span>Sports</span>
@@ -88,8 +99,8 @@
                 <div class="flex justify-between items-center px-8 py-4">
                     <h1 class="text-2xl font-semibold text-[#002B5B]">Attractions Management</h1>
                     <div class="flex items-center space-x-4">
-                        <span class="text-gray-600">Welcome, Admin</span>
-                        <img src="https://ui-avatars.com/api/?name=Admin&background=002B5B&color=fff" alt="Admin" class="w-10 h-10 rounded-full">
+                        <span class="text-gray-600">Welcome, <%= username %></span>
+                        <img src="https://ui-avatars.com/api/?name=<%= username %>&background=002B5B&color=fff" alt="Admin" class="w-10 h-10 rounded-full">
                     </div>
                 </div>
             </div>
@@ -140,14 +151,14 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <img src="${pageContext.request.contextPath}<%=item.getImage() != null ? item.getImage() : "/images/placeholder.jpg"%>" alt="Attraction" class="w-16 h-16 object-cover rounded" onerror="this.src='https://via.placeholder.com/100'">
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900"><%=item.getName()%></div>
+                                <td class="px-6 py-4 whitespace-nowrap name-column">
+                                    <div class="text-sm font-medium text-gray-900" title="<%=item.getName() != null ? item.getName() : "N/A"%>"><%=item.getName() != null ? item.getName() : "N/A"%></div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <div class="text-sm text-gray-500"><%=item.getLocation()%></div>
+                                    <div class="text-sm text-gray-500"><%=item.getLocation() != null ? item.getLocation() : "N/A"%></div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"><%=item.getCategory()%></span>
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"><%=item.getCategory() != null ? item.getCategory() : "N/A"%></span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <button onclick="showEditAttractionModal(<%=item.getId()%>)" class="text-[#F4A300] hover:text-[#A31621] mr-3">

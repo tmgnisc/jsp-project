@@ -22,6 +22,13 @@
             width: 100%;
             padding: 8px;
         }
+        /* Handle long names in the table */
+        .name-column {
+            max-width: 200px; /* Adjust as needed */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -55,7 +62,7 @@
                 <h2 class="text-2xl font-bold text-[#F4A300]">Admin Panel</h2>
             </div>
             <nav class="mt-8">
-                <a href="dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="dashboard" class="flex items-center px-4 py-3 bg-[#F4A300] text-white">
                     <i class="fas fa-tachometer-alt w-6"></i>
                     <span>Dashboard</span>
                 </a>
@@ -79,7 +86,7 @@
                     <i class="fas fa-star w-6"></i>
                     <span>Celebrities</span>
                 </a>
-                <a href="sports-dashboard" class="flex items-center px-4 py-3 bg-[#F4A300] text-white">
+                <a href="sports-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-running w-6"></i>
                     <span>Sports</span>
                 </a>
@@ -101,8 +108,8 @@
                 <div class="flex justify-between items-center px-8 py-4">
                     <h1 class="text-2xl font-semibold text-[#002B5B]">Sports Management</h1>
                     <div class="flex items-center space-x-4">
-                        <span class="text-gray-600">Welcome, Admin</span>
-                        <img src="https://ui-avatars.com/api/?name=Admin&background=002B5B&color=fff" alt="Admin" class="w-10 h-10 rounded-full">
+                        <span class="text-gray-600">Welcome, <%= username %></span>
+                        <img src="https://ui-avatars.com/api/?name=<%= username %>&background=002B5B&color=fff" alt="Admin" class="w-10 h-10 rounded-full">
                     </div>
                 </div>
             </div>
@@ -162,12 +169,12 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <img src="${pageContext.request.contextPath}<%=item.getImage() != null ? item.getImage() : "/images/placeholder.jpg"%>" alt="Sport" class="w-16 h-16 object-cover rounded" onerror="this.src='https://via.placeholder.com/100'">
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900"><%=item.getName()%></div>
+                                <td class="px-6 py-4 whitespace-nowrap name-column">
+                                    <div class="text-sm font-medium text-gray-900" title="<%=item.getName() != null ? item.getName() : "N/A"%>"><%=item.getName() != null ? item.getName() : "N/A"%></div>
                                     <div class="text-sm text-gray-500"><%=item.getDescription() != null ? item.getDescription() : ""%></div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"><%=item.getCategory()%></span>
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"><%=item.getCategory() != null ? item.getCategory() : "N/A"%></span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm text-gray-900"><%=item.getStatus() != null ? item.getStatus() : "N/A"%></div>

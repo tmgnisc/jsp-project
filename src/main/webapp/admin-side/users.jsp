@@ -67,6 +67,10 @@
                     <i class="fas fa-film w-6"></i>
                     <span>Movies</span>
                 </a>
+                <a href="celebrity-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                    <i class="fas fa-star w-6"></i>
+                    <span>Celebrities</span>
+                </a>
                 <a href="sports-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-running w-6"></i>
                     <span>Sports</span>

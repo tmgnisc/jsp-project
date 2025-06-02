@@ -27,11 +27,12 @@ public class CelebrityControllerImplements implements CelebrityController {
     @Override
     public boolean addCelebrity(Celebrity c) {
         if (!ensureConnection()) return false;
-        String sql = "INSERT INTO celebrities (name, image) VALUES (?, ?)";
+        String sql = "INSERT INTO celebrities (name, image, bio) VALUES (?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
             pstmt.setString(1, c.getName());
             pstmt.setString(2, c.getImage());
+            pstmt.setString(3, c.getBio());
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) {
                 ResultSet generatedKeys = pstmt.getGeneratedKeys();
@@ -61,6 +62,7 @@ public class CelebrityControllerImplements implements CelebrityController {
                 item.setId(rs.getInt("id"));
                 item.setName(rs.getString("name"));
                 item.setImage(rs.getString("image"));
+                item.setBio(rs.getString("bio")); // Fetch bio
                 celebrityList.add(item);
             }
         } catch (SQLException e) {
@@ -100,6 +102,7 @@ public class CelebrityControllerImplements implements CelebrityController {
                     item.setId(rs.getInt("id"));
                     item.setName(rs.getString("name"));
                     item.setImage(rs.getString("image"));
+                    item.setBio(rs.getString("bio")); // Fetch bio
                     celebrityList.add(item);
                 }
             }
@@ -113,12 +116,13 @@ public class CelebrityControllerImplements implements CelebrityController {
     @Override
     public boolean editCelebrity(Celebrity c) {
         if (!ensureConnection()) return false;
-        String sql = "UPDATE celebrities SET name = ?, image = ? WHERE id = ?";
+        String sql = "UPDATE celebrities SET name = ?, image = ?, bio = ? WHERE id = ?"; // Include bio in update
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, c.getName());
             pstmt.setString(2, c.getImage());
-            pstmt.setInt(3, c.getId());
+            pstmt.setString(3, c.getBio()); // Set bio
+            pstmt.setInt(4, c.getId());
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {
@@ -152,6 +156,7 @@ public class CelebrityControllerImplements implements CelebrityController {
                     item.setId(rs.getInt("id"));
                     item.setName(rs.getString("name"));
                     item.setImage(rs.getString("image"));
+                    item.setBio(rs.getString("bio")); // Fetch bio
                     celebrityList.add(item);
                 }
             }

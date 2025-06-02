@@ -18,6 +18,13 @@
             width: 100%;
             padding: 8px;
         }
+        /* Handle long names in the table */
+        .name-column {
+            max-width: 200px; /* Adjust as needed */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -85,8 +92,8 @@
                 <div class="flex justify-between items-center px-8 py-4">
                     <h1 class="text-2xl font-semibold text-[#002B5B]">Celebrities Management</h1>
                     <div class="flex items-center space-x-4">
-                        <span class="text-gray-600">Welcome, Admin</span>
-                        <img src="https://ui-avatars.com/api/?name=Admin&background=002B5B&color=fff" alt="Admin" class="w-10 h-10 rounded-full">
+                        <span class="text-gray-600">Welcome, <%= username %></span>
+                        <img src="https://ui-avatars.com/api/?name=<%= username %>&background=002B5B&color=fff" alt="Admin" class="w-10 h-10 rounded-full">
                     </div>
                 </div>
             </div>
@@ -132,8 +139,8 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <img src="${pageContext.request.contextPath}<%=item.getImage() != null ? item.getImage() : "/images/placeholder.jpg"%>" alt="Celebrity" class="w-16 h-16 object-cover rounded" onerror="this.src='https://via.placeholder.com/100'">
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900"><%=item.getName()%></div>
+                                <td class="px-6 py-4 whitespace-nowrap name-column">
+                                    <div class="text-sm font-medium text-gray-900" title="<%=item.getName() != null ? item.getName() : "N/A"%>"><%=item.getName() != null ? item.getName() : "N/A"%></div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm text-gray-500"><%=item.getBio() != null ? item.getBio() : ""%></div>

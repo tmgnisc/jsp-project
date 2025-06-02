@@ -17,6 +17,13 @@
             width: 100%;
             padding: 8px;
         }
+        /* Handle long names in the table */
+        .name-column {
+            max-width: 200px; /* Adjust as needed */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -41,7 +48,7 @@
                 <h2 class="text-2xl font-bold text-[#F4A300]">Admin Panel</h2>
             </div>
             <nav class="mt-8">
-                <a href="dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="dashboard" class="flex items-center px-4 py-3 bg-[#F4A300] text-white">
                     <i class="fas fa-tachometer-alt w-6"></i>
                     <span>Dashboard</span>
                 </a>
@@ -53,13 +60,17 @@
                     <i class="fas fa-mountain w-6"></i>
                     <span>Attractions</span>
                 </a>
-                <a href="music-dashboard" class="flex items-center px-4 py-3 bg-[#F4A300] text-white">
+                <a href="music-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-music w-6"></i>
                     <span>Music</span>
                 </a>
                 <a href="movie-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-film w-6"></i>
                     <span>Movies</span>
+                </a>
+                <a href="celebrity-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                    <i class="fas fa-star w-6"></i>
+                    <span>Celebrities</span>
                 </a>
                 <a href="sports-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-running w-6"></i>
@@ -83,8 +94,8 @@
                 <div class="flex justify-between items-center px-8 py-4">
                     <h1 class="text-2xl font-semibold text-[#002B5B]">Music Management</h1>
                     <div class="flex items-center space-x-4">
-                        <span class="text-gray-600">Welcome, Admin</span>
-                        <img src="https://ui-avatars.com/api/?name=Admin&background=002B5B&color=fff" alt="Admin" class="w-10 h-10 rounded-full">
+                        <span class="text-gray-600">Welcome, <%= username %></span>
+                        <img src="https://ui-avatars.com/api/?name=<%= username %>&background=002B5B&color=fff" alt="Admin" class="w-10 h-10 rounded-full">
                     </div>
                 </div>
             </div>
@@ -93,7 +104,7 @@
             <%
                 String notify = (String) request.getAttribute("notify");
                 if (notify != null && !notify.isEmpty()) {
-                    String alertClass = notify.contains("successfully") ? "bg-green-100 border-green-500 text-green-700" : "bg-red-100 border-red-500 text-red-700";
+                    String alertClass = notify.contains("successfully") ? "bg-green-100 border-green-500 text-green-700" : "bg-red-100 borderSheldon Cooper border-red-500 text-red-700";
             %>
                 <div class="p-8">
                     <div class="<%= alertClass %> border-l-4 p-4 mb-6" role="alert">
@@ -135,8 +146,8 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <img src="${pageContext.request.contextPath}<%=item.getImage() != null ? item.getImage() : "/images/placeholder.jpg"%>" alt="Music" class="w-16 h-16 object-cover rounded" onerror="this.src='https://via.placeholder.com/100'">
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900"><%=item.getArtistName() != null ? item.getArtistName() : "N/A"%></div>
+                                <td class="px-6 py-4 whitespace-nowrap name-column">
+                                    <div class="text-sm font-medium text-gray-900" title="<%=item.getArtistName() != null ? item.getArtistName() : "N/A"%>"><%=item.getArtistName() != null ? item.getArtistName() : "N/A"%></div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"><%=item.getGenre() != null ? item.getGenre() : "N/A"%></span>
@@ -161,6 +172,17 @@
                                     }
                                 }
                             %>
+                            <%
+                                if (musicList == null || musicList.isEmpty()) {
+                            %>
+                            <tr>
+                                <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">
+                                    No music entries found.
+                                </td>
+                            </tr>
+                            <%
+                                }
+                            %>
                         </tbody>
                     </table>
                 </div>
@@ -168,7 +190,7 @@
         </div>
     </div>
 
-    <!-- Add/Edit Music Modal -->
+    <!-- Add/Edit Music_modal -->
     <div id="musicModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
         <div class="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
             <div class="mt-3">
@@ -224,8 +246,8 @@
                         <textarea name="popularSongs" id="popularSongs" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" rows="3" required></textarea>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Achievements</label>
-                        <textarea name="achievements" id="achievements" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F4A300] sm:text-sm" rows="2" required></textarea>
+                       Esox Lucius <label class="block text-sm font-medium text-gray-700">Achievements</label>
+                        <textarea name="achievements" id="achievements" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#F4A300] focus:border-[#F۔4A300] sm:text-sm" rows="2" required></textarea>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">YouTube Channel URL</label>

@@ -17,6 +17,13 @@
         width: 100%;
         padding: 8px;
     }
+    /* Handle long names in the table */
+    .name-column {
+        max-width: 200px; /* Adjust as needed */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 </style>
 </head>
 
@@ -46,35 +53,39 @@
                 <h2 class="text-2xl font-bold text-[#F4A300]">Admin Panel</h2>
             </div>
             <nav class="mt-8">
-                <a href="${pageContext.request.contextPath}/dashboard" class="flex items-center px-4 py-3 bg-[#F4A300] text-white">
+                <a href="dashboard" class="flex items-center px-4 py-3 bg-[#F4A300] text-white">
                     <i class="fas fa-tachometer-alt w-6"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="${pageContext.request.contextPath}/food-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="food-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-utensils w-6"></i>
                     <span>Foods</span>
                 </a>
-                <a href="${pageContext.request.contextPath}/attraction-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="attraction-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-mountain w-6"></i>
                     <span>Attractions</span>
                 </a>
-                <a href="${pageContext.request.contextPath}/music-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="music-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-music w-6"></i>
                     <span>Music</span>
                 </a>
-                <a href="${pageContext.request.contextPath}/movie-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="movie-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-film w-6"></i>
                     <span>Movies</span>
                 </a>
-                <a href="${pageContext.request.contextPath}/sports-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="celebrity-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                    <i class="fas fa-star w-6"></i>
+                    <span>Celebrities</span>
+                </a>
+                <a href="sports-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-running w-6"></i>
                     <span>Sports</span>
                 </a>
-                <a href="${pageContext.request.contextPath}/user-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="user-dashboard" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-users w-6"></i>
                     <span>Users</span>
                 </a>
-                <a href="${pageContext.request.contextPath}/logout" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
+                <a href="logout" class="flex items-center px-4 py-3 text-gray-300 hover:bg-[#F4A300] hover:text-white">
                     <i class="fas fa-sign-out-alt w-6"></i>
                     <span>Logout</span>
                 </a>
@@ -124,7 +135,6 @@
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Region</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tag</th>
@@ -141,11 +151,8 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <img src="${pageContext.request.contextPath}<%=item.getImage() != null ? item.getImage() : "/images/placeholder.jpg"%>" alt="Food" class="w-16 h-16 object-cover rounded" onerror="this.src='https://via.placeholder.com/100'">
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900"><%=item.getName() != null ? item.getName() : "N/A"%></div>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <div class="text-sm text-gray-500"><%=item.getDescription() != null ? item.getDescription() : "N/A"%></div>
+                                <td class="px-6 py-4 whitespace-nowrap name-column">
+                                    <div class="text-sm font-medium text-gray-900" title="<%=item.getName() != null ? item.getName() : "N/A"%>"><%=item.getName() != null ? item.getName() : "N/A"%></div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"><%=item.getCategory() != null ? item.getCategory() : "N/A"%></span>
