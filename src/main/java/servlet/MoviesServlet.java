@@ -3,7 +3,6 @@ package servlet;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -32,7 +31,7 @@ public class MoviesServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        DynamicTableCreator.createTableFromModel(Movie.class, "movies"); // Ensure table exists
+        DynamicTableCreator.createTableFromModel(Movie.class, "movies");
         movieController = new MovieControllerImplements();
         celebrityController = new CelebrityControllerImplements();
         uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIR;
@@ -72,18 +71,20 @@ public class MoviesServlet extends HttpServlet {
                         if (i < celebIds.size() - 1) celebIdsJson.append(",");
                     }
                     celebIdsJson.append("]");
+                    // Use escapeJson to handle special characters
                     String json = String.format(
                         "{\"id\":%d,\"title\":\"%s\",\"description\":\"%s\",\"genre\":\"%s\",\"rating\":%f,\"trailerUrl\":\"%s\",\"ticketBookingUrl\":\"%s\",\"image\":\"%s\",\"celebrityIds\":%s}",
                         item.getId(),
-                        item.getTitle() != null ? item.getTitle().replace("\"", "\\\"") : "",
-                        item.getDescription() != null ? item.getDescription().replace("\"", "\\\"") : "",
-                        item.getGenre() != null ? item.getGenre().replace("\"", "\\\"") : "",
+                        escapeJson(item.getTitle()),
+                        escapeJson(item.getDescription()),
+                        escapeJson(item.getGenre()),
                         item.getRating(),
-                        item.getTrailerUrl() != null ? item.getTrailerUrl().replace("\"", "\\\"") : "",
-                        item.getTicketBookingUrl() != null ? item.getTicketBookingUrl().replace("\"", "\\\"") : "",
-                        item.getImage() != null ? item.getImage().replace("\"", "\\\"") : "",
+                        escapeJson(item.getTrailerUrl()),
+                        escapeJson(item.getTicketBookingUrl()),
+                        escapeJson(item.getImage()),
                         celebIdsJson.toString()
                     );
+                    System.out.println("Sending JSON response: " + json); // Debug log
                     response.getWriter().write(json);
                 } else {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -92,6 +93,9 @@ public class MoviesServlet extends HttpServlet {
             } catch (NumberFormatException e) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.getWriter().write("{\"error\":\"Invalid movie ID\"}");
+            } catch (IOException e) {
+                System.err.println("Error writing JSON response: " + e.getMessage());
+                throw e; // Re-throw to ensure the error is logged properly
             }
             return;
         }
@@ -112,7 +116,6 @@ public class MoviesServlet extends HttpServlet {
             }
         }
 
-        // Fetch all celebrities for the dropdown
         List<Celebrity> celebrityList = celebrityController.getAllData();
         request.setAttribute("celebrityList", celebrityList);
 
@@ -143,7 +146,7 @@ public class MoviesServlet extends HttpServlet {
             String ratingStr = request.getParameter("rating");
             String trailerUrl = request.getParameter("trailerUrl");
             String ticketBookingUrl = request.getParameter("ticketBookingUrl");
-            String[] celebrityIdsArray = request.getParameterValues("celebrityIds"); // Multi-select dropdown
+            String[] celebrityIdsArray = request.getParameterValues("celebrityIds");
 
             float rating;
             try {
@@ -153,7 +156,6 @@ public class MoviesServlet extends HttpServlet {
                 System.err.println("Invalid rating format: " + ratingStr);
             }
 
-            // Parse celebrity IDs from the multi-select dropdown
             List<Integer> celebrityIds = new ArrayList<>();
             if (celebrityIdsArray != null) {
                 for (String id : celebrityIdsArray) {
@@ -211,7 +213,6 @@ public class MoviesServlet extends HttpServlet {
         }
 
         request.getSession().setAttribute("notify", notifyMessage);
-        // Fetch all celebrities for the dropdown
         List<Celebrity> celebrityList = celebrityController.getAllData();
         request.setAttribute("celebrityList", celebrityList);
 
@@ -222,6 +223,7 @@ public class MoviesServlet extends HttpServlet {
 
     @Override
     public void destroy() {
+        DatabaseConnection.closeConnection();
         super.destroy();
     }
 
@@ -240,5 +242,17 @@ public class MoviesServlet extends HttpServlet {
         }
         System.err.println("No filename found in content-disposition.");
         return null;
+    }
+
+    // Helper method to escape strings for JSON
+    private String escapeJson(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replace("\\", "\\\\") // Escape backslashes
+                    .replace("\"", "\\\"") // Escape double quotes
+                    .replace("\n", "\\n")  // Escape newlines
+                    .replace("\r", "\\r")  // Escape carriage returns
+                    .replace("\t", "\\t"); // Escape tabs
     }
 }

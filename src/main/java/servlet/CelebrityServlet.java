@@ -27,7 +27,7 @@ public class CelebrityServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        DynamicTableCreator.createTableFromModel(Celebrity.class, "celebrities"); // Ensure table exists
+        DynamicTableCreator.createTableFromModel(Celebrity.class, "celebrities");
         controller = new CelebrityControllerImplements();
         uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIR;
         System.out.println("Upload path: " + uploadPath);
@@ -59,13 +59,15 @@ public class CelebrityServlet extends HttpServlet {
                 response.setCharacterEncoding("UTF-8");
                 if (!celebrityList.isEmpty()) {
                     Celebrity item = celebrityList.get(0);
+                    // Use escapeJson to handle special characters
                     String json = String.format(
                         "{\"id\":%d,\"name\":\"%s\",\"bio\":\"%s\",\"image\":\"%s\"}",
                         item.getId(),
-                        item.getName() != null ? item.getName().replace("\"", "\\\"") : "",
-                        item.getBio() != null ? item.getBio().replace("\"", "\\\"") : "",
-                        item.getImage() != null ? item.getImage().replace("\"", "\\\"") : ""
+                        escapeJson(item.getName()),
+                        escapeJson(item.getBio()),
+                        escapeJson(item.getImage())
                     );
+                    System.out.println("Sending JSON response: " + json); // Debug log
                     response.getWriter().write(json);
                 } else {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -74,6 +76,9 @@ public class CelebrityServlet extends HttpServlet {
             } catch (NumberFormatException e) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.getWriter().write("{\"error\":\"Invalid celebrity ID\"}");
+            } catch (IOException e) {
+                System.err.println("Error writing JSON response: " + e.getMessage());
+                throw e; // Re-throw to ensure the error is logged properly
             }
             return;
         }
@@ -173,6 +178,7 @@ public class CelebrityServlet extends HttpServlet {
 
     @Override
     public void destroy() {
+        DatabaseConnection.closeConnection();
         super.destroy();
     }
 
@@ -191,5 +197,17 @@ public class CelebrityServlet extends HttpServlet {
         }
         System.err.println("No filename found in content-disposition.");
         return null;
+    }
+
+    // Helper method to escape strings for JSON
+    private String escapeJson(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replace("\\", "\\\\") // Escape backslashes
+                    .replace("\"", "\\\"") // Escape double quotes
+                    .replace("\n", "\\n")  // Escape newlines
+                    .replace("\r", "\\r")  // Escape carriage returns
+                    .replace("\t", "\\t"); // Escape tabs
     }
 }

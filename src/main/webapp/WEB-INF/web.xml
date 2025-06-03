@@ -13,6 +13,12 @@
   <servlet>
     <servlet-name>DefaultServlet</servlet-name>
     <servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class>
+    <multipart-config>
+            <location>/tmp</location>
+            <max-file-size>2097152</max-file-size> <!-- 2MB -->
+            <max-request-size>4194304</max-request-size> <!-- 4MB -->
+            <file-size-threshold>1048576</file-size-threshold> <!-- 1MB -->
+    </multipart-config>
   </servlet>
   <servlet-mapping>
     <servlet-name>DefaultServlet</servlet-name>

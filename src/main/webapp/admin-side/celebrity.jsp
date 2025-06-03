@@ -18,8 +18,8 @@
             width: 100%;
             padding: 8px;
         }
-        /* Handle long names in the table */
-        .name-column {
+        /* Handle long names and bios in the table */
+        .name-column, .bio-column {
             max-width: 200px; /* Adjust as needed */
             white-space: nowrap;
             overflow: hidden;
@@ -142,8 +142,8 @@
                                 <td class="px-6 py-4 whitespace-nowrap name-column">
                                     <div class="text-sm font-medium text-gray-900" title="<%=item.getName() != null ? item.getName() : "N/A"%>"><%=item.getName() != null ? item.getName() : "N/A"%></div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-500"><%=item.getBio() != null ? item.getBio() : ""%></div>
+                                <td class="px-6 py-4 whitespace-nowrap bio-column">
+                                    <div class="text-sm text-gray-500" title="<%=item.getBio() != null ? item.getBio() : ""%>"><%=item.getBio() != null && item.getBio().length() > 50 ? item.getBio().substring(0, 50) + "..." : (item.getBio() != null ? item.getBio() : "")%></div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <button onclick="showEditCelebrityModal(<%=item.getId()%>)" class="text-[#F4A300] hover:text-[#A31621] mr-3">

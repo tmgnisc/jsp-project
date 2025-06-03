@@ -109,7 +109,7 @@
                     <div class="flex justify-between items-start">
                         <div>
                             <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= food.getName() != null ? food.getName() : "Unnamed Food" %></h3>
-                            <p class="text-gray-600 mb-2"><%= food.getDescription() != null ? food.getDescription() : "No description available." %></p>
+                            <p class="text-gray-600 mb-2 line-clamp-2"><%= food.getDescription() != null ? food.getDescription() : "No description available." %></p>
                             <p class="text-sm text-gray-500"><i class="fas fa-map-marker-alt mr-2"></i><%= food.getRegion() != null ? food.getRegion() : "Unknown Region" %></p>
                         </div>
                         <span class="bg-[#F4A300] text-white px-3 py-1 rounded-full text-sm"><%= food.getTag() != null ? food.getTag() : "Untagged" %></span>

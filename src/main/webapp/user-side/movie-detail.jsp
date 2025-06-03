@@ -12,13 +12,24 @@
     <style>
         body { 
             font-family: 'Poppins', sans-serif;
-            background-color: #f5f7fa; /* Match music-detail.jsp background */
+            background-color: #f5f7fa;
         }
         .image-gallery img { 
             transition: transform 0.3s ease; 
         }
         .image-gallery img:hover { 
             transform: scale(1.05); 
+        }
+        .thumbnail-active {
+            border: 2px solid #F4A300;
+            opacity: 1;
+        }
+        .thumbnail {
+            opacity: 0.7;
+            cursor: pointer;
+        }
+        .thumbnail:hover {
+            opacity: 1;
         }
         .celebrity-image { 
             width: 80px; 
@@ -63,6 +74,14 @@
 
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 py-8">
+        <% Movie movie = (Movie) request.getAttribute("movie");
+           if (movie == null) {
+               response.sendRedirect(request.getContextPath() + "/movies");
+               return;
+           }
+           @SuppressWarnings("unchecked")
+           List<Celebrity> celebrities = (List<Celebrity>) request.getAttribute("celebrities");
+        %>
         <!-- Breadcrumb -->
         <div class="mb-6">
             <nav class="flex" aria-label="Breadcrumb">
@@ -79,7 +98,7 @@
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-                            <span class="text-gray-500">${movie.title != null ? movie.title : "Movie Title"}</span>
+                            <span class="text-gray-500"><%= movie.getTitle() != null ? movie.getTitle() : "Unknown" %></span>
                         </div>
                     </li>
                 </ol>
@@ -87,48 +106,41 @@
         </div>
 
         <!-- Movie Detail -->
-        <% Movie movie = (Movie) request.getAttribute("movie");
-           @SuppressWarnings("unchecked")
-           List<Celebrity> celebrities = (List<Celebrity>) request.getAttribute("celebrities");
-           if (movie == null) { %>
-            <p class="text-red-500">Error: Movie details not found.</p>
-        <% } else { %>
         <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
-                <!-- Image Gallery -->
-                <div class="space-y-4 image-gallery">
-                    <div class="relative h-96 rounded-lg overflow-hidden">
-                        <% String mainImage = movie.getImage();
-                           if (mainImage != null && !mainImage.isEmpty()) { %>
-                            <img src="${pageContext.request.contextPath}<%= mainImage %>" 
-                                 alt="${movie.title}" 
-                                 class="w-full h-full object-cover" 
-                                 onerror="this.src='https://via.placeholder.com/800'">
-                        <% } else { %>
-                            <img src="https://via.placeholder.com/800" 
-                                 alt="${movie.title} Fallback" 
-                                 class="w-full h-full object-cover">
-                        <% } %>
+            <!-- Image Gallery -->
+            <div class="p-8 image-gallery">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div class="relative h-96 rounded-lg overflow-hidden md:col-span-3">
+                        <img id="main-image" 
+                             src="${pageContext.request.contextPath}<%= movie.getImage() != null ? movie.getImage() : "/images/placeholder.jpg" %>" 
+                             alt="<%= movie.getTitle() != null ? movie.getTitle() : "Movie Image" %>" 
+                             class="w-full h-full object-cover"
+                             onerror="this.src='https://via.placeholder.com/800'">
                         <div class="absolute top-4 right-4">
                             <button class="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100">
                                 <i class="fas fa-heart text-red-500"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="grid grid-cols-4 gap-4">
+                    <div class="grid grid-cols-4 gap-4 md:col-span-2">
                         <% for (int i = 0; i < 4; i++) { %>
-                            <img src="${pageContext.request.contextPath}<%= mainImage != null && !mainImage.isEmpty() ? mainImage : "/images/placeholder.jpg" %>" 
-                                 alt="${movie.title}" 
-                                 class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75" 
-                                 onerror="this.src='https://via.placeholder.com/200'">
+                            <div class="h-24 rounded-lg overflow-hidden">
+                                <img src="${pageContext.request.contextPath}<%= movie.getImage() != null ? movie.getImage() : "/images/placeholder.jpg" %>" 
+                                     alt="<%= movie.getTitle() != null ? movie.getTitle() : "Movie Image" %>" 
+                                     class="w-full h-full object-cover cursor-pointer thumbnail <%= i == 0 ? "thumbnail-active" : "" %>"
+                                     onclick="changeMainImage(this.src)"
+                                     onerror="this.src='https://via.placeholder.com/200'">
+                            </div>
                         <% } %>
                     </div>
                 </div>
+            </div>
 
-                <!-- Movie Information -->
+            <!-- Movie Information -->
+            <div class="p-8">
                 <div class="space-y-6">
                     <div>
-                        <h1 class="text-3xl font-bold text-[#002B5B]">${movie.title != null ? movie.title : "Untitled Movie"}</h1>
+                        <h1 class="text-3xl font-bold text-[#002B5B]"><%= movie.getTitle() != null ? movie.getTitle() : "Unknown Movie" %></h1>
                         <div class="flex items-center mt-2">
                             <div class="flex text-yellow-400">
                                 <% float rating = movie.getRating();
@@ -144,14 +156,14 @@
                                        <i class="far fa-star"></i>
                                    <% } %>
                             </div>
-                            <span class="text-gray-600 ml-2">${movie.rating}/5</span>
+                            <span class="text-gray-600 ml-2"><%= movie.getRating() %>/5</span>
                         </div>
                     </div>
 
                     <div class="space-y-4">
                         <div>
                             <h2 class="text-xl font-semibold text-[#002B5B]">Plot Summary</h2>
-                            <p class="text-gray-600 mt-2">${movie.description != null ? movie.description : "No description available."}</p>
+                            <p class="text-gray-600 mt-2"><%= movie.getDescription() != null ? movie.getDescription() : "No description available." %></p>
                         </div>
 
                         <div>
@@ -159,48 +171,45 @@
                             <div class="mt-2 space-y-2">
                                 <div class="flex items-center text-gray-600">
                                     <i class="fas fa-tag w-6"></i>
-                                    <span>Genre: ${movie.genre != null ? movie.genre : "Not specified"}</span>
+                                    <span>Genre: <%= movie.getGenre() != null ? movie.getGenre() : "Not specified" %></span>
                                 </div>
                             </div>
                         </div>
 
-                       
-                        <!-- Actors Section -->
-						<div class="actors-section">
-						    <h2 class="text-2xl font-bold text-[#002B5B] mb-4">Actors</h2>
-						    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-						        <% if (celebrities != null && !celebrities.isEmpty()) {
-						               for (Celebrity celeb : celebrities) { %>
-						                <div class="flex items-center space-x-4 p-2 bg-white rounded-lg shadow hover:shadow-md transition-shadow">
-						                    <a href="${pageContext.request.contextPath}/celebrity-details?id=<%= celeb.getId() %>" 
-						                       class="flex items-center space-x-4">
-						                        <img src="${pageContext.request.contextPath}<%= celeb.getImage() != null && !celeb.getImage().isEmpty() ? celeb.getImage() : "/images/placeholder.jpg" %>" 
-						                             alt="<%= celeb.getName() != null ? celeb.getName() : "Celebrity" %>" 
-						                             class="celebrity-image" 
-						                             onerror="this.src='https://via.placeholder.com/80'">
-						                        <span class="text-gray-800 font-medium text-lg"><%= celeb.getName() != null ? celeb.getName() : "Unknown" %></span>
-						                    </a>
-						                </div>
-						        <% }
-						           } else { %>
-						            <p class="text-gray-600">No actors listed for this movie.</p>
-						        <% } %>
-						    </div>
-						</div>
+                        <div class="actors-section">
+                            <h2 class="text-xl font-semibold text-[#002B5B]">Actors</h2>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-2">
+                                <% if (celebrities != null && !celebrities.isEmpty()) {
+                                       for (Celebrity celeb : celebrities) { %>
+                                        <div class="flex items-center space-x-4 p-2 bg-white rounded-lg shadow hover:shadow-md transition-shadow">
+                                            <a href="${pageContext.request.contextPath}/celebrity-details?id=<%= celeb.getId() %>" 
+                                               class="flex items-center space-x-4">
+                                                <img src="${pageContext.request.contextPath}<%= celeb.getImage() != null ? celeb.getImage() : "/images/placeholder.jpg" %>" 
+                                                     alt="<%= celeb.getName() != null ? celeb.getName() : "Celebrity" %>" 
+                                                     class="celebrity-image" 
+                                                     onerror="this.src='https://via.placeholder.com/80'">
+                                                <span class="text-gray-800 font-medium"><%= celeb.getName() != null ? celeb.getName() : "Unknown" %></span>
+                                            </a>
+                                        </div>
+                                <% }
+                                   } else { %>
+                                    <p class="text-gray-600">No actors listed for this movie.</p>
+                                <% } %>
+                            </div>
+                        </div>
 
-                        <!-- Movie Links -->
                         <div>
                             <h2 class="text-xl font-semibold text-[#002B5B]">Links</h2>
                             <div class="mt-2 space-y-2">
                                 <div class="flex items-center text-gray-600">
                                     <i class="fab fa-youtube w-6"></i>
-                                    <a href="${movie.trailerUrl != null ? movie.trailerUrl : '#'}" class="text-[#F4A300] hover:text-[#A31621]">
+                                    <a href="<%= movie.getTrailerUrl() != null ? movie.getTrailerUrl() : "#" %>" class="text-[#F4A300] hover:text-[#A31621]">
                                         Watch Trailer
                                     </a>
                                 </div>
                                 <div class="flex items-center text-gray-600">
                                     <i class="fas fa-ticket-alt w-6"></i>
-                                    <a href="${movie.ticketBookingUrl != null ? movie.ticketBookingUrl : '#'}" class="text-[#F4A300] hover:text-[#A31621]">
+                                    <a href="<%= movie.getTicketBookingUrl() != null ? movie.getTicketBookingUrl() : "#" %>" class="text-[#F4A300] hover:text-[#A31621]">
                                         Book Tickets
                                     </a>
                                 </div>
@@ -216,11 +225,14 @@
                 
                 <!-- Comment Form -->
                 <div class="mb-8 p-4 bg-white rounded-lg shadow">
-                    <form action="${pageContext.request.contextPath}/movie-detail" method="post" class="comment-form">
-                        <input type="hidden" name="movieId" value="${movie.id}">
-                        <div class="mb-2">
-                            <textarea name="commentText" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F4A300] comment-form" 
-                                      rows="3" placeholder="Write your comment..."></textarea>
+                    <form action="${pageContext.request.contextPath}/movie-detail" method="post" class="space-y-4">
+                        <input type="hidden" name="movieId" value="<%= movie.getId() %>">
+                        <div>
+                            <textarea name="commentText" 
+                                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F4A300]" 
+                                      rows="3" 
+                                      placeholder="Write your comment..." 
+                                      required></textarea>
                         </div>
                         <div class="flex justify-end">
                             <button type="submit" class="bg-[#F4A300] text-white px-6 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
@@ -236,32 +248,29 @@
 
                 <!-- Comments List -->
                 <div class="space-y-6">
-                    <% List<MovieComment> comments = null;
-                       try {
-                           comments = (List<MovieComment>) request.getAttribute("comments");
-                       } catch (Exception e) { %>
-                           <p class="text-red-500 text-sm">Error loading comments: <%= e.getMessage() %></p>
-                       <% }
+                    <% List<MovieComment> comments = (List<MovieComment>) request.getAttribute("comments");
                        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Kathmandu"));
                        if (comments != null && !comments.isEmpty()) {
-                           for (MovieComment comment : comments) { 
+                           for (MovieComment comment : comments) {
+                               String timeAgo = "Unknown time";
                                try {
-                                   LocalDateTime commentTime = LocalDateTime.parse(comment.getCreatedAt(), java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                                   if (comment.getCreatedAt() != null) {
+                                       LocalDateTime commentTime = LocalDateTime.parse(comment.getCreatedAt(), java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
                                            .atZone(ZoneId.of("Asia/Kathmandu")).toLocalDateTime();
-                                   long minutesAgo = ChronoUnit.MINUTES.between(commentTime, now);
-                                   String timeAgo;
-                                   if (minutesAgo < 60) {
-                                       timeAgo = minutesAgo + " minutes ago";
-                                   } else if (minutesAgo < 1440) {
-                                       long hoursAgo = minutesAgo / 60;
-                                       timeAgo = hoursAgo + " hours ago";
-                                   } else {
-                                       long daysAgo = minutesAgo / 1440;
-                                       timeAgo = daysAgo + " days ago";
+                                       long minutesAgo = ChronoUnit.MINUTES.between(commentTime, now);
+                                       if (minutesAgo < 60) {
+                                           timeAgo = minutesAgo + " minutes ago";
+                                       } else if (minutesAgo < 1440) {
+                                           long hoursAgo = minutesAgo / 60;
+                                           timeAgo = hoursAgo + " hours ago";
+                                       } else {
+                                           long daysAgo = minutesAgo / 1440;
+                                           timeAgo = daysAgo + " days ago";
+                                       }
                                    }
                     %>
                     <div class="flex space-x-4">
-                        <img src="https://ui-avatars.com/api/?name=<%= comment.getUsername() %>&background=002B5B&color=fff" 
+                        <img src="https://ui-avatars.com/api/?name=<%= comment.getUsername() != null ? comment.getUsername().replace(" ", "+") : "Unknown" %>&background=002B5B&color=fff" 
                              alt="User" 
                              class="w-12 h-12 rounded-full">
                         <div class="flex-1">
@@ -269,7 +278,7 @@
                                 <h3 class="font-semibold text-[#002B5B]"><%= comment.getUsername() != null ? comment.getUsername() : "Anonymous" %></h3>
                                 <span class="text-sm text-gray-500"><%= timeAgo %></span>
                             </div>
-                            <p class="text-gray-600 mt-1"><%= comment.getCommentText() != null ? comment.getCommentText() : "No comment text available." %></p>
+                            <p class="text-gray-600 mt-1"><%= comment.getCommentText() != null ? comment.getCommentText() : "No comment text" %></p>
                             <div class="flex items-center space-x-4 mt-2">
                                 <button class="text-gray-500 hover:text-[#F4A300]">
                                     <i class="far fa-thumbs-up"></i> Like
@@ -285,12 +294,11 @@
                         <% }
                            }
                        } else { %>
-                       <p class="text-gray-500">No comments yet. Be the first to comment!</p>
+                       <div class="text-center text-gray-500">No comments yet. Be the first to comment!</div>
                     <% } %>
                 </div>
             </div>
         </div>
-        <% } %>
     </div>
 
     <!-- Footer -->
@@ -306,6 +314,7 @@
                 <div>
                     <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
                     <ul class="space-y-2">
+                        <li><a href="${pageContext.request.contextPath}/index" class="text-gray-300 hover:text-[#F4A300]">Home</a></li>
                         <li><a href="${pageContext.request.contextPath}/foods" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
                         <li><a href="${pageContext.request.contextPath}/attractions" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
                         <li><a href="${pageContext.request.contextPath}/music" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
@@ -344,5 +353,17 @@
             </div>
         </div>
     </footer>
+
+    <!-- JavaScript for Image Switching -->
+    <script>
+        function changeMainImage(src) {
+            const mainImage = document.getElementById('main-image');
+            mainImage.src = src;
+            const thumbnails = document.querySelectorAll('.thumbnail');
+            thumbnails.forEach(thumb => thumb.classList.remove('thumbnail-active'));
+            const clickedThumbnail = event.target;
+            clickedThumbnail.classList.add('thumbnail-active');
+        }
+    </script>
 </body>
 </html>

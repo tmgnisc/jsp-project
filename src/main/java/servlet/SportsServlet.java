@@ -3,7 +3,6 @@ package servlet;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -72,18 +71,20 @@ public class SportsServlet extends HttpServlet {
                         if (i < celebIds.size() - 1) celebIdsJson.append(",");
                     }
                     celebIdsJson.append("]");
+                    // Use escapeJson to handle special characters
                     String json = String.format(
                         "{\"id\":%d,\"name\":\"%s\",\"description\":\"%s\",\"category\":\"%s\",\"status\":\"%s\",\"history\":\"%s\",\"rules\":\"%s\",\"image\":\"%s\",\"celebrityIds\":%s}",
                         item.getId(),
-                        item.getName() != null ? item.getName().replace("\"", "\\\"") : "",
-                        item.getDescription() != null ? item.getDescription().replace("\"", "\\\"") : "",
-                        item.getCategory() != null ? item.getCategory().replace("\"", "\\\"") : "",
-                        item.getStatus() != null ? item.getStatus().replace("\"", "\\\"") : "",
-                        item.getHistory() != null ? item.getHistory().replace("\"", "\\\"") : "",
-                        item.getRules() != null ? item.getRules().replace("\"", "\\\"") : "",
-                        item.getImage() != null ? item.getImage().replace("\"", "\\\"") : "",
+                        escapeJson(item.getName()),
+                        escapeJson(item.getDescription()),
+                        escapeJson(item.getCategory()),
+                        escapeJson(item.getStatus()),
+                        escapeJson(item.getHistory()),
+                        escapeJson(item.getRules()),
+                        escapeJson(item.getImage()),
                         celebIdsJson.toString()
                     );
+                    System.out.println("Sending JSON response: " + json); // Debug log
                     response.getWriter().write(json);
                 } else {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -92,6 +93,9 @@ public class SportsServlet extends HttpServlet {
             } catch (NumberFormatException e) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.getWriter().write("{\"error\":\"Invalid sport ID\"}");
+            } catch (IOException e) {
+                System.err.println("Error writing JSON response: " + e.getMessage());
+                throw e; // Re-throw to ensure the error is logged properly
             }
             return;
         }
@@ -227,6 +231,18 @@ public class SportsServlet extends HttpServlet {
             }
         }
         System.err.println("No filename found in content-disposition.");
-        return "";
+        return null;
+    }
+
+    // Helper method to escape strings for JSON
+    private String escapeJson(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replace("\\", "\\\\") // Escape backslashes
+                    .replace("\"", "\\\"") // Escape double quotes
+                    .replace("\n", "\\n")  // Escape newlines
+                    .replace("\r", "\\r")  // Escape carriage returns
+                    .replace("\t", "\\t"); // Escape tabs
     }
 }

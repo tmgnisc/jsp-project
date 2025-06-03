@@ -27,7 +27,8 @@ public class AttractionServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        DynamicTableCreator.createTableFromModel(Attraction.class, "attractions"); // Ensure table exists
+        DynamicTableCreator.createTableFromModel(Attraction.class, "attractions");
+        // Fixed the syntax error: Removed "Então" and correctly assigned the controller
         controller = new AttractionControllerImplements();
         uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIR;
         System.out.println("Upload path: " + uploadPath);
@@ -62,17 +63,18 @@ public class AttractionServlet extends HttpServlet {
                     String json = String.format(
                         "{\"id\":%d,\"name\":\"%s\",\"location\":\"%s\",\"description\":\"%s\",\"category\":\"%s\",\"image\":\"%s\",\"bestTimeToVisit\":\"%s\",\"howToReach\":\"%s\",\"entryFee\":\"%s\",\"openingHours\":\"%s\",\"nearbyAttractions\":\"%s\"}",
                         item.getId(),
-                        item.getName() != null ? item.getName().replace("\"", "\\\"") : "",
-                        item.getLocation() != null ? item.getLocation().replace("\"", "\\\"") : "",
-                        item.getDescription() != null ? item.getDescription().replace("\"", "\\\"") : "",
-                        item.getCategory() != null ? item.getCategory().replace("\"", "\\\"") : "",
-                        item.getImage() != null ? item.getImage().replace("\"", "\\\"") : "",
-                        item.getBestTimeToVisit() != null ? item.getBestTimeToVisit().replace("\"", "\\\"") : "",
-                        item.getHowToReach() != null ? item.getHowToReach().replace("\"", "\\\"") : "",
-                        item.getEntryFee() != null ? item.getEntryFee().replace("\"", "\\\"") : "",
-                        item.getOpeningHours() != null ? item.getOpeningHours().replace("\"", "\\\"") : "",
-                        item.getNearbyAttractions() != null ? item.getNearbyAttractions().replace("\"", "\\\"") : ""
+                        escapeJson(item.getName()),
+                        escapeJson(item.getLocation()),
+                        escapeJson(item.getDescription()),
+                        escapeJson(item.getCategory()),
+                        escapeJson(item.getImage()),
+                        escapeJson(item.getBestTimeToVisit()),
+                        escapeJson(item.getHowToReach()),
+                        escapeJson(item.getEntryFee()),
+                        escapeJson(item.getOpeningHours()),
+                        escapeJson(item.getNearbyAttractions())
                     );
+                    System.out.println("Sending JSON response: " + json);
                     response.getWriter().write(json);
                 } else {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -81,6 +83,9 @@ public class AttractionServlet extends HttpServlet {
             } catch (NumberFormatException e) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.getWriter().write("{\"error\":\"Invalid attraction ID\"}");
+            } catch (IOException e) {
+                System.err.println("Error writing JSON response: " + e.getMessage());
+                throw e;
             }
             return;
         }
@@ -197,5 +202,16 @@ public class AttractionServlet extends HttpServlet {
         }
         System.err.println("No filename found in content-disposition.");
         return "";
+    }
+
+    private String escapeJson(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replace("\\", "\\\\")
+                    .replace("\"", "\\\"")
+                    .replace("\n", "\\n")
+                    .replace("\r", "\\r")
+                    .replace("\t", "\\t");
     }
 }

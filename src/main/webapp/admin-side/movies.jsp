@@ -22,6 +22,13 @@
             width: 100%;
             padding: 8px;
         }
+        /* Handle long text in the table */
+        .description-column {
+            max-width: 200px; /* Adjust as needed */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -98,8 +105,8 @@
                 <div class="flex justify-between items-center px-8 py-4">
                     <h1 class="text-2xl font-semibold text-[#002B5B]">Movies Management</h1>
                     <div class="flex items-center space-x-4">
-                        <span class="text-gray-600">Welcome, Admin</span>
-                        <img src="https://ui-avatars.com/api/?name=Admin&background=002B5B&color=fff" alt="Admin" class="w-10 h-10 rounded-full">
+                        <span class="text-gray-600">Welcome, <%= username %></span>
+                        <img src="https://ui-avatars.com/api/?name=<%= username %>&background=002B5B&color=fff" alt="Admin" class="w-10 h-10 rounded-full">
                     </div>
                 </div>
             </div>
@@ -159,7 +166,9 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-medium text-gray-900"><%=item.getTitle()%></div>
-                                    <div class="text-sm text-gray-500"><%=item.getDescription() != null ? item.getDescription() : ""%></div>
+                                    <div class="text-sm text-gray-500 description-column" title="<%=item.getDescription() != null ? item.getDescription() : ""%>">
+                                        <%=item.getDescription() != null ? item.getDescription() : ""%>
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"><%=item.getGenre()%></span>

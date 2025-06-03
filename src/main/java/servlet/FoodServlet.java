@@ -19,7 +19,6 @@ import utility.DynamicTableCreator;
 @MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, // 2MB
                  maxFileSize = 1024 * 1024 * 10,      // 10MB
                  maxRequestSize = 1024 * 1024 * 50)   // 50MB
-
 public class FoodServlet extends HttpServlet {
     private FoodItemControllerImplements controller;
     private static final String UPLOAD_DIR = "assets/img";
@@ -54,23 +53,24 @@ public class FoodServlet extends HttpServlet {
                 response.setCharacterEncoding("UTF-8");
                 if (!foodItems.isEmpty()) {
                     FoodItem item = foodItems.get(0);
-                    // Include region and tag in JSON
+                    // Use escapeJson to handle special characters in all string fields
                     String json = String.format(
                         "{\"id\":%d,\"name\":\"%s\",\"description\":\"%s\",\"category\":\"%s\",\"image\":\"%s\"," +
                         "\"ingredients\":\"%s\",\"preparationMethod\":\"%s\",\"servingSuggestions\":\"%s\"," +
                         "\"culturalSignificance\":\"%s\",\"region\":\"%s\",\"tag\":\"%s\"}",
                         item.getId(),
-                        item.getName() != null ? item.getName().replace("\"", "\\\"") : "",
-                        item.getDescription() != null ? item.getDescription().replace("\"", "\\\"") : "",
-                        item.getCategory() != null ? item.getCategory().replace("\"", "\\\"") : "",
-                        item.getImage() != null ? item.getImage().replace("\"", "\\\"") : "",
-                        item.getIngredients() != null ? item.getIngredients().replace("\"", "\\\"") : "",
-                        item.getPreparationMethod() != null ? item.getPreparationMethod().replace("\"", "\\\"") : "",
-                        item.getServingSuggestions() != null ? item.getServingSuggestions().replace("\"", "\\\"") : "",
-                        item.getCulturalSignificance() != null ? item.getCulturalSignificance().replace("\"", "\\\"") : "",
-                        item.getRegion() != null ? item.getRegion().replace("\"", "\\\"") : "",
-                        item.getTag() != null ? item.getTag().replace("\"", "\\\"") : ""
+                        escapeJson(item.getName()),
+                        escapeJson(item.getDescription()),
+                        escapeJson(item.getCategory()),
+                        escapeJson(item.getImage()),
+                        escapeJson(item.getIngredients()),
+                        escapeJson(item.getPreparationMethod()),
+                        escapeJson(item.getServingSuggestions()),
+                        escapeJson(item.getCulturalSignificance()),
+                        escapeJson(item.getRegion()),
+                        escapeJson(item.getTag())
                     );
+                    System.out.println("Sending JSON response: " + json); // Debug log
                     response.getWriter().write(json);
                 } else {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -79,6 +79,9 @@ public class FoodServlet extends HttpServlet {
             } catch (NumberFormatException e) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.getWriter().write("{\"error\":\"Invalid food item ID\"}");
+            } catch (IOException e) {
+                System.err.println("Error writing JSON response: " + e.getMessage());
+                throw e; // Re-throw to ensure the error is logged properly
             }
             return;
         }
@@ -188,5 +191,17 @@ public class FoodServlet extends HttpServlet {
             }
         }
         return "";
+    }
+
+    // Helper method to escape strings for JSON
+    private String escapeJson(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replace("\\", "\\\\") // Escape backslashes
+                    .replace("\"", "\\\"") // Escape double quotes
+                    .replace("\n", "\\n")  // Escape newlines
+                    .replace("\r", "\\r")  // Escape carriage returns
+                    .replace("\t", "\\t"); // Escape tabs
     }
 }

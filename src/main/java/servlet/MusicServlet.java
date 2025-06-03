@@ -67,19 +67,21 @@ public class MusicServlet extends HttpServlet {
                     Music item = musicList.get(0);
                     String celebrityIdsStr = item.getCelebrityIds() != null ? 
                         String.join(",", item.getCelebrityIds().stream().map(String::valueOf).toArray(String[]::new)) : "";
+                    // Use escapeJson to handle special characters
                     String json = String.format(
                         "{\"id\":%d,\"artistName\":\"%s\",\"genre\":\"%s\",\"formationYear\":%d,\"description\":\"%s\",\"popularSongs\":\"%s\",\"achievements\":\"%s\",\"youtubeChannelUrl\":\"%s\",\"image\":\"%s\",\"celebrityIds\":\"%s\"}",
                         item.getId(),
-                        item.getArtistName() != null ? item.getArtistName().replace("\"", "\\\"") : "",
-                        item.getGenre() != null ? item.getGenre().replace("\"", "\\\"") : "",
+                        escapeJson(item.getArtistName()),
+                        escapeJson(item.getGenre()),
                         item.getFormationYear(),
-                        item.getDescription() != null ? item.getDescription().replace("\"", "\\\"") : "",
-                        item.getPopularSongs() != null ? item.getPopularSongs().replace("\"", "\\\"") : "",
-                        item.getAchievements() != null ? item.getAchievements().replace("\"", "\\\"") : "",
-                        item.getYoutubeChannelUrl() != null ? item.getYoutubeChannelUrl().replace("\"", "\\\"") : "",
-                        item.getImage() != null ? item.getImage().replace("\"", "\\\"") : "",
-                        celebrityIdsStr
+                        escapeJson(item.getDescription()),
+                        escapeJson(item.getPopularSongs()),
+                        escapeJson(item.getAchievements()),
+                        escapeJson(item.getYoutubeChannelUrl()),
+                        escapeJson(item.getImage()),
+                        escapeJson(celebrityIdsStr)
                     );
+                    System.out.println("Sending JSON response: " + json); // Debug log
                     response.getWriter().write(json);
                 } else {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -88,6 +90,9 @@ public class MusicServlet extends HttpServlet {
             } catch (NumberFormatException e) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.getWriter().write("{\"error\":\"Invalid music ID\"}");
+            } catch (IOException e) {
+                System.err.println("Error writing JSON response: " + e.getMessage());
+                throw e; // Re-throw to ensure the error is logged properly
             }
             return;
         }
@@ -109,7 +114,7 @@ public class MusicServlet extends HttpServlet {
         }
 
         List<Music> musicList = controller.getAllData();
-        List<Celebrity> celebrityList = celebrityController.getAllData(); // Fetch all celebrities for the form
+        List<Celebrity> celebrityList = celebrityController.getAllData();
         request.setAttribute("musicList", musicList);
         request.setAttribute("celebrityList", celebrityList);
         request.getRequestDispatcher("/admin-side/music.jsp").forward(request, response);
@@ -127,7 +132,7 @@ public class MusicServlet extends HttpServlet {
         String popularSongs = request.getParameter("popularSongs");
         String achievements = request.getParameter("achievements");
         String youtubeChannelUrl = request.getParameter("youtubeChannelUrl");
-        String[] celebrityIdsArray = request.getParameterValues("celebrityIds"); // Get selected celebrity IDs
+        String[] celebrityIdsArray = request.getParameterValues("celebrityIds");
 
         int formationYear;
         try {
@@ -136,7 +141,6 @@ public class MusicServlet extends HttpServlet {
             formationYear = 0;
         }
 
-        // Convert celebrity IDs to List<Integer>
         List<Integer> celebrityIds = new ArrayList<>();
         if (celebrityIdsArray != null) {
             for (String celebrityId : celebrityIdsArray) {
@@ -226,5 +230,17 @@ public class MusicServlet extends HttpServlet {
         }
         System.err.println("No filename found in content-disposition.");
         return "";
+    }
+
+    // Helper method to escape strings for JSON
+    private String escapeJson(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replace("\\", "\\\\") // Escape backslashes
+                    .replace("\"", "\\\"") // Escape double quotes
+                    .replace("\n", "\\n")  // Escape newlines
+                    .replace("\r", "\\r")  // Escape carriage returns
+                    .replace("\t", "\\t"); // Escape tabs
     }
 }

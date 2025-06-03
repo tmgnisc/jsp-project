@@ -103,7 +103,7 @@
                     <div class="flex justify-between items-start">
                         <div>
                             <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= music.getArtistName() != null ? music.getArtistName() : "Unknown Artist" %></h3>
-                            <p class="text-gray-600 mb-2"><%= music.getDescription() != null ? music.getDescription() : "No description available." %></p>
+                            <p class="text-gray-600 mb-2 line-clamp-2"><%= music.getDescription() != null ? music.getDescription() : "No description available." %></p>
                             <% if (celebrities != null && !celebrities.isEmpty()) { %>
                                 <div class="flex items-center space-x-2 mb-2">
                                     <% for (int i = 0; i < Math.min(3, celebrities.size()); i++) { 

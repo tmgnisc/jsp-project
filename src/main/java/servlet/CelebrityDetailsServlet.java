@@ -35,9 +35,11 @@ public class CelebrityDetailsServlet extends HttpServlet {
             int id = Integer.parseInt(idParam);
             celebrity = fetchCelebrityById(id);
             if (celebrity != null) {
+                // Sanitize the bio field to prevent rendering issues in JSP
+                celebrity.setBio(escapeHtml(celebrity.getBio()));
                 movies = fetchMoviesByCelebrityId(id);
                 sports = fetchSportsByCelebrityId(id);
-                musics = fetchMusicByCelebrityId(id); // Uncommented and fixed
+                musics = fetchMusicByCelebrityId(id);
             } else {
                 request.setAttribute("error", "Celebrity not found.");
             }
@@ -61,10 +63,12 @@ public class CelebrityDetailsServlet extends HttpServlet {
             pstmt.setInt(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
+                    String bio = rs.getString("bio");
+                    System.out.println("Fetched bio for celebrity ID " + id + ": " + (bio != null ? bio.substring(0, Math.min(bio.length(), 100)) + "..." : "null")); // Debug log
                     return new Celebrity(
                         rs.getInt("id"),
                         rs.getString("name"),
-                        rs.getString("bio"),
+                        bio,
                         rs.getString("image")
                     );
                 }
@@ -141,7 +145,7 @@ public class CelebrityDetailsServlet extends HttpServlet {
 
     private List<Music> fetchMusicByCelebrityId(int celebrityId) throws SQLException {
         List<Music> musics = new ArrayList<>();
-        String sql = "SELECT id, artist_name, description, genre, formation_year, image, celebrity_ids FROM music"; // Fixed table name
+        String sql = "SELECT id, artist_name, description, genre, formation_year, image, celebrity_ids FROM music";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
@@ -154,7 +158,7 @@ public class CelebrityDetailsServlet extends HttpServlet {
                             if (Integer.parseInt(id.trim()) == celebrityId) {
                                 Music music = new Music();
                                 music.setId(rs.getInt("id"));
-                                music.setArtistName(rs.getString("artist_name")); // Fixed field name
+                                music.setArtistName(rs.getString("artist_name"));
                                 music.setDescription(rs.getString("description"));
                                 music.setGenre(rs.getString("genre"));
                                 music.setFormationYear(rs.getInt("formation_year"));
@@ -170,5 +174,29 @@ public class CelebrityDetailsServlet extends HttpServlet {
             }
         }
         return musics;
+    }
+
+    // Helper method to escape HTML characters to prevent rendering issues in JSP
+    private String escapeHtml(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;")
+                    .replace("\"", "&quot;")
+                    .replace("'", "&#39;");
+    }
+
+    // Helper method to escape strings for JSON (for future use)
+    private String escapeJson(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replace("\\", "\\\\")
+                    .replace("\"", "\\\"")
+                    .replace("\n", "\\n")
+                    .replace("\r", "\\r")
+                    .replace("\t", "\\t");
     }
 }

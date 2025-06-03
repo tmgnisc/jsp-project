@@ -15,7 +15,7 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #f5f7fa; /* Consistent with other detail pages */
+            background-color: #f5f7fa;
         }
         .image-gallery img {
             transition: transform 0.3s ease;
@@ -90,10 +90,10 @@
 
         <!-- Food Detail -->
         <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
-                <!-- Image Gallery -->
-                <div class="space-y-4 image-gallery">
-                    <div class="relative h-96 rounded-lg overflow-hidden">
+            <!-- Image Gallery -->
+            <div class="p-8 image-gallery">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div class="relative h-96 rounded-lg overflow-hidden md:col-span-3">
                         <img src="${pageContext.request.contextPath}<%= food.getImage() != null ? food.getImage() : "/images/placeholder.jpg" %>" 
                              alt="<%= food.getName() != null ? food.getName() : "Food Image" %>" 
                              class="w-full h-full object-cover"
@@ -104,17 +104,19 @@
                             </button>
                         </div>
                     </div>
-                    <div class="grid grid-cols-4 gap-4">
-                        <% for (int i = 0; i < 4; i++) { %>
+                    <% for (int i = 0; i < 4; i++) { %>
+                        <div class="h-24 rounded-lg overflow-hidden">
                             <img src="${pageContext.request.contextPath}<%= food.getImage() != null ? food.getImage() : "/images/placeholder.jpg" %>" 
                                  alt="<%= food.getName() != null ? food.getName() : "Food Image" %>" 
-                                 class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75"
+                                 class="w-full h-full object-cover cursor-pointer hover:opacity-75"
                                  onerror="this.src='https://via.placeholder.com/200'">
-                        <% } %>
-                    </div>
+                        </div>
+                    <% } %>
                 </div>
+            </div>
 
-                <!-- Food Information -->
+            <!-- Food Information -->
+            <div class="p-8">
                 <div class="space-y-6">
                     <div>
                         <h1 class="text-3xl font-bold text-[#002B5B]"><%= food.getName() != null ? food.getName() : "Unknown Food" %></h1>
@@ -251,7 +253,7 @@
         </div>
     </div>
 
-    <!-- Updated Footer (Matching movie-detail.jsp) -->
+    <!-- Footer -->
     <footer class="bg-[#002B5B] text-white mt-12">
         <div class="max-w-7xl mx-auto px-4 py-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">

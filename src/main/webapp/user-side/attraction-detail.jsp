@@ -2,8 +2,9 @@
 <%@ page import="model.Attraction" %>
 <%@ page import="model.AttractionComment" %>
 <%@ page import="java.util.List" %>
+<%@ page import="java.time.LocalDateTime, java.time.ZoneId, java.time.temporal.ChronoUnit, java.time.format.DateTimeParseException" %>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,12 +15,24 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
         }
         .image-gallery img {
             transition: transform 0.3s ease;
         }
         .image-gallery img:hover {
             transform: scale(1.05);
+        }
+        .thumbnail-active {
+            border: 2px solid #F4A300;
+            opacity: 1;
+        }
+        .thumbnail {
+            opacity: 0.7;
+            cursor: pointer;
+        }
+        .thumbnail:hover {
+            opacity: 1;
         }
     </style>
 </head>
@@ -88,39 +101,40 @@
 
         <!-- Attraction Detail -->
         <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
-                <!-- Image Gallery -->
-                <div class="space-y-4">
-                    <div class="relative h-96 rounded-lg overflow-hidden">
-                        <img src="${pageContext.request.contextPath}<%= attraction.getImage() != null ? attraction.getImage() : "https://images.unsplash.com/photo-1596431449745-38ee90d8c96d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" %>" 
-                             alt="<%= attraction.getName() != null ? attraction.getName() : "Attraction" %>" 
-                             class="w-full h-full object-cover">
+            <!-- Image Gallery -->
+            <div class="p-8 image-gallery">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div class="relative h-96 rounded-lg overflow-hidden md:col-span-3">
+                        <img id="main-image" 
+                             src="${pageContext.request.contextPath}<%= attraction.getImage() != null ? attraction.getImage() : "/images/placeholder.jpg" %>" 
+                             alt="<%= attraction.getName() != null ? attraction.getName() : "Attraction Image" %>" 
+                             class="w-full h-full object-cover"
+                             onerror="this.src='https://via.placeholder.com/800'">
                         <div class="absolute top-4 right-4">
                             <button class="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100">
                                 <i class="fas fa-heart text-red-500"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="grid grid-cols-4 gap-4">
-                        <img src="${pageContext.request.contextPath}<%= attraction.getImage() != null ? attraction.getImage() : "https://images.unsplash.com/photo-1596431449745-38ee90d8c96d?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" %>" 
-                             alt="<%= attraction.getName() != null ? attraction.getName() : "Attraction" %>" 
-                             class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
-                        <img src="${pageContext.request.contextPath}<%= attraction.getImage() != null ? attraction.getImage() : "https://images.unsplash.com/photo-1596431449745-38ee90d8c96d?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" %>" 
-                             alt="<%= attraction.getName() != null ? attraction.getName() : "Attraction" %>" 
-                             class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
-                        <img src="${pageContext.request.contextPath}<%= attraction.getImage() != null ? attraction.getImage() : "https://images.unsplash.com/photo-1596431449745-38ee90d8c96d?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" %>" 
-                             alt="<%= attraction.getName() != null ? attraction.getName() : "Attraction" %>" 
-                             class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
-                        <img src="${pageContext.request.contextPath}<%= attraction.getImage() != null ? attraction.getImage() : "https://images.unsplash.com/photo-1596431449745-38ee90d8c96d?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80" %>" 
-                             alt="<%= attraction.getName() != null ? attraction.getName() : "Attraction" %>" 
-                             class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75">
+                    <div class="grid grid-cols-4 gap-4 md:col-span-2">
+                        <% for (int i = 0; i < 4; i++) { %>
+                            <div class="h-24 rounded-lg overflow-hidden">
+                                <img src="${pageContext.request.contextPath}<%= attraction.getImage() != null ? attraction.getImage() : "/images/placeholder.jpg" %>" 
+                                     alt="<%= attraction.getName() != null ? attraction.getName() : "Attraction Image" %>" 
+                                     class="w-full h-full object-cover cursor-pointer thumbnail <%= i == 0 ? "thumbnail-active" : "" %>"
+                                     onclick="changeMainImage(this.src)"
+                                     onerror="this.src='https://via.placeholder.com/200'">
+                            </div>
+                        <% } %>
                     </div>
                 </div>
+            </div>
 
-                <!-- Attraction Information -->
+            <!-- Attraction Information -->
+            <div class="p-8">
                 <div class="space-y-6">
                     <div>
-                        <h1 class="text-3xl font-bold text-[#002B5B]"><%= attraction.getName() != null ? attraction.getName() : "Attraction" %></h1>
+                        <h1 class="text-3xl font-bold text-[#002B5B]"><%= attraction.getName() != null ? attraction.getName() : "Unknown Attraction" %></h1>
                         <div class="flex items-center mt-2">
                             <div class="flex text-yellow-400">
                                 <i class="fas fa-star"></i>
@@ -137,7 +151,7 @@
                         <div>
                             <h2 class="text-xl font-semibold text-[#002B5B]">Description</h2>
                             <p class="text-gray-600 mt-2">
-                                <%= attraction.getDescription() != null ? attraction.getDescription() : "A beautiful attraction in Nepal, offering stunning views and cultural significance." %>
+                                <%= attraction.getDescription() != null ? attraction.getDescription() : "No description available." %>
                             </p>
                         </div>
 
@@ -146,7 +160,7 @@
                             <div class="mt-2 space-y-2">
                                 <div class="flex items-center text-gray-600">
                                     <i class="fas fa-map-marker-alt w-6"></i>
-                                    <span><%= attraction.getLocation() != null ? attraction.getLocation() : "Kathmandu, Nepal" %></span>
+                                    <span><%= attraction.getLocation() != null ? attraction.getLocation() : "Not specified" %></span>
                                 </div>
                             </div>
                         </div>
@@ -154,35 +168,35 @@
                         <div>
                             <h2 class="text-xl font-semibold text-[#002B5B]">Best Time to Visit</h2>
                             <p class="text-gray-600 mt-2">
-                                <%= attraction.getBestTimeToVisit() != null ? attraction.getBestTimeToVisit() : "Spring and Autumn" %>
+                                <%= attraction.getBestTimeToVisit() != null ? attraction.getBestTimeToVisit() : "Not specified" %>
                             </p>
                         </div>
 
                         <div>
                             <h2 class="text-xl font-semibold text-[#002B5B]">How to Reach</h2>
                             <p class="text-gray-600 mt-2">
-                                <%= attraction.getHowToReach() != null ? attraction.getHowToReach() : "Accessible by local buses and taxis from major cities." %>
+                                <%= attraction.getHowToReach() != null ? attraction.getHowToReach() : "Not specified" %>
                             </p>
                         </div>
 
                         <div>
                             <h2 class="text-xl font-semibold text-[#002B5B]">Entry Fee</h2>
                             <p class="text-gray-600 mt-2">
-                                <%= attraction.getEntryFee() != null ? attraction.getEntryFee() : "NPR 500 for foreigners, NPR 100 for locals" %>
+                                <%= attraction.getEntryFee() != null ? attraction.getEntryFee() : "Not specified" %>
                             </p>
                         </div>
 
                         <div>
                             <h2 class="text-xl font-semibold text-[#002B5B]">Opening Hours</h2>
                             <p class="text-gray-600 mt-2">
-                                <%= attraction.getOpeningHours() != null ? attraction.getOpeningHours() : "9:00 AM - 5:00 PM" %>
+                                <%= attraction.getOpeningHours() != null ? attraction.getOpeningHours() : "Not specified" %>
                             </p>
                         </div>
 
                         <div>
                             <h2 class="text-xl font-semibold text-[#002B5B]">Nearby Attractions</h2>
                             <p class="text-gray-600 mt-2">
-                                <%= attraction.getNearbyAttractions() != null ? attraction.getNearbyAttractions() : "Other temples and markets nearby." %>
+                                <%= attraction.getNearbyAttractions() != null ? attraction.getNearbyAttractions() : "Not specified" %>
                             </p>
                         </div>
                     </div>
@@ -194,7 +208,7 @@
                 <h2 class="text-2xl font-semibold text-[#002B5B] mb-6">Comments</h2>
                 
                 <!-- Comment Form -->
-                <div class="mb-8">
+                <div class="mb-8 p-4 bg-white rounded-lg shadow">
                     <form class="space-y-4" action="${pageContext.request.contextPath}/attraction-detail" method="post">
                         <input type="hidden" name="attractionId" value="<%= attraction.getId() %>">
                         <div>
@@ -209,18 +223,34 @@
                                 Post Comment
                             </button>
                         </div>
+                        <% String error = (String) request.getAttribute("error");
+                           if (error != null) { %>
+                            <p class="text-red-500 mt-2"><%= error %></p>
+                        <% } %>
                     </form>
                 </div>
 
                 <!-- Dynamic Comments List -->
                 <div class="space-y-6">
                     <% if (comments != null && !comments.isEmpty()) {
+                        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Kathmandu"));
                         for (AttractionComment comment : comments) {
                             String timeAgo = "Unknown time";
-                            if (comment.getCreatedAt() != null) {
-                                long daysAgo = java.time.Duration.between(comment.getCreatedAt().toInstant(), java.time.Instant.now()).toDays();
-                                timeAgo = daysAgo + " day" + (daysAgo != 1 ? "s" : "") + " ago";
-                            }
+                            try {
+                                if (comment.getCreatedAt() != null) {
+                                    LocalDateTime commentTime = comment.getCreatedAt().toInstant()
+                                        .atZone(ZoneId.of("Asia/Kathmandu")).toLocalDateTime();
+                                    long minutesAgo = ChronoUnit.MINUTES.between(commentTime, now);
+                                    if (minutesAgo < 60) {
+                                        timeAgo = minutesAgo + " minutes ago";
+                                    } else if (minutesAgo < 1440) {
+                                        long hoursAgo = minutesAgo / 60;
+                                        timeAgo = hoursAgo + " hours ago";
+                                    } else {
+                                        long daysAgo = minutesAgo / 1440;
+                                        timeAgo = daysAgo + " days ago";
+                                    }
+                                }
                     %>
                     <div class="flex space-x-4">
                         <img src="https://ui-avatars.com/api/?name=<%= comment.getUsername() != null ? comment.getUsername().replace(" ", "+") : "Unknown" %>&background=002B5B&color=fff" 
@@ -242,9 +272,12 @@
                             </div>
                         </div>
                     </div>
-                    <% }
+                    <%      } catch (Exception e) { %>
+                            <p class="text-red-500 text-sm">Error parsing comment timestamp: <%= comment.getCreatedAt() != null ? comment.getCreatedAt() : "Unknown timestamp" %></p>
+                        <% }
+                        }
                     } else { %>
-                    <div class="text-center text-gray-500">No comments yet.</div>
+                    <div class="text-center text-gray-500">No comments yet. Be the first to comment!</div>
                     <% } %>
                 </div>
             </div>
@@ -264,6 +297,7 @@
                 <div>
                     <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
                     <ul class="space-y-2">
+                        <li><a href="${pageContext.request.contextPath}/index" class="text-gray-300 hover:text-[#F4A300]">Home</a></li>
                         <li><a href="${pageContext.request.contextPath}/foods" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
                         <li><a href="${pageContext.request.contextPath}/attractions" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
                         <li><a href="${pageContext.request.contextPath}/music" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
@@ -302,5 +336,17 @@
             </div>
         </div>
     </footer>
+
+    <!-- JavaScript for Image Switching -->
+    <script>
+        function changeMainImage(src) {
+            const mainImage = document.getElementById('main-image');
+            mainImage.src = src;
+            const thumbnails = document.querySelectorAll('.thumbnail');
+            thumbnails.forEach(thumb => thumb.classList.remove('thumbnail-active'));
+            const clickedThumbnail = event.target;
+            clickedThumbnail.classList.add('thumbnail-active');
+        }
+    </script>
 </body>
 </html>

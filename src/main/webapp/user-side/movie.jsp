@@ -101,7 +101,7 @@
                     <div class="flex justify-between items-start">
                         <div>
                             <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= movie.getTitle() != null ? movie.getTitle() : "Untitled Movie" %></h3>
-                            <p class="text-gray-600 mb-2"><%= movie.getDescription() != null ? movie.getDescription() : "No description available." %></p>
+                            <p class="text-gray-600 mb-2 line-clamp-2"><%= movie.getDescription() != null ? movie.getDescription() : "No description available." %></p>
                             <% if (celebrities != null && !celebrities.isEmpty()) { %>
                                 <div class="flex items-center space-x-2 mb-2">
                                     <% for (int i = 0; i < Math.min(3, celebrities.size()); i++) { 

@@ -101,7 +101,7 @@
                     <div class="flex justify-between items-start">
                         <div>
                             <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= sport.getName() != null ? sport.getName() : "Unnamed Sport" %></h3>
-                            <p class="text-gray-600 mb-2"><%= sport.getDescription() != null ? sport.getDescription() : "No description available." %></p>
+                            <p class="text-gray-600 mb-2 line-clamp-2"><%= sport.getDescription() != null ? sport.getDescription() : "No description available." %></p>
                             <% if (celebrities != null && !celebrities.isEmpty()) { %>
                                 <div class="flex items-center space-x-2 mb-2">
                                     <% for (int i = 0; i < Math.min(3, celebrities.size()); i++) { 

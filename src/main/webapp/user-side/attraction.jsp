@@ -109,7 +109,7 @@
                     <div class="flex justify-between items-start">
                         <div>
                             <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= attraction.getName() != null ? attraction.getName() : "Unnamed Attraction" %></h3>
-                            <p class="text-gray-600 mb-2"><%= attraction.getDescription() != null ? attraction.getDescription() : "No description available." %></p>
+                            <p class="text-gray-600 mb-2 line-clamp-2"><%= attraction.getDescription() != null ? attraction.getDescription() : "No description available." %></p>
                             <p class="text-sm text-gray-500"><i class="fas fa-map-marker-alt mr-2"></i><%= attraction.getLocation() != null ? attraction.getLocation() : "Unknown Location" %></p>
                         </div>
                         <span class="bg-[#F4A300] text-white px-3 py-1 rounded-full text-sm"><%= attraction.getCategory() != null ? attraction.getCategory() : "Uncategorized" %></span>

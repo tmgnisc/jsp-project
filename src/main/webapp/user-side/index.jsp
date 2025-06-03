@@ -18,6 +18,13 @@
         body {
             font-family: 'Poppins', sans-serif;
         }
+        .truncate-2-lines {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -33,7 +40,6 @@
                     <a href="music" class="hover:text-[#F4A300]">Music</a>
                     <a href="movies" class="hover:text-[#F4A300]">Movies</a>
                     <a href="sports" class="hover:text-[#F4A300]">Sports</a>
-                    <!-- Dynamically change based on login state -->
                     <% 
                         String username = (String) session.getAttribute("username");
                         if (username != null) { 
@@ -78,8 +84,8 @@
                     <div class="bg-white rounded-lg shadow-lg overflow-hidden">
                         <img src="${pageContext.request.contextPath}<%= food.getImage() != null ? food.getImage() : "/images/placeholder.jpg" %>" alt="<%= food.getName() %>" class="w-full h-48 object-cover" onerror="this.src='https://via.placeholder.com/500'">
                         <div class="p-6">
-                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= food.getName() %></h3>
-                            <p class="text-gray-600"><%= food.getDescription() != null ? food.getDescription() : "No description available." %></p>
+                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2 text-left"><%= food.getName() %></h3>
+                            <p class="text-gray-600 truncate-2-lines text-left"><%= food.getDescription() != null ? food.getDescription() : "No description available." %></p>
                         </div>
                     </div>
                 </a>
@@ -107,8 +113,8 @@
                     <div class="bg-white rounded-lg shadow-lg overflow-hidden">
                         <img src="${pageContext.request.contextPath}<%= attraction.getImage() != null ? attraction.getImage() : "/images/placeholder.jpg" %>" alt="<%= attraction.getName() %>" class="w-full h-48 object-cover" onerror="this.src='https://via.placeholder.com/500'">
                         <div class="p-6">
-                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= attraction.getName() %></h3>
-                            <p class="text-gray-600"><%= attraction.getDescription() != null ? attraction.getDescription() : "No description available." %></p>
+                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2 text-left"><%= attraction.getName() %></h3>
+                            <p class="text-gray-600 truncate-2-lines text-left"><%= attraction.getDescription() != null ? attraction.getDescription() : "No description available." %></p>
                         </div>
                     </div>
                 </a>
@@ -136,8 +142,8 @@
                     <div class="bg-white rounded-lg shadow-lg overflow-hidden">
                         <img src="${pageContext.request.contextPath}<%= music.getImage() != null ? music.getImage() : "/images/placeholder.jpg" %>" alt="<%= music.getArtistName() %>" class="w-full h-48 object-cover" onerror="this.src='https://via.placeholder.com/500'">
                         <div class="p-6">
-                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= music.getArtistName() %></h3>
-                            <p class="text-gray-600"><%= music.getDescription() != null ? music.getDescription() : "No description available." %></p>
+                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2 text-left"><%= music.getArtistName() %></h3>
+                            <p class="text-gray-600 truncate-2-lines text-left"><%= music.getDescription() != null ? music.getDescription() : "No description available." %></p>
                         </div>
                     </div>
                 </a>
@@ -165,8 +171,8 @@
                     <div class="bg-white rounded-lg shadow-lg overflow-hidden">
                         <img src="${pageContext.request.contextPath}<%= movie.getImage() != null ? movie.getImage() : "/images/placeholder.jpg" %>" alt="<%= movie.getTitle() %>" class="w-full h-48 object-cover" onerror="this.src='https://via.placeholder.com/500'">
                         <div class="p-6">
-                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= movie.getTitle() %></h3>
-                            <p class="text-gray-600"><%= movie.getDescription() != null ? movie.getDescription() : "No description available." %></p>
+                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2 text-left"><%= movie.getTitle() %></h3>
+                            <p class="text-gray-600 truncate-2-lines text-left"><%= movie.getDescription() != null ? movie.getDescription() : "No description available." %></p>
                         </div>
                     </div>
                 </a>
@@ -194,8 +200,8 @@
                     <div class="bg-white rounded-lg shadow-lg overflow-hidden">
                         <img src="${pageContext.request.contextPath}<%= sport.getImage() != null ? sport.getImage() : "/images/placeholder.jpg" %>" alt="<%= sport.getName() %>" class="w-full h-48 object-cover" onerror="this.src='https://via.placeholder.com/500'">
                         <div class="p-6">
-                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2"><%= sport.getName() %></h3>
-                            <p class="text-gray-600"><%= sport.getDescription() != null ? sport.getDescription() : "No description available." %></p>
+                            <h3 class="text-xl font-semibold text-[#002B5B] mb-2 text-left"><%= sport.getName() %></h3>
+                            <p class="text-gray-600 truncate-2-lines text-left"><%= sport.getDescription() != null ? sport.getDescription() : "No description available." %></p>
                         </div>
                     </div>
                 </a>

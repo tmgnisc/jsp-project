@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="model.Music, model.MusicComment, model.Celebrity, java.util.List, java.time.LocalDateTime, java.time.ZoneId, java.time.temporal.ChronoUnit, java.time.format.DateTimeParseException" %>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,6 +19,17 @@
         }
         .image-gallery img:hover { 
             transform: scale(1.05); 
+        }
+        .thumbnail-active {
+            border: 2px solid #F4A300;
+            opacity: 1;
+        }
+        .thumbnail {
+            opacity: 0.7;
+            cursor: pointer;
+        }
+        .thumbnail:hover {
+            opacity: 1;
         }
         .celebrity-image { 
             width: 80px; 
@@ -63,6 +74,14 @@
 
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 py-8">
+        <% Music music = (Music) request.getAttribute("music");
+           if (music == null) {
+               response.sendRedirect(request.getContextPath() + "/music");
+               return;
+           }
+           @SuppressWarnings("unchecked")
+           List<Celebrity> celebrities = (List<Celebrity>) request.getAttribute("celebrities");
+        %>
         <!-- Breadcrumb -->
         <div class="mb-6">
             <nav class="flex" aria-label="Breadcrumb">
@@ -79,7 +98,7 @@
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-                            <span class="text-gray-500">${music.artistName != null ? music.artistName : "Artist Name"}</span>
+                            <span class="text-gray-500"><%= music.getArtistName() != null ? music.getArtistName() : "Unknown" %></span>
                         </div>
                     </li>
                 </ol>
@@ -87,47 +106,93 @@
         </div>
 
         <!-- Music Detail -->
-        <% Music music = (Music) request.getAttribute("music");
-           @SuppressWarnings("unchecked")
-           List<Celebrity> celebrities = (List<Celebrity>) request.getAttribute("celebrities");
-           if (music == null) { %>
-            <p class="text-red-500">Error: Music details not found.</p>
-        <% } else { %>
         <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
-                <!-- Main Image -->
-                <div>
-                    <img src="${pageContext.request.contextPath}<%= music.getImage() != null ? music.getImage() : "/images/placeholder.jpg" %>" 
-                         alt="<%= music.getArtistName() != null ? music.getArtistName() : "Music Image" %>" 
-                         class="w-full h-96 object-cover rounded-lg" 
-                         onerror="this.src='https://via.placeholder.com/500'">
+            <!-- Image Gallery -->
+            <div class="p-8 image-gallery">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div class="relative h-96 rounded-lg overflow-hidden md:col-span-3">
+                        <img id="main-image" 
+                             src="${pageContext.request.contextPath}<%= music.getImage() != null ? music.getImage() : "/images/placeholder.jpg" %>" 
+                             alt="<%= music.getArtistName() != null ? music.getArtistName() : "Music Image" %>" 
+                             class="w-full h-full object-cover"
+                             onerror="this.src='https://via.placeholder.com/800'">
+                        <div class="absolute top-4 right-4">
+                            <button class="bg-white p-2 rounded-full shadow-lg hover:bg-gray-100">
+                                <i class="fas fa-heart text-red-500"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-4 gap-4 md:col-span-2">
+                        <% for (int i = 0; i < 4; i++) { %>
+                            <div class="h-24 rounded-lg overflow-hidden">
+                                <img src="${pageContext.request.contextPath}<%= music.getImage() != null ? music.getImage() : "/images/placeholder.jpg" %>" 
+                                     alt="<%= music.getArtistName() != null ? music.getArtistName() : "Music Image" %>" 
+                                     class="w-full h-full object-cover cursor-pointer thumbnail <%= i == 0 ? "thumbnail-active" : "" %>"
+                                     onclick="changeMainImage(this.src)"
+                                     onerror="this.src='https://via.placeholder.com/200'">
+                            </div>
+                        <% } %>
+                    </div>
                 </div>
+            </div>
 
-                <!-- Music Information -->
+            <!-- Music Information -->
+            <div class="p-8">
                 <div class="space-y-6">
                     <div>
                         <h1 class="text-3xl font-bold text-[#002B5B]"><%= music.getArtistName() != null ? music.getArtistName() : "Unknown Artist" %></h1>
-                        <p class="text-gray-600 mt-2"><%= music.getDescription() != null ? music.getDescription() : "No description available." %></p>
+                        <div class="flex items-center mt-2">
+                            <div class="flex text-yellow-400">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                            <span class="text-gray-600 ml-2">4.5 (120 reviews)</span>
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-gray-600"><strong>Genre:</strong> <%= music.getGenre() != null ? music.getGenre() : "N/A" %></p>
-                        <p class="text-gray-600"><strong>Formation Year:</strong> <%= music.getFormationYear() > 0 ? music.getFormationYear() : "N/A" %></p>
-                    </div>
-                    <div>
-                        <p class="text-gray-600"><strong>Popular Songs:</strong></p>
-                        <p class="text-gray-600"><%= music.getPopularSongs() != null ? music.getPopularSongs() : "No popular songs listed." %></p>
-                    </div>
-                    <div>
-                        <p class="text-gray-600"><strong>Achievements:</strong></p>
-                        <p class="text-gray-600"><%= music.getAchievements() != null ? music.getAchievements() : "No achievements listed." %></p>
-                    </div>
-                    <div>
-                        <p class="text-gray-600"><strong>YouTube Channel:</strong></p>
-                        <a href="<%= music.getYoutubeChannelUrl() != null ? music.getYoutubeChannelUrl() : "#" %>" 
-                           target="_blank" 
-                           class="text-[#F4A300] hover:text-[#A31621]">
-                            <%= music.getYoutubeChannelUrl() != null ? "Visit YouTube Channel" : "Not available" %>
-                        </a>
+
+                    <div class="space-y-4">
+                        <div>
+                            <h2 class="text-xl font-semibold text-[#002B5B]">Description</h2>
+                            <p class="text-gray-600 mt-2"><%= music.getDescription() != null ? music.getDescription() : "No description available." %></p>
+                        </div>
+
+                        <div>
+                            <h2 class="text-xl font-semibold text-[#002B5B]">Details</h2>
+                            <div class="mt-2 space-y-2">
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-music w-6"></i>
+                                    <span>Genre: <%= music.getGenre() != null ? music.getGenre() : "Not specified" %></span>
+                                </div>
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-calendar-alt w-6"></i>
+                                    <span>Formation Year: <%= music.getFormationYear() > 0 ? music.getFormationYear() : "Not specified" %></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h2 class="text-xl font-semibold text-[#002B5B]">Popular Songs</h2>
+                            <p class="text-gray-600 mt-2"><%= music.getPopularSongs() != null ? music.getPopularSongs() : "No popular songs listed." %></p>
+                        </div>
+
+                        <div>
+                            <h2 class="text-xl font-semibold text-[#002B5B]">Achievements</h2>
+                            <p class="text-gray-600 mt-2"><%= music.getAchievements() != null ? music.getAchievements() : "No achievements listed." %></p>
+                        </div>
+
+                        <div>
+                            <h2 class="text-xl font-semibold text-[#002B5B]">YouTube Channel</h2>
+                            <div class="mt-2">
+                                <a href="<%= music.getYoutubeChannelUrl() != null ? music.getYoutubeChannelUrl() : "#" %>" 
+                                   target="_blank" 
+                                   class="text-[#F4A300] hover:text-[#A31621]">
+                                    <%= music.getYoutubeChannelUrl() != null ? "Visit YouTube Channel" : "Not available" %>
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -135,7 +200,7 @@
             <!-- Associated Artists -->
             <div class="border-t border-gray-200 p-8 artists-section">
                 <h2 class="text-2xl font-semibold text-[#002B5B] mb-6">Artists</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                     <% if (celebrities != null && !celebrities.isEmpty()) {
                           for (Celebrity celebrity : celebrities) { %>
                     <div class="bg-white rounded-lg shadow overflow-hidden">
@@ -155,7 +220,7 @@
                     </div>
                     <%     }
                        } else { %>
-                        <p class="text-gray-500">No associated artists found.</p>
+                        <p class="text-gray-600">No associated artists found.</p>
                     <% } %>
                 </div>
             </div>
@@ -163,69 +228,85 @@
             <!-- Comments Section -->
             <div class="border-t border-gray-200 p-8">
                 <h2 class="text-2xl font-semibold text-[#002B5B] mb-6">Comments</h2>
-                <!-- Add Comment Form -->
-                <form action="${pageContext.request.contextPath}/music-detail" method="post" class="mb-8">
-                    <input type="hidden" name="musicId" value="<%= music.getId() %>">
-                    <div class="flex items-start space-x-4">
-                        <div class="flex-1">
-                            <textarea name="commentText" rows="3" 
-                                      class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F4A300] focus:border-transparent" 
-                                      placeholder="Add your comment..." 
+                
+                <!-- Comment Form -->
+                <div class="mb-8 p-4 bg-white rounded-lg shadow">
+                    <form action="${pageContext.request.contextPath}/music-detail" method="post" class="space-y-4">
+                        <input type="hidden" name="musicId" value="<%= music.getId() %>">
+                        <div>
+                            <textarea name="commentText" 
+                                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#F4A300]" 
+                                      rows="3" 
+                                      placeholder="Write your comment..." 
                                       required></textarea>
                         </div>
-                        <button type="submit" 
-                                class="bg-[#F4A300] text-white px-6 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
-                            Post Comment
-                        </button>
-                    </div>
-                    <% String error = (String) request.getAttribute("error");
-                       if (error != null) { %>
-                        <p class="text-red-500 mt-2"><%= error %></p>
-                    <% } %>
-                </form>
+                        <div class="flex justify-end">
+                            <button type="submit" class="bg-[#F4A300] text-white px-6 py-2 rounded-md hover:bg-[#A31621] transition duration-300">
+                                Post Comment
+                            </button>
+                        </div>
+                        <% String error = (String) request.getAttribute("error");
+                           if (error != null) { %>
+                            <p class="text-red-500 mt-2"><%= error %></p>
+                        <% } %>
+                    </form>
+                </div>
 
-                <!-- Display Comments -->
+                <!-- Comments List -->
                 <div class="space-y-6">
                     <% @SuppressWarnings("unchecked")
                        List<MusicComment> comments = (List<MusicComment>) request.getAttribute("comments");
+                       LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Kathmandu"));
                        if (comments != null && !comments.isEmpty()) {
                            for (MusicComment comment : comments) {
-                               LocalDateTime commentTime = null;
+                               String timeAgo = "Unknown time";
                                try {
-                                   commentTime = LocalDateTime.parse(comment.getCreatedAt(), 
-                                       java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                               } catch (DateTimeParseException e) {
-                                   commentTime = LocalDateTime.now();
-                               }
-                               LocalDateTime now = LocalDateTime.now();
-                               long hours = ChronoUnit.HOURS.between(commentTime, now);
-                               long days = ChronoUnit.DAYS.between(commentTime, now);
-                               String timeAgo = days > 0 ? days + " day" + (days > 1 ? "s" : "") + " ago" : 
-                                                hours > 0 ? hours + " hour" + (hours > 1 ? "s" : "") + " ago" : 
-                                                "just now";
+                                   if (comment.getCreatedAt() != null) {
+                                       LocalDateTime commentTime = LocalDateTime.parse(comment.getCreatedAt(), 
+                                           java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                                           .atZone(ZoneId.of("Asia/Kathmandu")).toLocalDateTime();
+                                       long minutesAgo = ChronoUnit.MINUTES.between(commentTime, now);
+                                       if (minutesAgo < 60) {
+                                           timeAgo = minutesAgo + " minutes ago";
+                                       } else if (minutesAgo < 1440) {
+                                           long hoursAgo = minutesAgo / 60;
+                                           timeAgo = hoursAgo + " hours ago";
+                                       } else {
+                                           long daysAgo = minutesAgo / 1440;
+                                           timeAgo = daysAgo + " days ago";
+                                       }
+                                   }
                     %>
-                    <div class="bg-gray-50 rounded-lg p-4">
-                        <div class="flex items-start space-x-4">
-                            <img src="https://ui-avatars.com/api/?name=<%= comment.getUsername() != null ? comment.getUsername() : "User" %>&background=002B5B&color=fff" 
-                                 alt="User Avatar" 
-                                 class="w-10 h-10 rounded-full">
-                            <div class="flex-1">
-                                <div class="flex justify-between items-center">
-                                    <h3 class="text-sm font-semibold text-[#002B5B]"><%= comment.getUsername() != null ? comment.getUsername() : "Anonymous" %></h3>
-                                    <span class="text-xs text-gray-500"><%= timeAgo %></span>
-                                </div>
-                                <p class="text-gray-600 mt-1"><%= comment.getCommentText() != null ? comment.getCommentText() : "No comment text." %></p>
+                    <div class="flex space-x-4">
+                        <img src="https://ui-avatars.com/api/?name=<%= comment.getUsername() != null ? comment.getUsername().replace(" ", "+") : "Unknown" %>&background=002B5B&color=fff" 
+                             alt="User" 
+                             class="w-12 h-12 rounded-full">
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between">
+                                <h3 class="font-semibold text-[#002B5B]"><%= comment.getUsername() != null ? comment.getUsername() : "Anonymous" %></h3>
+                                <span class="text-sm text-gray-500"><%= timeAgo %></span>
+                            </div>
+                            <p class="text-gray-600 mt-1"><%= comment.getCommentText() != null ? comment.getCommentText() : "No comment text" %></p>
+                            <div class="flex items-center space-x-4 mt-2">
+                                <button class="text-gray-500 hover:text-[#F4A300]">
+                                    <i class="far fa-thumbs-up"></i> Like
+                                </button>
+                                <button class="text-gray-500 hover:text-[#F4A300]">
+                                    <i class="far fa-comment"></i> Reply
+                                </button>
                             </div>
                         </div>
                     </div>
-                    <%     }
+                    <%      } catch (DateTimeParseException e) { %>
+                            <p class="text-red-500 text-sm">Error parsing comment timestamp: <%= comment.getCreatedAt() != null ? comment.getCreatedAt() : "Unknown timestamp" %></p>
+                        <% }
+                           }
                        } else { %>
-                        <p class="text-gray-500">No comments yet. Be the first to comment!</p>
+                       <div class="text-center text-gray-500">No comments yet. Be the first to comment!</div>
                     <% } %>
                 </div>
             </div>
         </div>
-        <% } %>
     </div>
 
     <!-- Footer -->
@@ -241,6 +322,7 @@
                 <div>
                     <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
                     <ul class="space-y-2">
+                        <li><a href="${pageContext.request.contextPath}/index" class="text-gray-300 hover:text-[#F4A300]">Home</a></li>
                         <li><a href="${pageContext.request.contextPath}/foods" class="text-gray-300 hover:text-[#F4A300]">Foods</a></li>
                         <li><a href="${pageContext.request.contextPath}/attractions" class="text-gray-300 hover:text-[#F4A300]">Attractions</a></li>
                         <li><a href="${pageContext.request.contextPath}/music" class="text-gray-300 hover:text-[#F4A300]">Music</a></li>
@@ -279,5 +361,17 @@
             </div>
         </div>
     </footer>
+
+    <!-- JavaScript for Image Switching -->
+    <script>
+        function changeMainImage(src) {
+            const mainImage = document.getElementById('main-image');
+            mainImage.src = src;
+            const thumbnails = document.querySelectorAll('.thumbnail');
+            thumbnails.forEach(thumb => thumb.classList.remove('thumbnail-active'));
+            const clickedThumbnail = event.target;
+            clickedThumbnail.classList.add('thumbnail-active');
+        }
+    </script>
 </body>
 </html>
